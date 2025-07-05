@@ -4,12 +4,13 @@
   "description": "Uploader admin for Haruna Lawali using Vercel API and Catbox",
   "main": "api/getLink.js",
   "scripts": {
-    "start": "node api/getLink.js"
+    "start": "micro api/getLink.js"
   },
   "dependencies": {
     "firebase-admin": "^11.10.1",
     "node-fetch": "^2.6.7",
-    "formdata-node": "^6.0.1"
+    "formdata-node": "^6.0.1",
+    "micro": "^9.3.4"
   },
   "devDependencies": {},
   "author": "",
