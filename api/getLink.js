@@ -8,6 +8,8 @@ export const config = {
   },
 };
 
+const API_AUTH_KEY = process.env.API_AUTH_KEY;
+
 function vercelLongError(err, detail) {
   // Formats errors clearly for debugging
   return `[VercelLongError]\n${err?.stack || err?.message || err}\n${detail ? (typeof detail === 'string' ? detail : JSON.stringify(detail, null, 2)) : ''}`;
@@ -36,7 +38,7 @@ export default async function handler(req, res) {
   // --- CORS for any domain (all origins) ---
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-api-key');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -47,6 +49,16 @@ export default async function handler(req, res) {
       success: false,
       error: 'Only POST allowed',
       detail: vercelLongError('Method not allowed'),
+    });
+  }
+
+  // --- API Key auth: check x-api-key header matches .env value ---
+  const reqKey = req.headers['x-api-key'];
+  if (!API_AUTH_KEY || reqKey !== API_AUTH_KEY) {
+    return res.status(401).json({
+      success: false,
+      error: 'Unauthorized: Invalid or missing x-api-key',
+      detail: 'The x-api-key header is required and must match the backend API_AUTH_KEY.',
     });
   }
 
