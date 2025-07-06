@@ -1,13 +1,13 @@
-import { buffer } from 'micro';
+import { IncomingForm } from 'formidable';
+import fs from 'fs';
 import { FormData } from 'formdata-node';
-import { Blob } from 'buffer';
 import fetch from 'node-fetch';
+import { Blob } from 'buffer';
 
 export const config = {
   api: {
-    bodyParser: false,
-    externalResolver: true,
-  },
+    bodyParser: false
+  }
 };
 
 export default async function handler(req, res) {
@@ -25,56 +25,46 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Invalid or missing x-api-key' });
   }
 
-  let rawBody;
-  try {
-    rawBody = await buffer(req);
-  } catch {
-    return res.status(400).json({ error: 'Unable to read body buffer' });
-  }
+  const form = new IncomingForm({ keepExtensions: true });
 
-  let body;
-  try {
-    body = JSON.parse(rawBody.toString('utf8'));
-  } catch {
-    return res.status(400).json({ error: 'Invalid JSON body' });
-  }
+  form.parse(req, async (err, fields, files) => {
+    if (err) return res.status(400).json({ error: 'Form parsing failed', detail: err.message });
 
-  const { id, type, filename, mimetype, data } = body;
-  if (!id || !type || !filename || !mimetype || !data) {
-    return res.status(400).json({ error: 'Missing fields', detail: body });
-  }
+    const { id, type } = fields;
+    const file = files.file;
 
-  let fileBuffer;
-  try {
-    fileBuffer = Buffer.from(data, 'base64');
-  } catch {
-    return res.status(400).json({ error: 'Invalid base64 data' });
-  }
-
-  const formData = new FormData();
-  formData.set('reqtype', 'fileupload');
-  formData.set('userhash', CATBOX_USERHASH);
-  formData.set('fileToUpload', new Blob([fileBuffer], { type: mimetype }), filename);
-
-  try {
-    const uploadRes = await fetch('https://catbox.moe/user/api.php', {
-      method: 'POST',
-      body: formData,
-    });
-    const link = await uploadRes.text();
-
-    if (!link.startsWith('http')) {
-      throw new Error(link);
+    if (!id || !type || !file) {
+      return res.status(400).json({ error: 'Missing id, type or file' });
     }
 
-    return res.status(200).json({
-      success: true,
-      message: '✅ Chatbot ya tura audio kuma an dawo da link:',
-      id,
-      type,
-      link,
-    });
-  } catch (err) {
-    return res.status(500).json({ error: 'Upload failed', detail: err.message });
-  }
+    try {
+      const fileBuffer = fs.readFileSync(file.filepath);
+      const blob = new Blob([fileBuffer], { type: file.mimetype });
+
+      const formData = new FormData();
+      formData.set('reqtype', 'fileupload');
+      formData.set('userhash', CATBOX_USERHASH);
+      formData.set('fileToUpload', blob, file.originalFilename);
+
+      const response = await fetch('https://catbox.moe/user/api.php', {
+        method: 'POST',
+        body: formData
+      });
+
+      const link = await response.text();
+
+      if (!link.startsWith('http')) {
+        return res.status(500).json({ error: 'Catbox upload failed', detail: link });
+      }
+
+      return res.status(200).json({
+        success: true,
+        id,
+        type,
+        link
+      });
+    } catch (e) {
+      return res.status(500).json({ error: 'Upload failed', detail: e.message });
+    }
+  });
 }
