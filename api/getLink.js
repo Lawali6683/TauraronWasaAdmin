@@ -35,7 +35,9 @@ export default async function handler(req, res) {
     const { id, type } = fields;
     const file = files.file;
 
-    // Kar ka ci gaba idan file bai zo ba
+    console.log('Fields:', fields);
+    console.log('Files:', files);
+
     if (!id || !type || !file || !file.filepath) {
       console.error('Missing required data', { id, type, file });
       return res.status(400).json({
@@ -51,8 +53,8 @@ export default async function handler(req, res) {
       formData.append('reqtype', 'fileupload');
       formData.append('userhash', CATBOX_USERHASH);
       formData.append('fileToUpload', stream, {
-        filename: file.originalFilename || 'upload.bin',
-        contentType: file.mimetype || 'application/octet-stream'
+        filename: file.originalFilename || 'upload.webm',
+        contentType: file.mimetype || 'audio/webm'
       });
 
       const response = await fetch('https://catbox.moe/user/api.php', {
