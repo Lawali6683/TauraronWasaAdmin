@@ -24,7 +24,10 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Invalid or missing x-api-key' });
   }
 
-  const form = new IncomingForm({ keepExtensions: true, multiples: false });
+  const form = new IncomingForm({
+    keepExtensions: true,
+    multiples: false
+  });
 
   form.parse(req, async (err, fields, files) => {
     if (err) {
@@ -32,14 +35,14 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Form parsing failed', detail: err.message });
     }
 
-    const { id, type } = fields;
-    const file = files.file;
+    const id = Array.isArray(fields.id) ? fields.id[0] : fields.id;
+    const type = Array.isArray(fields.type) ? fields.type[0] : fields.type;
+    const file = Array.isArray(files.file) ? files.file[0] : files.file;
 
-    console.log('Fields:', fields);
-    console.log('Files:', files);
+    console.log('Parsed Fields:', { id, type });
+    console.log('Parsed File:', file);
 
     if (!id || !type || !file || !file.filepath) {
-      console.error('Missing required data', { id, type, file });
       return res.status(400).json({
         error: 'Missing id, type or file',
         detail: { id, type, file: file || 'undefined' }
@@ -66,7 +69,6 @@ export default async function handler(req, res) {
       const link = await response.text();
 
       if (!link.startsWith('http')) {
-        console.error('Catbox upload failed:', link);
         return res.status(500).json({ error: 'Catbox upload failed', detail: link });
       }
 
