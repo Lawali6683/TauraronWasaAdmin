@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="ha">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TauraronWasa - Agents</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+    <link rel="stylesheet" href="agents.css">
+    <style>
+        /* Custom Properties */
+:root {
+    --primary: #a05aff;
+    --secondary: #300040;
+    --success: #17c671;
+    --error: #f44336;
+    --white: #fff;
+    --gray: #b2b0c6;
+    --shadow: 0 2px 14px 0 rgba(90, 76, 151, 0.14);
+    --dark-bg-gradient: linear-gradient(to bottom, #180022, #300040);
+    --card-bg: rgba(28, 0, 44, 0.98);
+    --input-bg: #210931;
+    --input-border: #4a3568;
+    --news-card-bg: rgba(34, 1, 46, 0.96);
+    --new-post-section-bg: rgba(39, 2, 54, 0.93);
+    --approved-card-bg: rgba(31, 0, 33, 0.97);
+    --button-hover-dark: #7b3ced;
+}
+
+/* Base Styles */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background: var(--dark-bg-gradient);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    color: var(--white);
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+/* Preloader */
+#preloader {
+    position: fixed;
+    inset: 0;
+    background: rgba(21, 0, 33, 0.96);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.5s ease-out;
+}
+
+.loader {
+    border: 8px solid var(--gray);
+    border-top: 8px solid var(--primary);
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Centered Section (Login) */
+.centered-section {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem; /* Added padding for smaller screens */
+}
+
+.form-card {
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 380px; /* Slightly increased max-width for better look */
+    border: 1px solid rgba(160, 90, 255, 0.3); /* Soft border */
+    box-sizing: border-box; /* Ensures padding doesn't increase total width */
+}
+
+.form-card h2 {
+    text-align: center;
+    margin-bottom: 1.5rem; /* Increased margin */
+    color: var(--primary);
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+}
+
+/* Form Elements */
+.form-group {
+    margin-bottom: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem; /* Adjusted gap */
+}
+
+.form-group label {
+    font-weight: 500;
+    color: var(--gray);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95em;
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 0.9em; /* Increased padding */
+    border-radius: 10px; /* More rounded borders */
+    border: 1px solid var(--input-border);
+    background: var(--input-bg);
+    color: var(--white);
+    font-size: 1em;
+    resize: vertical; /* Allow vertical resize for textarea */
+    outline: none;
+    transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border: 2px solid var(--primary);
+    box-shadow: 0 0 0 3px rgba(160, 90, 255, 0.2); /* Soft glow on focus */
+}
+
+/* Full width textarea for posts */
+.full-width-textarea {
+    width: 100%;
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+/* Buttons */
+.main-btn {
+    width: 100%;
+    padding: 0.9em; /* Increased padding */
+    border: none;
+    border-radius: 10px; /* More rounded borders */
+    background: var(--primary);
+    color: var(--white);
+    font-size: 1.1em;
+    cursor: pointer;
+    font-weight: 600;
+    box-shadow: var(--shadow);
+    transition: background 0.3s ease, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+}
+
+.main-btn:hover {
+    background: var(--button-hover-dark);
+    transform: translateY(-2px); /* Slight lift on hover */
+}
+
+.logout-btn {
+    background: var(--error);
+    border: none;
+    border-radius: 8px;
+    padding: 0.7em 1.2em; /* Adjusted padding */
+    color: var(--white);
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: background 0.3s ease, transform 0.2s ease;
+    display: inline-flex; /* For icon alignment */
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.logout-btn:hover {
+    background: #c73c3c; /* Slightly darker red */
+    transform: translateY(-2px);
+}
+
+/* Dashboard Header */
+header {
+    padding: 1.5rem 1rem 1.2rem 1rem; /* Adjusted padding */
+    text-align: center;
+    background: rgba(36, 0, 52, 0.95); /* Slightly less transparent */
+    margin-bottom: 2rem; /* Increased margin */
+    border-radius: 0 0 25px 25px; /* More rounded corners */
+    box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.2); /* Stronger shadow */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* Allows wrapping on smaller screens */
+    gap: 1rem;
+}
+
+header h1 {
+    font-size: 1.8rem; /* Larger font size */
+    font-weight: 700; /* Bolder */
+    color: var(--primary);
+    margin: 0; /* Remove default margin */
+    flex-grow: 1; /* Allows it to take available space */
+    text-align: left;
+}
+
+header #user-fullname {
+    font-size: 1.5rem;
+    color: var(--white);
+}
+
+/* Main Content Area */
+main {
+    padding: 0 1.5rem; /* Padding for main content */
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.actions {
+    text-align: center;
+    margin-bottom: 2.5rem; /* Increased margin */
+}
+
+/* News List Section */
+#news-list-section,
+#approved-posts {
+    display: grid; /* Changed to grid for better layout control */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive grid */
+    gap: 1.8rem; /* Increased gap */
+    justify-content: center;
+    margin-bottom: 2rem;
+    min-height: 80px;
+    transition: min-height 0.3s;
+}
+
+.news-card,
+.approved-card {
+    background: var(--news-card-bg); /* Unified background variable */
+    border-radius: 18px; /* More rounded corners */
+    box-shadow: var(--shadow);
+    padding: 1.5rem; /* Increased padding */
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem; /* Adjusted gap */
+    opacity: 0;
+    transform: translateY(30px); /* Slightly less aggressive animation */
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out; /* Smoother transition */
+    border: 1px solid rgba(160, 90, 255, 0.2); /* Subtle border */
+    box-sizing: border-box;
+}
+
+.news-card.visible,
+.approved-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.news-card .news-title,
+.approved-card .post-title {
+    font-size: 1.25em; /* Larger title font */
+    font-weight: 700; /* Bolder */
+    color: var(--primary);
+    margin-bottom: 0.5em;
+    line-height: 1.3;
+}
+
+.news-card .news-meta,
+.approved-card .post-meta {
+    font-size: 0.9em; /* Slightly smaller meta font */
+    color: var(--gray);
+    margin-bottom: 0.5em;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.news-card .news-img,
+.approved-card .post-img,
+.approved-card .post-video,
+.approved-card .post-audio { /* Added audio style */
+    width: 100%;
+    border-radius: 12px; /* More rounded image borders */
+    margin-bottom: 0.8em;
+    max-height: 200px; /* Increased max height for images/videos */
+    object-fit: cover;
+    background: #1a0027;
+    border: 1px solid var(--primary); /* Blue border for media */
+}
+
+.news-card .news-content,
+.approved-card .post-content {
+    font-size: 1.05em; /* Slightly larger content font */
+    color: var(--white);
+    margin-bottom: 1em; /* Increased margin */
+    white-space: pre-wrap; /* Preserves whitespace and line breaks for editable content */
+    word-wrap: break-word; /* Breaks long words */
+    padding: 0.5rem; /* Padding for editable area */
+    border-radius: 8px;
+    transition: background 0.3s ease, border 0.3s ease;
+}
+
+.news-card .news-content[contenteditable="true"],
+.approved-card .post-content[contenteditable="true"] {
+    background-color: rgba(255, 255, 255, 0.08); /* Slightly visible background when editable */
+    border: 1px dashed var(--primary); /* Dashed border to indicate editable */
+    padding: 0.8rem;
+}
+
+.news-card .news-actions,
+.approved-card .edit-actions {
+    display: flex;
+    flex-wrap: wrap; /* Allows buttons to wrap */
+    justify-content: flex-end; /* Align to the right */
+    align-items: center;
+    margin-top: 1rem;
+    gap: 0.8rem; /* Adjusted gap */
+}
+
+.news-card .news-actions button,
+.approved-card .edit-actions button {
+    flex: 1 1 auto; /* Allow buttons to grow/shrink */
+    min-width: 90px; /* Ensure minimum width */
+    background: rgba(44, 3, 59, 0.8); /* Slightly transparent background */
+    border: none;
+    color: #fff;
+    padding: 0.7em 1em; /* Adjusted padding */
+    border-radius: 10px; /* More rounded borders */
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: background 0.25s ease, transform 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.news-card .news-actions button:hover,
+.approved-card .edit-actions button:hover {
+    background: var(--primary);
+    transform: translateY(-1px);
+}
+
+/* New Post Section */
+#new-post-section {
+    background: var(--new-post-section-bg);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    padding: 2rem; /* Increased padding */
+    margin: 2.5rem auto; /* Adjusted margin */
+    max-width: 500px; /* Increased max-width for the form */
+    border: 1px solid rgba(160, 90, 255, 0.3);
+    box-sizing: border-box;
+}
+
+#new-post-section h2 {
+    color: var(--primary);
+    text-align: center;
+    margin-bottom: 1.8rem; /* Increased margin */
+    font-size: 2rem;
+}
+
+/* Media Upload Group (New styles for icons) */
+.media-upload-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1.2rem;
+}
+
+.file-input-hidden {
+    display: none; /* Hide the default file input */
+}
+
+.upload-icon-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--primary);
+    color: var(--white);
+    padding: 0.8em 1.2em;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.2em;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    width: fit-content; /* Make label fit content */
+    margin-top: 0.5rem; /* Space below label text */
+}
+
+.upload-icon-label:hover {
+    background-color: var(--button-hover-dark);
+    transform: translateY(-2px);
+}
+
+.upload-icon-label i {
+    margin-right: 0.5rem;
+}
+
+.preview-container {
+    margin-top: 0.8em; /* Adjusted margin */
+    display: flex;
+    flex-wrap: wrap; /* Allow previews to wrap */
+    gap: 1em; /* Increased gap */
+    align-items: center;
+    border: 1px dashed rgba(160, 90, 255, 0.3); /* Dashed border for preview area */
+    padding: 0.8em;
+    border-radius: 10px;
+    background: rgba(0,0,0,0.1);
+}
+
+.preview-container img,
+.preview-container video {
+    border-radius: 10px; /* Slightly more rounded */
+    max-width: 100px; /* Larger preview size */
+    max-height: 80px; /* Larger preview size */
+    object-fit: cover;
+    background: #0c0020;
+    margin-right: 0; /* Remove extra margin */
+    border: 1px solid var(--primary); /* Blue border for preview media */
+}
+
+.preview-container .remove-media {
+    color: var(--error);
+    background: none;
+    border: none;
+    font-size: 1.5em; /* Larger icon */
+    cursor: pointer;
+    margin-left: 0.5em; /* Adjusted margin */
+    transition: color 0.2s ease;
+    align-self: flex-start; /* Align to the top of the flex item */
+}
+
+.preview-container .remove-media:hover {
+    color: #ff0000;
+}
+
+/* Approved Posts Section */
+#approved-posts {
+    margin-top: 1.5rem; /* Adjusted margin */
+}
+
+.approved-card {
+    background: var(--approved-card-bg);
+    padding: 1.5rem; /* Increased padding */
+    gap: 0.8rem;
+}
+
+.approved-card .edit-actions {
+    justify-content: flex-end; /* Align buttons to the right */
+}
+
+/* Notifications */
+#notification-container {
+    position: fixed;
+    top: 1.8rem; /* Slightly lower */
+    right: 1.8rem; /* Slightly more to the right */
+    width: 320px; /* Slightly wider */
+    z-index: 999999;
+    display: flex;
+    flex-direction: column;
+    gap: 16px; /* Increased gap */
+    pointer-events: none; /* Allows clicks to pass through */
+}
+
+.notify {
+    padding: 1.1em 1.2em; /* Increased padding */
+    border-radius: 12px; /* More rounded */
+    background: var(--secondary);
+    color: var(--white);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Stronger shadow */
+    font-size: 1.05em;
+    display: flex;
+    align-items: center; /* Center vertically */
+    gap: 12px; /* Increased gap */
+    opacity: 0;
+    transform: translateY(-40px); /* More aggressive initial transform */
+    animation: fadeNotify 0.6s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncier animation */
+    pointer-events: auto; /* Re-enable pointer events for the notification itself */
+}
+
+@keyframes fadeNotify {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.notify.success {
+    border-left: 8px solid var(--success); /* Thicker border */
+}
+
+.notify.error {
+    border-left: 8px solid var(--error); /* Thicker border */
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1.2rem 1rem;
+    }
+    header h1 {
+        text-align: center;
+        width: 100%;
+        margin-bottom: 0.8rem;
+    }
+    .logout-btn {
+        margin: 0 auto;
+    }
+    .news-card,
+    .approved-card {
+        padding: 1.2rem;
+    }
+    .news-card .news-actions,
+    .approved-card .edit-actions {
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+    .news-card .news-actions button,
+    .approved-card .edit-actions button {
+        width: 100%;
+        padding: 0.6em;
+    }
+}
+
+@media (max-width: 650px) {
+    .form-card,
+    #new-post-section {
+        max-width: 95vw;
+        padding: 1.5rem;
+    }
+    #notification-container {
+        right: 0.8rem;
+        left: 0.8rem;
+        width: auto;
+        top: 1rem;
+    }
+    body {
+        font-size: 0.95em;
+    }
+    main {
+        padding: 0 0.8rem;
+    }
+    .news-card,
+    .approved-card {
+        max-width: 95vw;
+        margin: 0 auto;
+    }
+    .approved-card {
+        padding: 1rem 0.8rem;
+    }
+    .news-card .news-title,
+    .approved-card .post-title {
+        font-size: 1.15em;
+    }
+    .form-card h2 {
+        font-size: 1.5rem;
+    }
+    #new-post-section h2 {
+        font-size: 1.7rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .centered-section {
+        padding: 0.5rem;
+    }
+    .form-card {
+        padding: 1.2rem;
+    }
+    .main-btn, .logout-btn {
+        font-size: 1em;
+        padding: 0.7em;
+    }
+    header h1 {
+        font-size: 1.6rem;
+    }
+    header #user-fullname {
+        font-size: 1.3rem;
+    }
+}
+    </style>
+</head>
+<body>
+    <div id="preloader">
+        <div class="loader"></div>
+    </div>
+
+    <div id="notification-container"></div>
+
+    <section id="login-section" class="centered-section">
+        <div class="form-card">
+            <h2><i class="fas fa-user-secret"></i> Shiga Agents</h2>
+            <form id="login-form" autocomplete="off">
+                <div class="form-group">
+                    <label for="email">Imel</label>
+                    <input type="email" id="email" required placeholder="Shigar da imel">
+                </div>
+                <div class="form-group">
+                    <label for="password">Kalmar sirri</label>
+                    <input type="password" id="password" required placeholder="Shigar da kalmar sirri">
+                </div>
+                <button type="submit" class="main-btn"><i class="fas fa-sign-in-alt"></i> Shiga</button>
+            </form>
+        </div>
+    </section>
+
+    <section id="dashboard-section" style="display:none;">
+        <header>
+            <h1>Barka da zuwa Agents, <span id="user-fullname"></span>!</h1>
+            <button id="logout-btn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Fita</button>
+        </header>
+        <main>
+            <div class="actions">
+                <button id="load-news-btn" class="main-btn"><i class="fas fa-globe"></i> Labaran Wasanni na Duniya</button>
+            </div>
+
+            <section id="news-list-section">
+                </section>
+
+            <hr>
+
+            <section id="new-post-section">
+                <h2>Sabon Post</h2>
+                <form id="post-form">
+                    <div class="form-group media-upload-group">
+                        <label for="post-img1"><i class="fas fa-image"></i> Hoto 1</label>
+                        <input type="file" id="post-img1" accept="image/*" class="file-input-hidden">
+                        <label for="post-img1" class="upload-icon-label"><i class="fas fa-cloud-upload-alt"></i></label>
+                        <div class="preview-container" id="preview-img1"></div>
+                    </div>
+
+                    <div class="form-group media-upload-group">
+                        <label for="post-img2"><i class="fas fa-image"></i> Hoto 2</label>
+                        <input type="file" id="post-img2" accept="image/*" class="file-input-hidden">
+                        <label for="post-img2" class="upload-icon-label"><i class="fas fa-cloud-upload-alt"></i></label>
+                        <div class="preview-container" id="preview-img2"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="audio-link"><i class="fas fa-music"></i> Link na Audio</label>
+                        <input type="url" id="audio-link" placeholder="Saka link na audio...">
+                    </div>
+
+                    <div class="form-group media-upload-group">
+                        <label for="post-video"><i class="fas fa-video"></i> Bidiyo (max 9MB)</label>
+                        <input type="file" id="post-video" accept="video/*" class="file-input-hidden">
+                        <label for="post-video" class="upload-icon-label"><i class="fas fa-cloud-upload-alt"></i></label>
+                        <div class="preview-container" id="preview-video"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="post-text">Rubutu</label>
+                        <textarea id="post-text" rows="8" placeholder="Rubuta labarin ka..." class="full-width-textarea"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="link-img">Link na hoto (Idan ba za'a loda hoto ba)</label>
+                        <input type="url" id="link-img" placeholder="Saka link na hoto...">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="link-video">Link na bidiyo (Idan ba za'a loda bidiyo ba)</label>
+                        <input type="url" id="link-video" placeholder="Saka link na bidiyo...">
+                    </div>
+
+                    <button type="submit" class="main-btn"><i class="fas fa-plus"></i> Tura Post</button>
+                </form>
+            </section>
+
+            <section id="posted-list-section">
+                <h2>Posts da aka amince da su</h2>
+                <div id="approved-posts"></div>
+            </section>
+        </main>
+    </section>
+
+    <script type="module">
+        
+        // ==== CONFIGURABLES ====
+const ALLOWED_EMAILS = [
+    "harunalawali5522@gmail.com",
+    "lawaliharuna943@gmail.com",
+    "tauraronwasa@gmil.com"
+];
+const NEWS_API_KEY = "1822c050ab854d38b14ab13a39bce061";
+const OPENROUTER_API_KEY = "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";
+const IMGUR_CLIENT_ID = "5acf7eff9c91660";
+const POSTING_ID = "Posting"; // Changed to "Posting" as per your data structure
+const SOCIAL_MEDIA_WORKER_URL = "https://worker33.workers.dev/socialPost"; // Social media worker URL
+const BASE_VIEWS_LINK = "https://tauraronwasa.pages.dev"; // Base URL for view link
+
+// ==== FIREBASE IMPORTS ====
+import { app, firebaseConfig } from './firebase.js';
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+import { getDatabase, ref, set, get, push, update, remove, onValue, child } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+// ==== DOM ELEMENTS ====
+const preloader = document.getElementById('preloader');
+const loginSection = document.getElementById('login-section');
+const dashboardSection = document.getElementById('dashboard-section');
+const loginForm = document.getElementById('login-form');
+const userFullName = document.getElementById('user-fullname');
+const logoutBtn = document.getElementById('logout-btn');
+const loadNewsBtn = document.getElementById('load-news-btn');
+const newsListSection = document.getElementById('news-list-section');
+const notificationContainer = document.getElementById('notification-container');
+const postForm = document.getElementById('post-form');
+const newPostSection = document.getElementById('new-post-section');
+const approvedPostsContainer = document.getElementById('approved-posts');
+
+// File/image/video inputs
+const img1Input = document.getElementById('post-img1');
+const img2Input = document.getElementById('post-img2');
+const audioLinkInput = document.getElementById('audio-link'); // New audio link input
+const videoInput = document.getElementById('post-video');
+const postTextInput = document.getElementById('post-text'); // Renamed for clarity
+
+const previewImg1 = document.getElementById('preview-img1');
+const previewImg2 = document.getElementById('preview-img2');
+const previewVideo = document.getElementById('preview-video');
+
+const linkImgInput = document.getElementById('link-img');
+const linkVideoInput = document.getElementById('link-video');
+
+// ==== STATE ====
+let currentUser = null;
+let currentUserUid = null;
+let lastSearchTime = null;
+let observer = null;
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+// ==== UTILS ====
+// Nigeria time helper
+function getNigeriaISOString(date = new Date()) {
+    // Nigeria is UTC+1
+    const n = new Date(date.getTime() + (60 * 60 * 1000));
+    return n.toISOString().split('.')[0] + 'Z';
+}
+
+function showPreloader(show = true) {
+    preloader.style.display = show ? 'flex' : 'none';
+}
+
+function notify(message, type = "success", timeout = 3600) {
+    const div = document.createElement('div');
+    div.className = `notify ${type}`;
+    div.innerHTML = `<i class="fas fa-${
+        type === 'success' ? 'check-circle' : 'exclamation-circle'
+    }"></i> ${message}`;
+    notificationContainer.appendChild(div);
+    setTimeout(() => {
+        div.style.opacity = "0";
+        div.style.transform = "translateY(-30px)";
+        setTimeout(() => div.remove(), 350);
+    }, timeout);
+}
+
+function clearInputs(inputs) {
+    inputs.forEach(i => i.value = "");
+}
+
+function resetPreviews() {
+    previewImg1.innerHTML = "";
+    previewImg2.innerHTML = "";
+    previewVideo.innerHTML = "";
+}
+
+function disableForm(form, disable = true) {
+    Array.from(form.elements).forEach(el => el.disabled = disable);
+}
+
+function fadeUpOnScroll() {
+    if (observer) observer.disconnect();
+    observer = new window.IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.21 });
+    document.querySelectorAll('.news-card:not(.visible), .approved-card:not(.visible)').forEach(card => {
+        observer.observe(card);
+    });
+}
+
+// ==== AUTH ====
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        currentUser = user;
+        currentUserUid = user.uid;
+        loadUserProfile();
+        showDashboard();
+    } else {
+        showLogin();
+    }
+    showPreloader(false);
+});
+
+loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    showPreloader(true);
+    const email = loginForm.email.value.trim().toLowerCase();
+    const password = loginForm.password.value;
+
+    if (!ALLOWED_EMAILS.includes(email)) {
+        showPreloader(false);
+        notify("Ba a amince da wannan imel ba", "error");
+        return;
+    }
+
+    try {
+        const { user } = await signInWithEmailAndPassword(auth, email, password);
+        currentUser = user;
+        currentUserUid = user.uid;
+        await loadUserProfile();
+        showDashboard();
+        showPreloader(false);
+        notify("An shiga cikin nasara!", "success");
+    } catch (err) {
+        showPreloader(false);
+        notify("Kuskure wajen shiga: " + err.message, "error");
+    }
+});
+
+logoutBtn.addEventListener('click', () => {
+    signOut(auth).then(() => {
+        showLogin();
+        notify("An fita cikin nasara", "success");
+    });
+});
+
+// ==== LOAD USER PROFILE ====
+async function loadUserProfile() {
+    // Duba database don sunan mai amfani
+    const userRef = ref(db, 'users/' + currentUserUid + '/fullName');
+    const snapshot = await get(userRef);
+    let fullName = "";
+    if (snapshot.exists()) {
+        fullName = snapshot.val();
+    } else {
+        fullName = currentUser.email.split('@')[0];
+    }
+    userFullName.textContent = fullName;
+}
+
+// ==== SHOW/HIDE SECTIONS ====
+function showLogin() {
+    loginSection.style.display = "flex";
+    dashboardSection.style.display = "none";
+}
+
+function showDashboard() {
+    loginSection.style.display = "none";
+    dashboardSection.style.display = "block";
+    loadApprovedPosts();
+}
+
+// ==== NEWS FETCHING AND PROCESSING ====
+loadNewsBtn.addEventListener('click', async () => {
+    showPreloader(true);
+    newsListSection.innerHTML = '';
+    let lastTime = await getLastSearchTime();
+    let fromTime = lastTime ? lastTime : getNigeriaISOString(new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)); // 2 days default
+    let toTime = getNigeriaISOString();
+
+    // Save new last search
+    await setLastSearchTime(toTime);
+
+    // Fetch news
+    try {
+        const url = `https://newsapi.org/v2/everything?q=football&from=${fromTime}&to=${toTime}&sortBy=publishedAt&apiKey=${NEWS_API_KEY}`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+
+        if (data.status !== "ok" || !data.articles || data.articles.length === 0) {
+            notify("Ba a samu sabbin labarai ba", "error");
+            showPreloader(false);
+            return;
+        }
+
+        let loadedNews = [];
+        for (let article of data.articles.slice(0, 10)) { // Limit to 10 for speed
+            const hausaNews = await translateToHausa(article);
+            if (hausaNews.includes("Kuskure wajen fassara labari") || hausaNews.includes("Ba a samu fassarar labari ba")) {
+                notify("An sami matsala wajen fassarar labari. An cire labarin.", "error");
+                continue; // Skip this article if translation failed
+            }
+            loadedNews.push({ ...article, hausa: hausaNews });
+        }
+        showNewsCards(loadedNews);
+        showPreloader(false);
+    } catch (err) {
+        showPreloader(false);
+        notify("Kuskure wajen samo labarai: " + err.message, "error");
+    }
+});
+
+// ==== TRANSLATE TO HAUSA (USING OPENROUTER) ====
+async function translateToHausa(article) {
+    const prompt = `Fassara wannan labarin zuwa Hausa mai sauƙi da fahimta, kamar yadda za a yi amfani da shi a Facebook post. Kar ka ƙara ko canza ma'ana. Idan babu description, yi amfani da content. Idan babu content, yi amfani da description. Kuma idan babu ko ɗaya, fassara title kawai.
+    Ga labarin:
+    Title: ${article.title || ''}
+    Description: ${article.description || ''}
+    Content: ${article.content || ''}`;
+
+    try {
+        const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                model: 'openai/gpt-4o',
+                messages: [{ role: 'user', content: prompt }]
+            })
+        });
+        const data = await resp.json();
+        if (data.choices && data.choices.length > 0) {
+            return data.choices[0].message.content;
+        }
+        return "Ba a samu fassarar labari ba";
+    } catch (err) {
+        console.error("Translation error:", err);
+        return "Kuskure wajen fassara labari";
+    }
+}
+
+// ==== SHOW NEWS CARDS ====
+function showNewsCards(newsArr) {
+    newsListSection.innerHTML = "";
+    newsArr.forEach((news, idx) => {
+        const card = document.createElement('div');
+        card.className = "news-card";
+        card.innerHTML = `
+            ${news.urlToImage ? `<img src="${news.urlToImage}" alt="hoto" class="news-img">` : ""}
+            <div class="news-title">${news.title}</div>
+            <div class="news-meta">
+                <i class="fas fa-user"></i> ${news.author || 'Ba a sani ba'} &nbsp; 
+                <i class="fas fa-calendar"></i> ${formatDate(news.publishedAt)}
+            </div>
+            <div class="news-content" contenteditable="false">${news.hausa}</div>
+            <div class="news-actions">
+                <button onclick="window.open('${news.url}', '_blank')"><i class="fas fa-link"></i> Duba Asali</button>
+                <button class="edit-btn"><i class="fas fa-edit"></i> Gyara</button>
+                <button class="approve-btn"><i class="fas fa-check"></i> Aprob</button>
+                <button class="delete-btn"><i class="fas fa-trash"></i> Goge</button>
+            </div>
+        `;
+        // Approve button: save to firebase
+        card.querySelector('.approve-btn').addEventListener('click', () => approvePostFromNews(card, news));
+        // Edit button: allow editing the text
+        card.querySelector('.edit-btn').addEventListener('click', () => enableEditNewsCard(card, news));
+        // Delete button: remove the card
+        card.querySelector('.delete-btn').addEventListener('click', () => card.remove());
+        newsListSection.appendChild(card);
+    });
+    fadeUpOnScroll();
+}
+
+// ==== NEWS EDIT ====
+function enableEditNewsCard(card, news) {
+    const contentDiv = card.querySelector('.news-content');
+    contentDiv.setAttribute('contenteditable', 'true');
+    contentDiv.focus();
+    notify("Yanzu zaka iya gyarawa. Idan ka gama sai ka danna 'Aprob'.", "success");
+}
+
+// ==== APPROVE NEWS TO FIREBASE ====
+async function approvePostFromNews(card, news) {
+    showPreloader(true);
+    const contentDiv = card.querySelector('.news-content');
+    const editedText = contentDiv.innerText.trim();
+
+    const postid = "post-" + Date.now();
+    const postData = {
+        postid: postid,
+        text: editedText,
+        audioLink: "", // Default empty, since it's news
+        photoLink1: news.urlToImage || null,
+        photoLink2: null,
+        videoLink: null,
+        tauraronwasaAudiolink: null,
+        see: 0,
+        like: 0,
+        icons: 0,
+        share: 0,
+        postingTime: getNigeriaISOString(),
+        userId: currentUserUid,
+        userName: userFullName.textContent,
+        userPhoto: "" // Assume user has a default photo or it's fetched later
+    };
+
+    try {
+        const postRef = ref(db, `${POSTING_ID}/${postid}`);
+        await set(postRef, postData);
+        notify("An amince da post ɗin kuma an ajiye shi cikin nasara!", "success");
+        showPreloader(false);
+        card.remove(); // Remove the news card after approval
+        loadApprovedPosts(); // Reload approved posts to show the new one
+        
+        // Send to social media worker
+        const socialPostPayload = {
+            postId: postid,
+            title: editedText.substring(0, 70) + (editedText.length > 70 ? "..." : ""), // Use edited text as title, truncate if long
+            viewsLink: `${BASE_VIEWS_LINK}?postId=${postid}`,
+            imageUrl: news.urlToImage || null,
+            timestamp: getNigeriaISOString()
+        };
+        await sendToSocialMediaWorker(socialPostPayload);
+
+    } catch (err) {
+        showPreloader(false);
+        notify("Kuskure wajen ajiye post ko tura shi social media: " + err.message, "error");
+    }
+}
+
+// ==== POST FORM HANDLING ====
+postForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    showPreloader(true);
+
+    const text = postTextInput.value.trim();
+    const audioLink = audioLinkInput.value.trim();
+    let photoLink1 = linkImgInput.value.trim();
+    let photoLink2 = "";
+    let videoLink = linkVideoInput.value.trim();
+
+    // Check if at least one content type is provided
+    if (!text && !img1Input.files.length && !img2Input.files.length && !videoInput.files.length && !photoLink1 && !videoLink && !audioLink) {
+        showPreloader(false);
+        notify("Dole ne a sami rubutu, hoto, bidiyo ko audio link.", "error");
+        return;
+    }
+
+    // Upload image 1 if file provided
+    if (img1Input.files.length > 0) {
+        try {
+            photoLink1 = await uploadToImgur(img1Input.files[0]);
+        } catch (error) {
+            notify("Kuskure wajen loda hoto na farko!", "error");
+            showPreloader(false);
+            return;
+        }
+    }
+
+    // Upload image 2 if file provided
+    if (img2Input.files.length > 0) {
+        try {
+            photoLink2 = await uploadToImgur(img2Input.files[0]);
+        } catch (error) {
+            notify("Kuskure wajen loda hoto na biyu!", "error");
+            showPreloader(false);
+            return;
+        }
+    }
+
+    // Upload video if file provided
+    if (videoInput.files.length > 0) {
+        const file = videoInput.files[0];
+        if (file.size > 9 * 1024 * 1024) {
+            showPreloader(false);
+            notify("Bidiyo bai kamata ya fi 9MB ba.", "error");
+            return;
+        }
+        try {
+            videoLink = await uploadToImgur(file, true);
+        } catch (error) {
+            notify("Kuskure wajen loda bidiyo!", "error");
+            showPreloader(false);
+            return;
+        }
+    }
+
+    const postid = "post-" + Date.now();
+    const postData = {
+        postid: postid,
+        text: text,
+        audioLink: audioLink,
+        photoLink1: photoLink1 || null, // Ensure null if empty string
+        photoLink2: photoLink2 || null,
+        videoLink: videoLink || null,
+        tauraronwasaAudiolink: null, // As per schema, set to null initially
+        see: 0,
+        like: 0,
+        icons: 0,
+        share: 0,
+        postingTime: getNigeriaISOString(),
+        userId: currentUserUid,
+        userName: userFullName.textContent,
+        userPhoto: "" // Assume user has a default photo or it's fetched later
+    };
+
+    // Save post to firebase
+    try {
+        const postRef = ref(db, `${POSTING_ID}/${postid}`);
+        await set(postRef, postData);
+        showPreloader(false);
+        notify("An tura post cikin nasara!", "success");
+        postForm.reset();
+        resetPreviews();
+        loadApprovedPosts();
+
+        // Send to social media worker based on content type
+        let socialPostPayload;
+        if (text && photoLink1) { // Scenario 1: text and photoLink1
+            socialPostPayload = {
+                postId: postid,
+                title: text.substring(0, 70) + (text.length > 70 ? "..." : ""),
+                viewsLink: `${BASE_VIEWS_LINK}?postId=${postid}`,
+                imageUrl: photoLink1,
+                timestamp: getNigeriaISOString()
+            };
+        } else if (audioLink && photoLink1) { // Scenario 2: audioLink and photoLink1
+            socialPostPayload = {
+                postId: postid,
+                title: text ? text.substring(0, 70) + (text.length > 70 ? "..." : "") : "Sabon Audio Post", // Use text if available, else a default
+                viewsLink: `${BASE_VIEWS_LINK}?postId=${postid}`,
+                imageUrl: photoLink1,
+                timestamp: getNigeriaISOString(),
+                audioUrl: audioLink // Include audioUrl for social media worker if applicable
+            };
+        }
+        
+        if (socialPostPayload) {
+            await sendToSocialMediaWorker(socialPostPayload);
+        }
+
+    } catch (err) {
+        showPreloader(false);
+        notify("Kuskure wajen tura post: " + err.message, "error");
+    }
+});
+
+// ==== UPLOAD TO IMGUR ====
+async function uploadToImgur(file, isVideo = false) {
+    const formData = new FormData();
+    formData.append(isVideo ? "video" : "image", file); // Use "video" for video uploads
+    try {
+        const resp = await fetch("https://api.imgur.com/3/image", {
+            method: "POST",
+            headers: { Authorization: "Client-ID " + IMGUR_CLIENT_ID },
+            body: formData
+        });
+        const data = await resp.json();
+        if (data.success && data.data && data.data.link) {
+            notify(`An loda ${isVideo ? 'bidiyo' : 'hoto'} cikin nasara!`, "success");
+            return data.data.link;
+        }
+        throw new Error(data.data.error || "Unknown Imgur upload error");
+    } catch (err) {
+        console.error("Imgur upload error:", err);
+        notify(`Kuskure wajen loda ${isVideo ? 'bidiyo' : 'hoto'}!`, "error");
+        throw err; // Re-throw to be caught by the form submit handler
+    }
+}
+
+// ==== MEDIA PREVIEW HANDLING ====
+img1Input.addEventListener('change', e => handlePreview(img1Input, previewImg1, "img"));
+img2Input.addEventListener('change', e => handlePreview(img2Input, previewImg2, "img"));
+videoInput.addEventListener('change', e => handlePreview(videoInput, previewVideo, "video"));
+
+function handlePreview(input, previewElem, type) {
+    previewElem.innerHTML = "";
+    if (!input.files.length) return;
+    const file = input.files[0];
+    const url = URL.createObjectURL(file);
+    let el;
+    if (type === "img") {
+        el = document.createElement('img');
+        el.src = url;
+    } else {
+        el = document.createElement('video');
+        el.src = url;
+        el.controls = true;
+    }
+    const removeBtn = document.createElement('button');
+    removeBtn.className = "remove-media";
+    removeBtn.innerHTML = "<i class='fas fa-times'></i>";
+    removeBtn.onclick = () => {
+        input.value = "";
+        previewElem.innerHTML = "";
+        URL.revokeObjectURL(url); // Clean up memory
+    };
+    previewElem.appendChild(el);
+    previewElem.appendChild(removeBtn);
+}
+
+// ==== APPROVED POSTS ====
+async function loadApprovedPosts() {
+    approvedPostsContainer.innerHTML = "";
+    const postRef = ref(db, POSTING_ID);
+    onValue(postRef, (snapshot) => {
+        approvedPostsContainer.innerHTML = "";
+        if (snapshot.exists()) {
+            const posts = Object.values(snapshot.val()).sort((a, b) => new Date(b.postingTime) - new Date(a.postingTime));
+            posts.forEach(post => {
+                const card = document.createElement('div');
+                card.className = "approved-card";
+                card.innerHTML = `
+                    ${post.photoLink1 ? `<img src="${post.photoLink1}" class="post-img" alt="">` : ""}
+                    ${post.photoLink2 ? `<img src="${post.photoLink2}" class="post-img" alt="">` : ""}
+                    ${post.videoLink ? `<video src="${post.videoLink}" class="post-video" controls></video>` : ""}
+                    ${post.audioLink ? `<audio src="${post.audioLink}" class="post-audio" controls></audio>` : ""}
+                    <div class="post-content" contenteditable="false">${post.text}</div>
+                    <div class="post-meta"><i class="fas fa-calendar"></i> ${formatDate(post.postingTime)}</div>
+                    <div class="edit-actions">
+                        <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                        <button class="edit-btn"><i class="fas fa-edit"></i></button>
+                        <button class="save-btn" style="display:none;"><i class="fas fa-save"></i></button>
+                    </div>
+                `;
+                // Delete
+                card.querySelector('.delete-btn').onclick = async () => {
+                    await remove(ref(db, `${POSTING_ID}/${post.postid}`));
+                    notify("An goge post cikin nasara!", "success");
+                    card.remove();
+                };
+                // Edit
+                card.querySelector('.edit-btn').onclick = () => {
+                    const contentDiv = card.querySelector('.post-content');
+                    contentDiv.setAttribute('contenteditable', 'true');
+                    contentDiv.focus();
+                    card.querySelector('.save-btn').style.display = '';
+                    card.querySelector('.edit-btn').style.display = 'none';
+                };
+                // Save
+                card.querySelector('.save-btn').onclick = async () => {
+                    const contentDiv = card.querySelector('.post-content');
+                    const newText = contentDiv.innerText.trim();
+                    await update(ref(db, `${POSTING_ID}/${post.postid}`), { text: newText });
+                    contentDiv.setAttribute('contenteditable', 'false');
+                    card.querySelector('.save-btn').style.display = 'none';
+                    card.querySelector('.edit-btn').style.display = '';
+                    notify("An adana gyara cikin nasara!", "success");
+                };
+                approvedPostsContainer.appendChild(card);
+            });
+            fadeUpOnScroll();
+        } else {
+            notify("Babu posts da aka amince da su tukuna.", "info");
+        }
+    });
+}
+
+// ==== SOCIAL MEDIA WORKER INTEGRATION ====
+async function sendToSocialMediaWorker(payload) {
+    try {
+        const response = await fetch(SOCIAL_MEDIA_WORKER_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.message || `HTTP error! status: ${response.status}`);
+        }
+        notify(result.message || "An aika post zuwa social media!", "success");
+    } catch (error) {
+        console.error("Error sending to social media worker:", error);
+        notify("Akwai matsala wajen tura post zuwa social media: " + error.message, "error");
+    }
+}
+
+// ==== TIME HANDLING & LAST SEARCH ====
+async function getLastSearchTime() {
+    const lastRef = ref(db, "lastSearchTime");
+    const snapshot = await get(lastRef);
+    if (snapshot.exists()) {
+        return snapshot.val();
+    }
+    return null;
+}
+
+async function setLastSearchTime(time) {
+    await set(ref(db, "lastSearchTime"), time);
+}
+
+function formatDate(iso) {
+    if (!iso) return "";
+    const d = new Date(iso);
+    return d.toLocaleString("ha-NG", { hour: "2-digit", minute: "2-digit", day: "numeric", month: "short", year: "numeric" });
+}
+
+// ==== PRELOADER ON PAGE LOAD ====
+window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => showPreloader(false), 600);
+});
+
+    </script> 
+</body>
+</html>
