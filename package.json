@@ -2,18 +2,19 @@
   "name": "tauraronwasaadmin",
   "version": "1.0.0",
   "description": "Uploader admin for Haruna Lawali using Vercel API and Catbox",
-  "main": "api/getLink.js",
+  "main": "api/site6.js",
   "scripts": {
-    "start": "micro api/getLink.js"
+    "start": "micro api/site6.js",
+    "dev": "micro api/sarki.js"
   },
   "dependencies": {
-  "firebase-admin": "^11.10.1",
-  "form-data": "^4.0.0",
-  "formidable": "^3.5.0",
-  "micro": "^9.3.4",
-  "node-fetch": "^2.6.7"
-}, 
+    "firebase-admin": "^12.0.0",
+    "form-data": "^4.0.0",
+    "formidable": "^3.5.1",
+    "micro": "^9.4.1",
+    "node-fetch": "^2.6.7"
+  },
   "devDependencies": {},
-  "author": "",
+  "author": "Haruna Lawali",
   "license": "ISC"
 }
