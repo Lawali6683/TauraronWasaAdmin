@@ -1,7 +1,8 @@
 const admin = require("firebase-admin");
-
 const API_SPORTS_KEY = process.env.API_KEY;
+
 const FIREBASE_DATABASE_URL = process.env.FIREBASE_DATABASE_URL;
+
 const SERVICE_ACCOUNT = process.env.FIREBASE_DATABASE_SDK ?
     JSON.parse(process.env.FIREBASE_DATABASE_SDK) :
     null;
@@ -17,13 +18,11 @@ if (!admin.apps.length) {
         databaseURL: FIREBASE_DATABASE_URL,
     });
 }
-
 const db = admin.database();
-
 const API_BASE_URL = 'https://v3.football.api-sports.io/fixtures';
-// Lokacin da za a sake sabuntawa (a cikin mintuna)
+
 const REFRESH_INTERVAL_MINUTES = 30;
-// Shafukan da aka bai wa izini
+
 const ALLOWED_ORIGINS = [
     "https://tauraronwasa.pages.dev",
     "https://leadwaypeace.pages.dev",
@@ -51,8 +50,9 @@ async function fetchFixturesFromApi(from, to) {
             console.error(`API-Sports fetch failed. Status: ${resp.status}, Response: ${text}`);
             return [];
         }
+
         const payload = await resp.json();
-        console.log(`Successfully fetched ${payload.results} fixtures.`);
+        console.log(`Successfully fetched ${payload.results || 0} fixtures.`);
         return payload.response || [];
     } catch (error) {
         console.error("Error during API fetch:", error);
@@ -62,17 +62,17 @@ async function fetchFixturesFromApi(from, to) {
 
 async function runDataUpdate() {
     console.log("Starting data update process...");
-    
+
     const lastUpdateRef = db.ref('/lastUpdated');
     const lastUpdateSnapshot = await lastUpdateRef.once('value');
     const lastUpdated = lastUpdateSnapshot.val();
     const now = Date.now();
-    
+
     if (lastUpdated && (now - lastUpdated) < REFRESH_INTERVAL_MINUTES * 60 * 1000) {
         console.log("Data is still fresh. Skipping update.");
         return { status: "success", message: "Data is up to date." };
     }
-    
+
     const yesterday = new Date(now);
     yesterday.setDate(yesterday.getDate() - 1);
     const end = new Date(now);
@@ -80,8 +80,14 @@ async function runDataUpdate() {
 
     const from = toYMD(yesterday);
     const to = toYMD(end);
+
     const fixtures = await fetchFixturesFromApi(from, to);
-    
+
+    if (fixtures.length === 0) {
+        console.log("No new fixtures to update. Firebase data will not be changed.");
+        return { status: "success", message: "No new data fetched from API." };
+    }
+
     const categorized = {
         yesterday: [],
         today: [],
@@ -90,30 +96,29 @@ async function runDataUpdate() {
         next2: [],
         liveMatches: []
     };
-    
+
+    const todayYMD = toYMD(new Date());
+    const yesterdayDate = new Date();
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    const yesterdayYMD = toYMD(yesterdayDate);
+
     fixtures.forEach(f => {
         const fixtureDate = new Date(f.fixture.date);
         const dYMD = toYMD(fixtureDate);
-        const status = f.fixture?.status?.short;
 
-        if (status === 'LIVE' || status === 'IN_PLAY' || status === 'HT' || status === 'ET') {
-            categorized.liveMatches.push(f);
-        }
-        
-        const todayYMD = toYMD(new Date());
-        const yesterdayDate = new Date();
-        yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-        const yesterdayYMD = toYMD(yesterdayDate);
-
-        if (dYMD === yesterdayYMD) {
-            categorized.yesterday.push(f);
-        } else if (dYMD === todayYMD) {
+        if (dYMD === todayYMD) {
             categorized.today.push(f);
+        } else if (dYMD === yesterdayYMD) {
+            categorized.yesterday.push(f);
         } else {
-            const daysOffset = Math.floor((fixtureDate - now) / (1000 * 60 * 60 * 24));
-            if (daysOffset === 1) categorized.tomorrow.push(f);
-            if (daysOffset === 2) categorized.next1.push(f);
-            if (daysOffset === 3) categorized.next2.push(f);
+            const oneDay = 1000 * 60 * 60 * 24;
+            const today = new Date();
+            const timeDiff = fixtureDate.getTime() - today.getTime();
+            const daysDiff = Math.ceil(timeDiff / oneDay);
+
+            if (daysDiff === 1) categorized.tomorrow.push(f);
+            if (daysDiff === 2) categorized.next1.push(f);
+            if (daysDiff === 3) categorized.next2.push(f);
         }
     });
 
@@ -126,28 +131,31 @@ async function runDataUpdate() {
     updates['/next2'] = categorized.next2;
     updates['/lastUpdated'] = now;
 
-    await db.ref('/').update(updates);
-    console.log("Firebase data updated successfully.");
-
-    return {
-        status: "success",
-        message: "Data updated successfully.",
-        counts: {
-            yesterday: categorized.yesterday.length,
-            today: categorized.today.length,
-            tomorrow: categorized.tomorrow.length,
-            next1: categorized.next1.length,
-            next2: categorized.next2.length,
-            live: categorized.liveMatches.length
-        }
-    };
+    try {
+        await db.ref('/').update(updates);
+        console.log("Firebase data updated successfully.");
+        return {
+            status: "success",
+            message: "Data updated successfully.",
+            counts: {
+                yesterday: categorized.yesterday.length,
+                today: categorized.today.length,
+                tomorrow: categorized.tomorrow.length,
+                next1: categorized.next1.length,
+                next2: categorized.next2.length,
+                live: categorized.liveMatches.length
+            }
+        };
+    } catch (error) {
+        console.error("Error updating Firebase data:", error);
+        return { status: "error", message: "Failed to update Firebase.", details: error.message };
+    }
 }
 
 module.exports = async (req, res) => {
     try {
         const origin = req.headers.origin;
 
-        // CORS da API key verification
         if (!ALLOWED_ORIGINS.includes(origin)) {
             res.setHeader("Access-Control-Allow-Origin", "null");
             return res.status(403).json({ error: "Forbidden origin" });
@@ -155,24 +163,24 @@ module.exports = async (req, res) => {
         res.setHeader("Access-Control-Allow-Origin", origin);
         res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
         res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-api-key");
-        
+
         if (req.method === "OPTIONS") {
             return res.status(204).end();
         }
-        
+
         const authHeader = req.headers["x-api-key"];
         if (!authHeader || authHeader !== "@haruna66") {
             console.error("Unauthorized request. Invalid API Key.");
             return res.status(401).json({ error: "Unauthorized request" });
         }
-        
+
         if (req.method !== "POST") {
             return res.status(405).json({ error: "Method not allowed" });
         }
 
-        // Gwajin aikin da aka yi amfani da shi
         const result = await runDataUpdate();
         return res.status(200).json(result);
+
     } catch (error) {
         console.error("Server error:", error);
         return res.status(500).json({ error: "Internal server error", details: error.message });
