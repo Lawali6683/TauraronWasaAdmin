@@ -29,6 +29,19 @@ const ALLOWED_ORIGINS = [
     "http://localhost:8080",
 ];
 
+// Sabon tsarin log
+async function logToFirebase(message) {
+    try {
+        const logsRef = db.ref('logs');
+        await logsRef.push({
+            timestamp: admin.database.ServerValue.TIMESTAMP,
+            message: message
+        });
+    } catch (error) {
+        console.error("Failed to write log to Firebase:", error);
+    }
+}
+
 function toYMD(date) {
     const y = date.getUTCFullYear();
     const m = String(date.getUTCMonth() + 1).padStart(2, '0');
@@ -42,26 +55,37 @@ async function fetchFixturesFromApi(from, to) {
         'x-apisports-key': API_SPORTS_KEY,
     };
     try {
-        console.log(`Starting API fetch from ${from} to ${to}...`);
+        const logMessage = `[API Fetch] Starting API fetch from ${from} to ${to}...`;
+        console.log(logMessage);
+        await logToFirebase(logMessage);
+
         const resp = await fetch(url, { headers });
 
         if (!resp.ok) {
             const text = await resp.text();
-            console.error(`API-Sports fetch failed. Status: ${resp.status}, Response: ${text}`);
+            const errorMessage = `[API Error] API-Sports fetch failed. Status: ${resp.status}, Response: ${text}`;
+            console.error(errorMessage);
+            await logToFirebase(errorMessage);
             return [];
         }
 
         const payload = await resp.json();
-        console.log(`Successfully fetched ${payload.results || 0} fixtures.`);
+        const successMessage = `[API Success] Successfully fetched ${payload.results || 0} fixtures.`;
+        console.log(successMessage);
+        await logToFirebase(successMessage);
         return payload.response || [];
     } catch (error) {
-        console.error("Error during API fetch:", error);
+        const errorMessage = `[API Error] Error during API fetch: ${error.message}`;
+        console.error(errorMessage);
+        await logToFirebase(errorMessage);
         return [];
     }
 }
 
 async function runDataUpdate() {
-    console.log("Starting data update process...");
+    const startMessage = "Starting data update process...";
+    console.log(startMessage);
+    await logToFirebase(startMessage);
 
     const lastUpdateRef = db.ref('/lastUpdated');
     const lastUpdateSnapshot = await lastUpdateRef.once('value');
@@ -69,14 +93,17 @@ async function runDataUpdate() {
     const now = Date.now();
 
     if (lastUpdated && (now - lastUpdated) < REFRESH_INTERVAL_MINUTES * 60 * 1000) {
-        console.log("Data is still fresh. Skipping update.");
+        const freshDataMessage = "Data is still fresh. Skipping update.";
+        console.log(freshDataMessage);
+        await logToFirebase(freshDataMessage);
         return { status: "success", message: "Data is up to date." };
     }
 
     const yesterday = new Date(now);
     yesterday.setDate(yesterday.getDate() - 1);
     const end = new Date(now);
-    end.setDate(end.getDate() + 3);
+    // Gyara: Neman wasanni na kwanaki 7 masu zuwa
+    end.setDate(end.getDate() + 7);
 
     const from = toYMD(yesterday);
     const to = toYMD(end);
@@ -84,7 +111,9 @@ async function runDataUpdate() {
     const fixtures = await fetchFixturesFromApi(from, to);
 
     if (fixtures.length === 0) {
-        console.log("No new fixtures to update. Firebase data will not be changed.");
+        const noFixturesMessage = "No new fixtures to update. Firebase data will not be changed.";
+        console.log(noFixturesMessage);
+        await logToFirebase(noFixturesMessage);
         return { status: "success", message: "No new data fetched from API." };
     }
 
@@ -94,7 +123,10 @@ async function runDataUpdate() {
         tomorrow: [],
         next1: [],
         next2: [],
-        liveMatches: []
+        next3: [],
+        next4: [],
+        next5: [],
+        next6: []
     };
 
     const todayYMD = toYMD(new Date());
@@ -119,21 +151,30 @@ async function runDataUpdate() {
             if (daysDiff === 1) categorized.tomorrow.push(f);
             if (daysDiff === 2) categorized.next1.push(f);
             if (daysDiff === 3) categorized.next2.push(f);
+            if (daysDiff === 4) categorized.next3.push(f);
+            if (daysDiff === 5) categorized.next4.push(f);
+            if (daysDiff === 6) categorized.next5.push(f);
+            if (daysDiff === 7) categorized.next6.push(f);
         }
     });
 
     const updates = {};
-    updates['/liveMatches'] = categorized.liveMatches;
     updates['/yesterday'] = categorized.yesterday;
     updates['/today'] = categorized.today;
     updates['/tomorrow'] = categorized.tomorrow;
     updates['/next1'] = categorized.next1;
     updates['/next2'] = categorized.next2;
+    updates['/next3'] = categorized.next3;
+    updates['/next4'] = categorized.next4;
+    updates['/next5'] = categorized.next5;
+    updates['/next6'] = categorized.next6;
     updates['/lastUpdated'] = now;
 
     try {
         await db.ref('/').update(updates);
-        console.log("Firebase data updated successfully.");
+        const successMessage = "Firebase data updated successfully.";
+        console.log(successMessage);
+        await logToFirebase(successMessage);
         return {
             status: "success",
             message: "Data updated successfully.",
@@ -143,11 +184,16 @@ async function runDataUpdate() {
                 tomorrow: categorized.tomorrow.length,
                 next1: categorized.next1.length,
                 next2: categorized.next2.length,
-                live: categorized.liveMatches.length
+                next3: categorized.next3.length,
+                next4: categorized.next4.length,
+                next5: categorized.next5.length,
+                next6: categorized.next6.length
             }
         };
     } catch (error) {
-        console.error("Error updating Firebase data:", error);
+        const firebaseErrorMessage = `[Firebase Error] Error updating Firebase data: ${error.message}`;
+        console.error(firebaseErrorMessage);
+        await logToFirebase(firebaseErrorMessage);
         return { status: "error", message: "Failed to update Firebase.", details: error.message };
     }
 }
@@ -170,19 +216,26 @@ module.exports = async (req, res) => {
 
         const authHeader = req.headers["x-api-key"];
         if (!authHeader || authHeader !== "@haruna66") {
-            console.error("Unauthorized request. Invalid API Key.");
+            const unauthorizedMessage = "Unauthorized request. Invalid API Key.";
+            console.error(unauthorizedMessage);
+            await logToFirebase(unauthorizedMessage);
             return res.status(401).json({ error: "Unauthorized request" });
         }
 
         if (req.method !== "POST") {
-            return res.status(405).json({ error: "Method not allowed" });
+            const methodNotAllowedMessage = "Method not allowed";
+            console.error(methodNotAllowedMessage);
+            await logToFirebase(methodNotAllowedMessage);
+            return res.status(405).json({ error: methodNotAllowedMessage });
         }
 
         const result = await runDataUpdate();
         return res.status(200).json(result);
 
     } catch (error) {
-        console.error("Server error:", error);
+        const serverErrorMessage = `[Server Error] Server error: ${error.message}`;
+        console.error(serverErrorMessage);
+        await logToFirebase(serverErrorMessage);
         return res.status(500).json({ error: "Internal server error", details: error.message });
     }
 };
