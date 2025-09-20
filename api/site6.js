@@ -1,6 +1,5 @@
 const admin = require("firebase-admin");
 const API_SPORTS_KEY = process.env.API_KEY;
-
 const FIREBASE_DATABASE_URL = process.env.FIREBASE_DATABASE_URL;
 
 const SERVICE_ACCOUNT = process.env.FIREBASE_DATABASE_SDK ?
@@ -18,9 +17,9 @@ if (!admin.apps.length) {
         databaseURL: FIREBASE_DATABASE_URL,
     });
 }
+
 const db = admin.database();
 const API_BASE_URL = 'https://v3.football.api-sports.io/fixtures';
-
 const REFRESH_INTERVAL_MINUTES = 30;
 
 const ALLOWED_ORIGINS = [
@@ -39,6 +38,16 @@ async function logToFirebase(message) {
         });
     } catch (error) {
         console.error("Failed to write log to Firebase:", error);
+    }
+}
+
+// Aikin goge tsoffin logs
+async function clearLogs() {
+    try {
+        await db.ref('logs').remove();
+        console.log("Old logs cleared successfully.");
+    } catch (error) {
+        console.error("Failed to clear old logs:", error);
     }
 }
 
@@ -74,6 +83,7 @@ async function fetchFixturesFromApi(from, to) {
         console.log(successMessage);
         await logToFirebase(successMessage);
         return payload.response || [];
+
     } catch (error) {
         const errorMessage = `[API Error] Error during API fetch: ${error.message}`;
         console.error(errorMessage);
@@ -83,6 +93,9 @@ async function fetchFixturesFromApi(from, to) {
 }
 
 async function runDataUpdate() {
+    // Fara da goge logs
+    await clearLogs();
+
     const startMessage = "Starting data update process...";
     console.log(startMessage);
     await logToFirebase(startMessage);
@@ -102,7 +115,7 @@ async function runDataUpdate() {
     const yesterday = new Date(now);
     yesterday.setDate(yesterday.getDate() - 1);
     const end = new Date(now);
-    // Gyara: Neman wasanni na kwanaki 7 masu zuwa
+    // Neman wasanni na kwanaki 7 masu zuwa
     end.setDate(end.getDate() + 7);
 
     const from = toYMD(yesterday);
@@ -110,11 +123,12 @@ async function runDataUpdate() {
 
     const fixtures = await fetchFixturesFromApi(from, to);
 
+    // Kuskure: idan ba a samu data daga API ba
     if (fixtures.length === 0) {
-        const noFixturesMessage = "No new fixtures to update. Firebase data will not be changed.";
-        console.log(noFixturesMessage);
+        const noFixturesMessage = "[Error] API returned no fixtures.";
+        console.error(noFixturesMessage);
         await logToFirebase(noFixturesMessage);
-        return { status: "success", message: "No new data fetched from API." };
+        return { status: "error", message: "matsala daga api football", details: "API returned no fixtures. Check API key or if any matches are scheduled." };
     }
 
     const categorized = {
@@ -194,7 +208,7 @@ async function runDataUpdate() {
         const firebaseErrorMessage = `[Firebase Error] Error updating Firebase data: ${error.message}`;
         console.error(firebaseErrorMessage);
         await logToFirebase(firebaseErrorMessage);
-        return { status: "error", message: "Failed to update Firebase.", details: error.message };
+        return { status: "error", message: "matsala daga firebace", details: error.message };
     }
 }
 
