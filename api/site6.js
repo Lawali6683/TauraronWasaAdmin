@@ -1,5 +1,6 @@
 const admin = require("firebase-admin");
-const API_SPORTS_KEY = process.env.API_KEY;
+const fetch = require("node-fetch"); // idan Node < 18
+const API_KEY = process.env.API_KEY; // key daga API-Sports dashboard
 const FIREBASE_DATABASE_URL = process.env.FIREBASE_DATABASE_URL;
 
 const SERVICE_ACCOUNT = process.env.FIREBASE_DATABASE_SDK
@@ -19,7 +20,6 @@ if (!admin.apps.length) {
 }
 
 const db = admin.database();
-const API_BASE_URL = "https://v3.football.api-sports.io/fixtures";
 const REFRESH_INTERVAL_MINUTES = 30;
 
 const ALLOWED_ORIGINS = [
@@ -50,12 +50,11 @@ function toYMD(date) {
 
 // ============== Fetch Fixtures ==============
 async function fetchFixturesFromApi(from, to) {
-  const url = `${API_BASE_URL}?from=${from}&to=${to}`;
-  const headers = { "x-apisports-key": API_SPORTS_KEY };
+  const url = `https://v3.football.api-sports.io/fixtures?from=${from}&to=${to}`;
+  const headers = { "x-apisports-key": API_KEY };
 
   try {
     const resp = await fetch(url, { headers });
-
     if (!resp.ok) {
       const text = await resp.text();
       await logToFirebase(`[API Error] ${resp.status} - ${text}`);
@@ -63,13 +62,8 @@ async function fetchFixturesFromApi(from, to) {
     }
 
     const payload = await resp.json();
-
     if (!payload.response || payload.response.length === 0) {
-      await logToFirebase(
-        `[API Empty] Results=${payload.results}, Params=${JSON.stringify(
-          payload.parameters
-        )}`
-      );
+      await logToFirebase(`[API Empty] ${JSON.stringify(payload.parameters)}`);
       return [];
     }
 
@@ -98,7 +92,6 @@ async function runDataUpdate() {
 
   const fixtures = await fetchFixturesFromApi(toYMD(yesterday), toYMD(end));
 
-  // ✅ idan babu sabbin fixtures → ci gaba da amfani da tsohon data
   if (fixtures.length === 0) {
     const snapshot = await db.ref("/").once("value");
     const oldData = snapshot.val();
@@ -109,7 +102,6 @@ async function runDataUpdate() {
     return { status: "error", message: "No fixtures available at all." };
   }
 
-  // ✅ categorize new fixtures
   const categorized = {
     yesterday: [],
     today: [],
@@ -145,10 +137,7 @@ async function runDataUpdate() {
     }
   });
 
-  const updates = {
-    ...categorized,
-    lastUpdated: now,
-  };
+  const updates = { ...categorized, lastUpdated: now };
 
   await db.ref("/").update(updates);
   await logToFirebase("Firebase updated with new fixtures.");
@@ -168,11 +157,9 @@ module.exports = async (req, res) => {
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-api-key");
 
     if (req.method === "OPTIONS") return res.status(204).end();
-
     if (req.headers["x-api-key"] !== "@haruna66") {
       return res.status(401).json({ error: "Unauthorized" });
     }
-
     if (req.method !== "POST") {
       return res.status(405).json({ error: "Method not allowed" });
     }
