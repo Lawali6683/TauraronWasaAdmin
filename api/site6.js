@@ -1,6 +1,6 @@
 const admin = require("firebase-admin");
 const fetch = require("node-fetch"); // idan Node < 18
-const API_KEY = process.env.API_KEY; // key daga API-Sports dashboard
+const API_KEY = process.env.API_KEY;
 const FIREBASE_DATABASE_URL = process.env.FIREBASE_DATABASE_URL;
 
 const SERVICE_ACCOUNT = process.env.FIREBASE_DATABASE_SDK
@@ -28,18 +28,6 @@ const ALLOWED_ORIGINS = [
   "http://localhost:8080",
 ];
 
-// ============== Logging ==============
-async function logToFirebase(message) {
-  try {
-    await db.ref("logs").push({
-      timestamp: admin.database.ServerValue.TIMESTAMP,
-      message,
-    });
-  } catch (error) {
-    console.error("Failed to log to Firebase:", error);
-  }
-}
-
 // ============== Utility ==============
 function toYMD(date) {
   const y = date.getUTCFullYear();
@@ -57,20 +45,20 @@ async function fetchFixturesFromApi(from, to) {
     const resp = await fetch(url, { headers });
     if (!resp.ok) {
       const text = await resp.text();
-      await logToFirebase(`[API Error] ${resp.status} - ${text}`);
+      console.error(`[API Error] ${resp.status} - ${text}`);
       return [];
     }
 
     const payload = await resp.json();
     if (!payload.response || payload.response.length === 0) {
-      await logToFirebase(`[API Empty] ${JSON.stringify(payload.parameters)}`);
+      console.error(`[API Empty] ${JSON.stringify(payload.parameters)}`);
       return [];
     }
 
-    await logToFirebase(`[API Success] Fixtures: ${payload.response.length}`);
+    console.log(`[API Success] Fixtures: ${payload.response.length}`);
     return payload.response;
   } catch (err) {
-    await logToFirebase(`[API Error] ${err.message}`);
+    console.error(`[API Error] ${err.message}`);
     return [];
   }
 }
@@ -96,7 +84,7 @@ async function runDataUpdate() {
     const snapshot = await db.ref("/").once("value");
     const oldData = snapshot.val();
     if (oldData) {
-      await logToFirebase("No new fixtures. Returning cached data.");
+      console.warn("No new fixtures. Returning cached data.");
       return { status: "success", message: "Using cached data.", data: oldData };
     }
     return { status: "error", message: "No fixtures available at all." };
@@ -140,7 +128,7 @@ async function runDataUpdate() {
   const updates = { ...categorized, lastUpdated: now };
 
   await db.ref("/").update(updates);
-  await logToFirebase("Firebase updated with new fixtures.");
+  console.log("Firebase updated with new fixtures.");
   return { status: "success", message: "Data updated.", counts: updates };
 }
 
@@ -167,7 +155,7 @@ module.exports = async (req, res) => {
     const result = await runDataUpdate();
     return res.status(200).json(result);
   } catch (error) {
-    await logToFirebase(`[Server Error] ${error.message}`);
+    console.error(`[Server Error] ${error.message}`);
     return res
       .status(500)
       .json({ error: "Internal server error", details: error.message });
