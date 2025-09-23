@@ -1,11 +1,8 @@
 const admin = require("firebase-admin");
-const fetch = require("node-fetch"); // idan Node < 18
-const API_KEY = process.env.API_KEY;
 const FIREBASE_DATABASE_URL = process.env.FIREBASE_DATABASE_URL;
-
-const SERVICE_ACCOUNT = process.env.FIREBASE_DATABASE_SDK
-  ? JSON.parse(process.env.FIREBASE_DATABASE_SDK)
-  : null;
+const SERVICE_ACCOUNT = process.env.FIREBASE_DATABASE_SDK ? JSON.parse(process.env.FIREBASE_DATABASE_SDK) : null;
+const FOOTBALL_DATA_API_KEY = "05f61aa60db010cadf163c033ec253c0";
+const REFRESH_INTERVAL_MINUTES = 1;
 
 if (!SERVICE_ACCOUNT || !FIREBASE_DATABASE_URL) {
   console.error("ERROR: Missing Firebase credentials.");
@@ -20,56 +17,60 @@ if (!admin.apps.length) {
 }
 
 const db = admin.database();
-const REFRESH_INTERVAL_MINUTES = 30;
 
-const ALLOWED_ORIGINS = [
-  "https://tauraronwasa.pages.dev",
-  "https://leadwaypeace.pages.dev",
-  "http://localhost:8080",
-];
-
-// ============== Utility ==============
 function toYMD(date) {
-  const y = date.getUTCFullYear();
-  const m = String(date.getUTCMonth() + 1).padStart(2, "0");
-  const d = String(date.getUTCDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
+  const d = new Date(date);
+  return d.toISOString().split("T")[0];
 }
 
-// ============== Fetch Fixtures ==============
-async function fetchFixturesFromApi(from, to) {
-  const url = `https://v3.football.api-sports.io/fixtures?from=${from}&to=${to}`;
-  const headers = { "x-apisports-key": API_KEY };
+async function logToFirebase(message, details = {}) {
+  const logRef = db.ref("logs");
+  await logRef.push({
+    timestamp: new Date().toISOString(),
+    message,
+    ...details,
+  });
+}
 
+async function fetchFixturesFromApi(dateFrom, dateTo) {
   try {
-    const resp = await fetch(url, { headers });
-    if (!resp.ok) {
-      const text = await resp.text();
-      console.error(`[API Error] ${resp.status} - ${text}`);
+    const response = await fetch(
+      `https://api.football-data.org/v4/matches?dateFrom=${dateFrom}&dateTo=${dateTo}`,
+      {
+        headers: {
+          "X-Auth-Token": FOOTBALL_DATA_API_KEY,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`API request failed: ${response.status} - ${errorText}`);
+      await logToFirebase("Football API request failed", {
+        status: response.status,
+        message: errorText,
+      });
       return [];
     }
 
-    const payload = await resp.json();
-    if (!payload.response || payload.response.length === 0) {
-      console.error(`[API Empty] ${JSON.stringify(payload.parameters)}`);
-      return [];
-    }
-
-    console.log(`[API Success] Fixtures: ${payload.response.length}`);
-    return payload.response;
-  } catch (err) {
-    console.error(`[API Error] ${err.message}`);
+    const data = await response.json();
+    return data.matches || [];
+  } catch (error) {
+    console.error("Error fetching data from Football API:", error);
+    await logToFirebase("Error fetching data from Football API", {
+      error: error.message,
+    });
     return [];
   }
 }
 
-// ============== Update Function ==============
 async function runDataUpdate() {
   const now = Date.now();
   const lastUpdateRef = db.ref("/lastUpdated");
   const lastUpdated = (await lastUpdateRef.once("value")).val();
 
   if (lastUpdated && now - lastUpdated < REFRESH_INTERVAL_MINUTES * 60 * 1000) {
+    await logToFirebase("Data is still fresh, skipping update.", { lastUpdated });
     return { status: "success", message: "Data is still fresh." };
   }
 
@@ -84,10 +85,19 @@ async function runDataUpdate() {
     const snapshot = await db.ref("/").once("value");
     const oldData = snapshot.val();
     if (oldData) {
-      console.warn("No new fixtures. Returning cached data.");
-      return { status: "success", message: "Using cached data.", data: oldData };
+      await logToFirebase("No new fixtures. Using cached data.");
+      return { status: "success", message: "Using cached data." };
     }
+    await logToFirebase("No fixtures available at all. Skipping update.");
     return { status: "error", message: "No fixtures available at all." };
+  }
+
+  const liveMatches = fixtures.filter(
+    (f) => f.status === "IN_PLAY" || f.status === "PAUSED"
+  );
+  if (liveMatches.length === 0) {
+    await logToFirebase("No live matches. Skipping full update to save resources.");
+    return { status: "success", message: "No live matches. Using cached data." };
   }
 
   const categorized = {
@@ -103,61 +113,43 @@ async function runDataUpdate() {
   };
 
   const todayYMD = toYMD(new Date());
-  const yesterdayYMD = toYMD(new Date(Date.now() - 86400000));
+  const yesterdayYMD = toYMD(new Date(now - 86400000));
 
   fixtures.forEach((f) => {
-    const fixtureDate = new Date(f.fixture.date);
+    const fixtureDate = new Date(f.utcDate);
     const dYMD = toYMD(fixtureDate);
+    const daysDiff = Math.ceil((fixtureDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 
     if (dYMD === todayYMD) categorized.today.push(f);
     else if (dYMD === yesterdayYMD) categorized.yesterday.push(f);
-    else {
-      const daysDiff = Math.ceil(
-        (fixtureDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-      );
-      if (daysDiff === 1) categorized.tomorrow.push(f);
-      if (daysDiff === 2) categorized.next1.push(f);
-      if (daysDiff === 3) categorized.next2.push(f);
-      if (daysDiff === 4) categorized.next3.push(f);
-      if (daysDiff === 5) categorized.next4.push(f);
-      if (daysDiff === 6) categorized.next5.push(f);
-      if (daysDiff === 7) categorized.next6.push(f);
-    }
+    else if (daysDiff >= 1 && daysDiff < 2) categorized.tomorrow.push(f);
+    else if (daysDiff >= 2 && daysDiff < 3) categorized.next1.push(f);
+    else if (daysDiff >= 3 && daysDiff < 4) categorized.next2.push(f);
+    else if (daysDiff >= 4 && daysDiff < 5) categorized.next3.push(f);
+    else if (daysDiff >= 5 && daysDiff < 6) categorized.next4.push(f);
+    else if (daysDiff >= 6 && daysDiff < 7) categorized.next5.push(f);
+    else if (daysDiff >= 7 && daysDiff < 8) categorized.next6.push(f);
   });
 
   const updates = { ...categorized, lastUpdated: now };
-
   await db.ref("/").update(updates);
-  console.log("Firebase updated with new fixtures.");
+  await logToFirebase("Firebase updated with new fixtures.", {
+    counts: {
+      today: categorized.today.length,
+      tomorrow: categorized.tomorrow.length,
+      liveMatches: liveMatches.length,
+    },
+  });
+
   return { status: "success", message: "Data updated.", counts: updates };
 }
 
-// ============== Main Handler ==============
 module.exports = async (req, res) => {
   try {
-    const origin = req.headers.origin;
-    if (!ALLOWED_ORIGINS.includes(origin)) {
-      res.setHeader("Access-Control-Allow-Origin", "null");
-      return res.status(403).json({ error: "Forbidden origin" });
-    }
-    res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-api-key");
-
-    if (req.method === "OPTIONS") return res.status(204).end();
-    if (req.headers["x-api-key"] !== "@haruna66") {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-    if (req.method !== "POST") {
-      return res.status(405).json({ error: "Method not allowed" });
-    }
-
     const result = await runDataUpdate();
-    return res.status(200).json(result);
+    res.status(200).json(result);
   } catch (error) {
-    console.error(`[Server Error] ${error.message}`);
-    return res
-      .status(500)
-      .json({ error: "Internal server error", details: error.message });
+    console.error("Failed to run data update:", error);
+    res.status(500).json({ status: "error", message: "Failed to run data update.", error: error.message });
   }
 };
