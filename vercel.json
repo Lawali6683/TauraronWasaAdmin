@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/site6.js",
+      "schedule": "*/1 * * * *"
+    }
+  ]
+}
