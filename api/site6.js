@@ -1,7 +1,11 @@
 const admin = require("firebase-admin");
+
+// ENV VARIABLES
 const FIREBASE_DATABASE_URL = process.env.FIREBASE_DATABASE_URL;
-const SERVICE_ACCOUNT = process.env.FIREBASE_DATABASE_SDK ? JSON.parse(process.env.FIREBASE_DATABASE_SDK) : null;
-const FOOTBALL_DATA_API_KEY = "05f61aa60db010cadf163c033ec253c0";
+const SERVICE_ACCOUNT = process.env.FIREBASE_DATABASE_SDK
+  ? JSON.parse(process.env.FIREBASE_DATABASE_SDK)
+  : null;
+const FOOTBALL_DATA_API_KEY = process.env.FOOTBALL_DATA_API_KEY;
 const REFRESH_INTERVAL_MINUTES = 1;
 
 if (!SERVICE_ACCOUNT || !FIREBASE_DATABASE_URL) {
@@ -19,8 +23,7 @@ if (!admin.apps.length) {
 const db = admin.database();
 
 function toYMD(date) {
-  const d = new Date(date);
-  return d.toISOString().split("T")[0];
+  return new Date(date).toISOString().split("T")[0];
 }
 
 async function logToFirebase(message, details = {}) {
@@ -45,10 +48,10 @@ async function fetchFixturesFromApi(dateFrom, dateTo) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`API request failed: ${response.status} - ${errorText}`);
-      await logToFirebase("Football API request failed", {
+      console.error(`API failed: ${response.status} - ${errorText}`);
+      await logToFirebase("Football API failed", {
         status: response.status,
-        message: errorText,
+        error: errorText,
       });
       return [];
     }
@@ -56,10 +59,8 @@ async function fetchFixturesFromApi(dateFrom, dateTo) {
     const data = await response.json();
     return data.matches || [];
   } catch (error) {
-    console.error("Error fetching data from Football API:", error);
-    await logToFirebase("Error fetching data from Football API", {
-      error: error.message,
-    });
+    console.error("Error fetching API:", error);
+    await logToFirebase("Error fetching Football API", { error: error.message });
     return [];
   }
 }
@@ -70,10 +71,11 @@ async function runDataUpdate() {
   const lastUpdated = (await lastUpdateRef.once("value")).val();
 
   if (lastUpdated && now - lastUpdated < REFRESH_INTERVAL_MINUTES * 60 * 1000) {
-    await logToFirebase("Data is still fresh, skipping update.", { lastUpdated });
-    return { status: "success", message: "Data is still fresh." };
+    await logToFirebase("Data still fresh, skipping.", { lastUpdated });
+    return { status: "success", message: "Data still fresh." };
   }
 
+  // Range: 1 day back, 7 days ahead
   const yesterday = new Date(now);
   yesterday.setDate(yesterday.getDate() - 1);
   const end = new Date(now);
@@ -88,16 +90,8 @@ async function runDataUpdate() {
       await logToFirebase("No new fixtures. Using cached data.");
       return { status: "success", message: "Using cached data." };
     }
-    await logToFirebase("No fixtures available at all. Skipping update.");
-    return { status: "error", message: "No fixtures available at all." };
-  }
-
-  const liveMatches = fixtures.filter(
-    (f) => f.status === "IN_PLAY" || f.status === "PAUSED"
-  );
-  if (liveMatches.length === 0) {
-    await logToFirebase("No live matches. Skipping full update to save resources.");
-    return { status: "success", message: "No live matches. Using cached data." };
+    await logToFirebase("No fixtures available at all.");
+    return { status: "error", message: "No fixtures available." };
   }
 
   const categorized = {
@@ -118,7 +112,9 @@ async function runDataUpdate() {
   fixtures.forEach((f) => {
     const fixtureDate = new Date(f.utcDate);
     const dYMD = toYMD(fixtureDate);
-    const daysDiff = Math.ceil((fixtureDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+    const daysDiff = Math.ceil(
+      (fixtureDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+    );
 
     if (dYMD === todayYMD) categorized.today.push(f);
     else if (dYMD === yesterdayYMD) categorized.yesterday.push(f);
@@ -137,19 +133,21 @@ async function runDataUpdate() {
     counts: {
       today: categorized.today.length,
       tomorrow: categorized.tomorrow.length,
-      liveMatches: liveMatches.length,
+      total: fixtures.length,
     },
   });
 
   return { status: "success", message: "Data updated.", counts: updates };
 }
 
+// Vercel handler
 module.exports = async (req, res) => {
   try {
     const result = await runDataUpdate();
     res.status(200).json(result);
   } catch (error) {
-    console.error("Failed to run data update:", error);
-    res.status(500).json({ status: "error", message: "Failed to run data update.", error: error.message });
+    console.error("Update failed:", error);
+    await logToFirebase("Update failed", { error: error.message });
+    res.status(500).json({ status: "error", message: error.message });
   }
 };
