@@ -33,10 +33,18 @@ async function logToFirebase(message, details = {}) {
     message,
     ...details,
   });
+  console.log("LOG:", message, details);
 }
 
 async function fetchFixturesFromApi(dateFrom, dateTo) {
   try {
+    await logToFirebase("Fetching fixtures from API...", { dateFrom, dateTo });
+
+    if (!FOOTBALL_DATA_API_KEY) {
+      await logToFirebase("No API Key found!", {});
+      return [];
+    }
+
     const response = await fetch(
       `https://api.football-data.org/v4/matches?dateFrom=${dateFrom}&dateTo=${dateTo}`,
       {
@@ -57,6 +65,9 @@ async function fetchFixturesFromApi(dateFrom, dateTo) {
     }
 
     const data = await response.json();
+    await logToFirebase("Fixtures fetched successfully.", {
+      total: data.matches?.length || 0,
+    });
     return data.matches || [];
   } catch (error) {
     console.error("Error fetching API:", error);
@@ -66,54 +77,62 @@ async function fetchFixturesFromApi(dateFrom, dateTo) {
 }
 
 async function runDataUpdate() {
-  const now = Date.now();
-  const lastUpdateRef = db.ref("/lastUpdated");
-  const lastUpdated = (await lastUpdateRef.once("value")).val();
+  await logToFirebase("Starting data update process...");
 
-  if (lastUpdated && now - lastUpdated < REFRESH_INTERVAL_MINUTES * 60 * 1000) {
-    await logToFirebase("Data still fresh, skipping.", { lastUpdated });
-    return { status: "success", message: "Data still fresh." };
-  }
+  try {
+    const now = Date.now();
+    const lastUpdateRef = db.ref("/lastUpdated");
+    const lastUpdated = (await lastUpdateRef.once("value")).val();
 
-  // Range: yau -> 14 days gaba
-  const start = new Date(now);
-  const end = new Date(now);
-  end.setDate(end.getDate() + 14);
-
-  const fixtures = await fetchFixturesFromApi(toYMD(start), toYMD(end));
-
-  if (fixtures.length === 0) {
-    const snapshot = await db.ref("/").once("value");
-    const oldData = snapshot.val();
-    if (oldData) {
-      await logToFirebase("No new fixtures. Using cached data.");
-      return { status: "success", message: "Using cached data." };
+    if (lastUpdated && now - lastUpdated < REFRESH_INTERVAL_MINUTES * 60 * 1000) {
+      await logToFirebase("Data still fresh, skipping.", { lastUpdated });
+      return { status: "success", message: "Data still fresh." };
     }
-    await logToFirebase("No fixtures available at all.");
-    return { status: "error", message: "No fixtures available." };
+
+    // Range: yau -> 14 days gaba
+    const start = new Date(now);
+    const end = new Date(now);
+    end.setDate(end.getDate() + 14);
+
+    const fixtures = await fetchFixturesFromApi(toYMD(start), toYMD(end));
+
+    if (fixtures.length === 0) {
+      const snapshot = await db.ref("/").once("value");
+      const oldData = snapshot.val();
+      if (oldData) {
+        await logToFirebase("No new fixtures. Using cached data.");
+        return { status: "success", message: "Using cached data." };
+      }
+      await logToFirebase("No fixtures available at all.");
+      return { status: "error", message: "No fixtures available." };
+    }
+
+    // Rarrabe su zuwa kowace rana da aka samu
+    const categorized = {};
+    fixtures.forEach((f) => {
+      const fixtureDate = toYMD(new Date(f.utcDate));
+      if (!categorized[fixtureDate]) categorized[fixtureDate] = [];
+      categorized[fixtureDate].push(f);
+    });
+
+    const updates = { fixtures: categorized, lastUpdated: now };
+    await db.ref("/").set(updates);
+    await logToFirebase("Firebase updated with new fixtures.", {
+      total: fixtures.length,
+      days: Object.keys(categorized).length,
+    });
+
+    return {
+      status: "success",
+      message: "Data updated.",
+      total: fixtures.length,
+      days: Object.keys(categorized).length,
+    };
+  } catch (error) {
+    console.error("Update failed:", error);
+    await logToFirebase("Update failed", { error: error.message });
+    return { status: "error", message: error.message };
   }
-
-  // Rarrabe su zuwa kowace rana da aka samu
-  const categorized = {};
-  fixtures.forEach((f) => {
-    const fixtureDate = toYMD(new Date(f.utcDate));
-    if (!categorized[fixtureDate]) categorized[fixtureDate] = [];
-    categorized[fixtureDate].push(f);
-  });
-
-  const updates = { fixtures: categorized, lastUpdated: now };
-  await db.ref("/").set(updates);
-  await logToFirebase("Firebase updated with new fixtures.", {
-    total: fixtures.length,
-    days: Object.keys(categorized).length,
-  });
-
-  return {
-    status: "success",
-    message: "Data updated.",
-    total: fixtures.length,
-    days: Object.keys(categorized).length,
-  };
 }
 
 // Vercel handler
@@ -122,8 +141,8 @@ module.exports = async (req, res) => {
     const result = await runDataUpdate();
     res.status(200).json(result);
   } catch (error) {
-    console.error("Update failed:", error);
-    await logToFirebase("Update failed", { error: error.message });
+    console.error("Handler failed:", error);
+    await logToFirebase("Handler failed", { error: error.message });
     res.status(500).json({ status: "error", message: error.message });
   }
 };
