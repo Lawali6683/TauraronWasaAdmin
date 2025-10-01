@@ -75,13 +75,12 @@ async function runDataUpdate() {
     return { status: "success", message: "Data still fresh." };
   }
 
-  // Range: 1 day back, 7 days ahead
-  const yesterday = new Date(now);
-  yesterday.setDate(yesterday.getDate() - 1);
+  // Range: yau -> 14 days gaba
+  const start = new Date(now);
   const end = new Date(now);
-  end.setDate(end.getDate() + 7);
+  end.setDate(end.getDate() + 14);
 
-  const fixtures = await fetchFixturesFromApi(toYMD(yesterday), toYMD(end));
+  const fixtures = await fetchFixturesFromApi(toYMD(start), toYMD(end));
 
   if (fixtures.length === 0) {
     const snapshot = await db.ref("/").once("value");
@@ -94,50 +93,27 @@ async function runDataUpdate() {
     return { status: "error", message: "No fixtures available." };
   }
 
-  const categorized = {
-    yesterday: [],
-    today: [],
-    tomorrow: [],
-    next1: [],
-    next2: [],
-    next3: [],
-    next4: [],
-    next5: [],
-    next6: [],
-  };
-
-  const todayYMD = toYMD(new Date());
-  const yesterdayYMD = toYMD(new Date(now - 86400000));
-
+  // Rarrabe su zuwa kowace rana da aka samu
+  const categorized = {};
   fixtures.forEach((f) => {
-    const fixtureDate = new Date(f.utcDate);
-    const dYMD = toYMD(fixtureDate);
-    const daysDiff = Math.ceil(
-      (fixtureDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-    );
-
-    if (dYMD === todayYMD) categorized.today.push(f);
-    else if (dYMD === yesterdayYMD) categorized.yesterday.push(f);
-    else if (daysDiff >= 1 && daysDiff < 2) categorized.tomorrow.push(f);
-    else if (daysDiff >= 2 && daysDiff < 3) categorized.next1.push(f);
-    else if (daysDiff >= 3 && daysDiff < 4) categorized.next2.push(f);
-    else if (daysDiff >= 4 && daysDiff < 5) categorized.next3.push(f);
-    else if (daysDiff >= 5 && daysDiff < 6) categorized.next4.push(f);
-    else if (daysDiff >= 6 && daysDiff < 7) categorized.next5.push(f);
-    else if (daysDiff >= 7 && daysDiff < 8) categorized.next6.push(f);
+    const fixtureDate = toYMD(new Date(f.utcDate));
+    if (!categorized[fixtureDate]) categorized[fixtureDate] = [];
+    categorized[fixtureDate].push(f);
   });
 
-  const updates = { ...categorized, lastUpdated: now };
-  await db.ref("/").update(updates);
+  const updates = { fixtures: categorized, lastUpdated: now };
+  await db.ref("/").set(updates);
   await logToFirebase("Firebase updated with new fixtures.", {
-    counts: {
-      today: categorized.today.length,
-      tomorrow: categorized.tomorrow.length,
-      total: fixtures.length,
-    },
+    total: fixtures.length,
+    days: Object.keys(categorized).length,
   });
 
-  return { status: "success", message: "Data updated.", counts: updates };
+  return {
+    status: "success",
+    message: "Data updated.",
+    total: fixtures.length,
+    days: Object.keys(categorized).length,
+  };
 }
 
 // Vercel handler
