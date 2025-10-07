@@ -1,6 +1,6 @@
 
 const ALLOWED_ORIGINS = [
-    "https://tauraronwasa.pages.dev",
+    "https://tauraronwasaadmin.pages.dev",
     "http://localhost:8080",
 ];
 
