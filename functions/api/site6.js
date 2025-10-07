@@ -34,12 +34,20 @@ async function updateFixtures(env) {
         categorized[fixtureDate].push(f);
     });
     
+    // AN GYARA INDA AKE AJIYE DATA A FIREBASE DON YA DACE DA FRONTEND
     const fbUrl = `https://tauraronwasa-default-rtdb.firebaseio.com/fixtures.json?auth=${env.FIREBASE_SECRET}`;
+    
+    const dataToSave = {
+        fixtures: categorized, 
+        lastUpdated: now
+    };
+
     const fbRes = await fetch(fbUrl, {
         method: "PUT", 
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fixtures: categorized, lastUpdated: now }),
+        body: JSON.stringify(dataToSave),
     });
+    
     if (!fbRes.ok) {
         const fbErr = await fbRes.text();
         console.error(`Firebase Error: ${fbRes.status}: ${fbErr} at ${fbUrl}`);
@@ -82,7 +90,7 @@ async function getMatchStatus(env, matchId) {
     };
 }
 
-
+// === HANDLERS NA CLOUDFLARE PAGES FUNCTIONS ===
 export async function onRequestGet({ request, env }) {
     const url = new URL(request.url);
     const headers = { 
@@ -95,20 +103,17 @@ export async function onRequestGet({ request, env }) {
     try {
         const pathSegments = url.pathname.split('/').filter(p => p.length > 0);
         
-       
-        
+        // Binciken ID na Match: e.g., /api/site6/440536
         if (pathSegments.length >= 3 && pathSegments[pathSegments.length - 2] === 'site6') {
-          
             const matchId = pathSegments[pathSegments.length - 1]; 
             
             if (!isNaN(parseInt(matchId))) {
-               
                 const statusData = await getMatchStatus(env, matchId);
                 return new Response(JSON.stringify(statusData), { headers });
             }
         }
         
-       
+        // FICTURES UPDATE: e.g., /api/site6
         const origin = request.headers.get("Origin");
         const apiKey = request.headers.get("x-api-key");
         
@@ -120,7 +125,6 @@ export async function onRequestGet({ request, env }) {
             return new Response(JSON.stringify({ error: true, message: "Invalid API Key." }), { status: 401, headers });
         }
 
-       
         const result = await updateFixtures(env);
         return new Response(JSON.stringify(result), { headers });
 
@@ -134,12 +138,11 @@ export async function onRequestGet({ request, env }) {
 }
 
 export async function onRequestOptions({ request }) {
-   
     const headers = { 
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, x-api-key, Origin",
-        "Access-Control-Max-Age": "86400",
+        "Access-Control-Max-Age": "86400", 
     };
     return new Response(null, { status: 204, headers });
 }
