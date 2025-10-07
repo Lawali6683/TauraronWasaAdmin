@@ -1,29 +1,21 @@
-
 const ALLOWED_ORIGINS = [
     "https://tauraronwasaadmin.pages.dev",
     "http://localhost:8080",
 ];
-
-
 const REQUIRED_API_KEY = "@haruna66";
-
 
 async function updateFixtures(env) {
     const now = Date.now();
     const start = new Date(now);
-    // Kwanaki 2 da suka wuce
     start.setDate(start.getDate() - 2); 
     const end = new Date(now);
-    // Kwanaki 7 masu zuwa
     end.setDate(end.getDate() + 7);
     
     const dateFrom = start.toISOString().split("T")[0];
     const dateTo = end.toISOString().split("T")[0];
     
-   
     const apiUrl = `https://api.football-data.org/v4/matches?dateFrom=${dateFrom}&dateTo=${dateTo}`;
     
-    // ===== FETCH FIXTURES =====
     const response = await fetch(apiUrl, {
         headers: { "X-Auth-Token": env.FOOTBALL_DATA_API_KEY6 },
     });
@@ -35,19 +27,16 @@ async function updateFixtures(env) {
     const data = await response.json();
     const fixtures = data.matches || [];
     
-    // ===== CATEGORIZE BY DATE =====
     const categorized = {};
     fixtures.forEach((f) => {
-       
         const fixtureDate = new Date(f.utcDate).toISOString().split("T")[0]; 
         if (!categorized[fixtureDate]) categorized[fixtureDate] = [];
         categorized[fixtureDate].push(f);
     });
     
-    // ===== SAVE TO FIREBASE =====
     const fbUrl = `https://tauraronwasa-default-rtdb.firebaseio.com/fixtures.json?auth=${env.FIREBASE_SECRET}`;
     const fbRes = await fetch(fbUrl, {
-        method: "PUT", // PUT zai maye gurbin dukkan data
+        method: "PUT", 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fixtures: categorized, lastUpdated: now }),
     });
@@ -65,7 +54,6 @@ async function updateFixtures(env) {
     };
 }
 
-
 async function getMatchStatus(env, matchId) {
     const apiUrl = `https://api.football-data.org/v4/matches/${matchId}`;
     
@@ -80,8 +68,6 @@ async function getMatchStatus(env, matchId) {
     }
     
     const data = await response.json();
-    
-   
     const match = data.match;
 
     if (!match) {
@@ -93,71 +79,67 @@ async function getMatchStatus(env, matchId) {
         status: match.status,
         score: match.score,
         utcDate: match.utcDate,
-       
     };
 }
 
 
-export default {
-    async fetch(request, env, ctx) {
-        const url = new URL(request.url);
-        const path = url.pathname;
-        
-        
-        const headers = { 
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*", 
-            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, x-api-key, Origin"
-        };
+export async function onRequestGet({ request, env }) {
+    const url = new URL(request.url);
+    const headers = { 
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, x-api-key, Origin"
+    };
+
+    try {
+        const pathSegments = url.pathname.split('/').filter(p => p.length > 0);
         
        
-        if (request.method === "OPTIONS") {
-            return new Response(null, { status: 204, headers });
-        }
         
-        try {
+        if (pathSegments.length >= 3 && pathSegments[pathSegments.length - 2] === 'site6') {
           
-            if (path === "/api/site6") {
-               
-                const origin = request.headers.get("Origin");
-                const apiKey = request.headers.get("x-api-key");
-                
-                if (!ALLOWED_ORIGINS.includes(origin) && origin !== "https://tauraronwasaadmin.pages.dev") { 
-                    return new Response(JSON.stringify({ error: true, message: "Origin is not allowed." }), { status: 403, headers });
-                }
-                
-                if (apiKey !== REQUIRED_API_KEY) {
-                    return new Response(JSON.stringify({ error: true, message: "Invalid API Key." }), { status: 401, headers });
-                }
-
-                
-                const result = await updateFixtures(env);
-                return new Response(JSON.stringify(result), { headers });
-            }
-
+            const matchId = pathSegments[pathSegments.length - 1]; 
             
-            if (path.startsWith("/api/site6-status/")) {
-                const parts = path.split("/");
-                const matchId = parts[parts.length - 1]; 
-                
-                if (isNaN(parseInt(matchId))) {
-                    return new Response(JSON.stringify({ error: true, message: "Invalid match ID." }), { status: 400, headers });
-                }
-                
+            if (!isNaN(parseInt(matchId))) {
+               
                 const statusData = await getMatchStatus(env, matchId);
                 return new Response(JSON.stringify(statusData), { headers });
             }
-
-           
-            return new Response(JSON.stringify({ message: "Welcome to site6 API. Use /api/site6 or /api/site6-status/:matchId" }), { headers });
-
-        } catch (error) {
-            console.error(error.stack);
-            return new Response(JSON.stringify({ error: true, message: error.message || "Internal Server Error" }), { 
-                status: 500, 
-                headers 
-            });
         }
+        
+       
+        const origin = request.headers.get("Origin");
+        const apiKey = request.headers.get("x-api-key");
+        
+        if (!ALLOWED_ORIGINS.includes(origin) && origin !== "https://tauraronwasaadmin.pages.dev") { 
+            return new Response(JSON.stringify({ error: true, message: "Origin is not allowed." }), { status: 403, headers });
+        }
+        
+        if (apiKey !== REQUIRED_API_KEY) {
+            return new Response(JSON.stringify({ error: true, message: "Invalid API Key." }), { status: 401, headers });
+        }
+
+       
+        const result = await updateFixtures(env);
+        return new Response(JSON.stringify(result), { headers });
+
+    } catch (error) {
+        console.error(error.stack);
+        return new Response(JSON.stringify({ error: true, message: error.message || "Internal Server Error" }), { 
+            status: 500, 
+            headers 
+        });
     }
-};
+}
+
+export async function onRequestOptions({ request }) {
+   
+    const headers = { 
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, x-api-key, Origin",
+        "Access-Control-Max-Age": "86400",
+    };
+    return new Response(null, { status: 204, headers });
+}
