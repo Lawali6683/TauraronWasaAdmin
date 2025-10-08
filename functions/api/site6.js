@@ -1,29 +1,27 @@
+// Ajiye wannan code a: /functions/api/site6.js
 
 const ALLOWED_DOMAINS = [
     "https://tauraronwasaadmin.pages.dev",
     "http://localhost:8080"
 ];
 
-
 const AUTH_KEY = "@haruna66";
 
-
+/**
+ * Aiki don neman data daga Football-Data API da adana su a Firebase
+ */
 async function updateFixtures(env) {
     const now = Date.now();
     const start = new Date(now);
-    // Kwanaki 2 da suka wuce
-    start.setDate(start.getDate() - 2); 
+    start.setDate(start.getDate() - 2); // Kwanaki 2 da suka wuce
     const end = new Date(now);
-    // Kwanaki 7 masu zuwa
-    end.setDate(end.getDate() + 7);
+    end.setDate(end.getDate() + 7); // Kwanaki 7 masu zuwa
     
     const dateFrom = start.toISOString().split("T")[0];
     const dateTo = end.toISOString().split("T")[0];
     
-    // An tattara dukkan statuses don samun cikakken data na wasannin
     const apiUrl = `https://api.football-data.org/v4/matches?dateFrom=${dateFrom}&dateTo=${dateTo}&status=FINISHED,SCHEDULED,IN_PLAY,PAUSED,SUSPENDED,POSTPONED,TIMED,CANCELLED`;
     
-    // ===== FETCH FIXTURES =====
     const response = await fetch(apiUrl, {
         headers: { "X-Auth-Token": env.FOOTBALL_DATA_API_KEY6 },
     });
@@ -36,17 +34,18 @@ async function updateFixtures(env) {
     const data = await response.json();
     const fixtures = data.matches || [];
 
-    // ===== CATEGORIZE BY DATE =====
     const categorized = {};
     fixtures.forEach((f) => {
-        // Daukar kwanan wata a matsayin key (YYYY-MM-DD)
         const fixtureDate = new Date(f.utcDate).toISOString().split("T")[0]; 
         if (!categorized[fixtureDate]) categorized[fixtureDate] = [];
         categorized[fixtureDate].push(f);
     });
 
-    // ===== SAVE TO FIREBASE =====
+    // **GYARA MAI MUHIMMANCI:** Ajiye data a ƙarƙashin '/fixtures'
     const fbUrl = `https://tauraronwasa-default-rtdb.firebaseio.com/fixtures.json?auth=${env.FIREBASE_SECRET}`;
+    
+    // Tabbatar an yi JSON.stringify({ fixtures: categorized, lastUpdated: now }) 
+    // Yadda code na site zai karanta { fixtures: { 'YYYY-MM-DD': [...] }, lastUpdated: time }
     const fbRes = await fetch(fbUrl, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -66,7 +65,9 @@ async function updateFixtures(env) {
     };
 }
 
-
+/**
+ * Aiki don neman cikakken bayani (status) na wasa daya ta ID
+ */
 async function fetchMatchStatus(matchId, env) {
     const apiUrl = `https://api.football-data.org/v4/matches/${matchId}`;
     
@@ -88,21 +89,17 @@ export async function onRequest({ request, env }) {
     const requestOrigin = request.headers.get('Origin');
     const isAllowedOrigin = ALLOWED_DOMAINS.includes(requestOrigin);
     
-    // CORSA Headers don bawa izinin cross-origin request
     const headers = {
         "Content-Type": "application/json",
-        // Tabbatar CORS ya yi aiki daidai
         "Access-Control-Allow-Origin": isAllowedOrigin ? requestOrigin : '*', 
         "Access-Control-Allow-Methods": "GET, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type",
     };
 
-    // Handle OPTIONS request (pre-flight)
     if (request.method === "OPTIONS") {
         return new Response(null, { status: 204, headers });
     }
     
-    // Duba Key na sirri
     const key = url.searchParams.get('key');
     if (key !== AUTH_KEY) {
         return new Response(JSON.stringify({ error: true, message: "Ba a ba da izini ba (Invalid Key)" }), {
@@ -110,15 +107,10 @@ export async function onRequest({ request, env }) {
         });
     }
     
-    
     const path = url.pathname;
     
-    // Lura: Pages Function na dawo da URL na api ɗin, watau "/api/site6" yana kasancewa a path
-    // idan an sanya shi a functions/api/site6.js
-    
+    // Hanyar karɓar Match Status (misali: /api/site6/status/123456)
     if (path.startsWith("/api/site6/status/")) {
-        // ENDPOINT 2: Status (Match Status)
-        // Ana ɗaukar ID ɗin da ke zuwa bayan '/status/'
         const matchId = path.substring(path.lastIndexOf('/') + 1); 
         
         if (!matchId || isNaN(matchId)) {
@@ -136,8 +128,9 @@ export async function onRequest({ request, env }) {
                 status: 500, headers
             });
         }
-    } else if (path === "/api/site6" || path === "/site6") { // Tabbatar ya yi aiki ko da an cire prefix
-        // ENDPOINT 1: Babban Data (Update Fixtures)
+    } 
+    // Hanyar Babban Data (Update Fixtures)
+    else if (path === "/api/site6" || path === "/site6") { 
         try {
             const result = await updateFixtures(env);
             return new Response(JSON.stringify(result), { headers });
@@ -148,7 +141,6 @@ export async function onRequest({ request, env }) {
             });
         }
     } else {
-        // Sauran hanyoyi
         return new Response(JSON.stringify({ error: true, message: "Babu wannan hanya (Endpoint) a nan." }), {
             status: 404, headers
         });
