@@ -1,40 +1,78 @@
 const ALLOWED_ORIGINS = [
-    "https://tauraronwasaadmin.pages.dev",
+    "https://tauraronwasa.pages.dev",
     "http://localhost:8080",
 ];
 const REQUIRED_API_KEY = "@haruna66";
+
+const COMPETITION_CODES = [
+   
+    "WC",     
+    "PL",  
+    "BL1", 
+    "SA",    
+    "FL1",    
+    "PD",  
+    "DED",   
+    "PPL",    
+    "BSA",   
+    "CL",    
+    "ELC",    
+    "CDR",    
+];
+
+const API_DELAY_MS = 3000;
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 async function updateFixtures(env) {
     const now = Date.now();
     const start = new Date(now);
     start.setDate(start.getDate() - 2); 
     const end = new Date(now);
-    end.setDate(end.getDate() + 7);
+    end.setDate(end.getDate() + 6);
     
     const dateFrom = start.toISOString().split("T")[0];
     const dateTo = end.toISOString().split("T")[0];
     
-    const apiUrl = `https://api.football-data.org/v4/matches?dateFrom=${dateFrom}&dateTo=${dateTo}`;
+    let allFixtures = [];
     
-    const response = await fetch(apiUrl, {
-        headers: { "X-Auth-Token": env.FOOTBALL_DATA_API_KEY6 },
-    });
-    if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`Football API Error: HTTP ${response.status}: ${errorText} at ${apiUrl}`);
-        throw new Error(`Football API Error: ${response.status}`);
+    for (const competitionCode of COMPETITION_CODES) {
+        const apiUrl = `https://api.football-data.org/v4/competitions/${competitionCode}/matches?dateFrom=${dateFrom}&dateTo=${dateTo}`;
+        
+        try {
+            const response = await fetch(apiUrl, {
+                headers: { "X-Auth-Token": env.FOOTBALL_DATA_API_KEY6 },
+            });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`Error fetching ${competitionCode}: HTTP ${response.status}: ${errorText}`);
+            } else {
+                const data = await response.json();
+                const newMatches = data.matches || [];
+                
+                newMatches.forEach(match => {
+                    if (!allFixtures.some(f => f.id === match.id)) {
+                        allFixtures.push(match);
+                    }
+                });
+            }
+        } catch (error) {
+            console.error(`Network Error for ${competitionCode}: ${error.message}`);
+        }
+        
+        await delay(API_DELAY_MS);
     }
-    const data = await response.json();
-    const fixtures = data.matches || [];
     
     const categorized = {};
-    fixtures.forEach((f) => {
+    allFixtures.forEach((f) => {
         const fixtureDate = new Date(f.utcDate).toISOString().split("T")[0]; 
         if (!categorized[fixtureDate]) categorized[fixtureDate] = [];
         categorized[fixtureDate].push(f);
     });
     
-    // AN GYARA INDA AKE AJIYE DATA A FIREBASE DON YA DACE DA FRONTEND
     const fbUrl = `https://tauraronwasa-default-rtdb.firebaseio.com/fixtures.json?auth=${env.FIREBASE_SECRET}`;
     
     const dataToSave = {
@@ -56,7 +94,8 @@ async function updateFixtures(env) {
     
     return {
         status: "success",
-        totalMatches: fixtures.length,
+        totalMatches: allFixtures.length,
+        competitionsScanned: COMPETITION_CODES.length,
         dateRange: `${dateFrom} -> ${dateTo}`,
         lastUpdated: new Date(now).toISOString()
     };
@@ -90,7 +129,6 @@ async function getMatchStatus(env, matchId) {
     };
 }
 
-// === HANDLERS NA CLOUDFLARE PAGES FUNCTIONS ===
 export async function onRequestGet({ request, env }) {
     const url = new URL(request.url);
     const headers = { 
@@ -103,7 +141,6 @@ export async function onRequestGet({ request, env }) {
     try {
         const pathSegments = url.pathname.split('/').filter(p => p.length > 0);
         
-        // Binciken ID na Match: e.g., /api/site6/440536
         if (pathSegments.length >= 3 && pathSegments[pathSegments.length - 2] === 'site6') {
             const matchId = pathSegments[pathSegments.length - 1]; 
             
@@ -113,7 +150,6 @@ export async function onRequestGet({ request, env }) {
             }
         }
         
-        // FICTURES UPDATE: e.g., /api/site6
         const origin = request.headers.get("Origin");
         const apiKey = request.headers.get("x-api-key");
         
