@@ -1,5 +1,3 @@
-// Ajiye wannan code a: /functions/api/site6.js
-
 const ALLOWED_DOMAINS = [
     "https://tauraronwasaadmin.pages.dev",
     "http://localhost:8080"
@@ -7,20 +5,9 @@ const ALLOWED_DOMAINS = [
 
 const AUTH_KEY = "@haruna66";
 
-/**
- * Aiki don neman data daga Football-Data API da adana su a Firebase
- */
-async function updateFixtures(env) {
-    const now = Date.now();
-    const start = new Date(now);
-    start.setDate(start.getDate() - 2); // Kwanaki 2 da suka wuce
-    const end = new Date(now);
-    end.setDate(end.getDate() + 7); // Kwanaki 7 masu zuwa
-    
-    const dateFrom = start.toISOString().split("T")[0];
-    const dateTo = end.toISOString().split("T")[0];
-    
-    const apiUrl = `https://api.football-data.org/v4/matches?dateFrom=${dateFrom}&dateTo=${dateTo}&status=FINISHED,SCHEDULED,IN_PLAY,PAUSED,SUSPENDED,POSTPONED,TIMED,CANCELLED`;
+
+async function fetchFixturesForDate(dateStr, env) {
+    const apiUrl = `https://api.football-data.org/v4/matches?dateFrom=${dateStr}&dateTo=${dateStr}`;
     
     const response = await fetch(apiUrl, {
         headers: { "X-Auth-Token": env.FOOTBALL_DATA_API_KEY6 },
@@ -28,28 +15,48 @@ async function updateFixtures(env) {
 
     if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`Football API Error: HTTP ${response.status}: ${errorText}`);
+        
+        throw new Error(`Football API Error for ${dateStr}: HTTP ${response.status}: ${errorText}`); 
     }
 
     const data = await response.json();
-    const fixtures = data.matches || [];
+    return data.matches || []; 
+}
+
+
+async function fetchAndSaveAllFixtures(todayKey, env) {
+    const datesToFetch = [];
+    const today = new Date(todayKey);
+    
+    
+    for (let i = -2; i <= 6; i++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() + i);
+        datesToFetch.push(date.toISOString().split("T")[0]);
+    }
+
+    // Tura dukkan requests tare
+    const allPromises = datesToFetch.map(dateStr => 
+        fetchFixturesForDate(dateStr, env).then(fixtures => ({ dateStr, fixtures }))
+    );
+
+    const results = await Promise.all(allPromises);
 
     const categorized = {};
-    fixtures.forEach((f) => {
-        const fixtureDate = new Date(f.utcDate).toISOString().split("T")[0]; 
-        if (!categorized[fixtureDate]) categorized[fixtureDate] = [];
-        categorized[fixtureDate].push(f);
+    let totalFixtures = 0;
+
+    results.forEach(item => {
+        categorized[item.dateStr] = item.fixtures;
+        totalFixtures += item.fixtures.length;
     });
 
-    // **GYARA MAI MUHIMMANCI:** Ajiye data a ƙarƙashin '/fixtures'
+    // ===== SAVE TO FIREBASE =====
     const fbUrl = `https://tauraronwasa-default-rtdb.firebaseio.com/fixtures.json?auth=${env.FIREBASE_SECRET}`;
     
-    // Tabbatar an yi JSON.stringify({ fixtures: categorized, lastUpdated: now }) 
-    // Yadda code na site zai karanta { fixtures: { 'YYYY-MM-DD': [...] }, lastUpdated: time }
     const fbRes = await fetch(fbUrl, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fixtures: categorized, lastUpdated: now }),
+        body: JSON.stringify({ fixtures: categorized, lastUpdated: Date.now() }),
     });
 
     if (!fbRes.ok) {
@@ -59,15 +66,31 @@ async function updateFixtures(env) {
     
     return {
         status: "success",
-        total: fixtures.length,
-        dateRange: `${dateFrom} → ${dateTo}`,
-        lastUpdated: new Date().toISOString()
+        total: totalFixtures,
+        dateRange: `${datesToFetch[0]} → ${datesToFetch[datesToFetch.length - 1]}`,
     };
 }
 
-/**
- * Aiki don neman cikakken bayani (status) na wasa daya ta ID
- */
+
+async function updateFixturesHandler(url, env) {
+    const todayKey = url.searchParams.get('today');
+    const isLiveUpdate = url.searchParams.get('type') === 'live';
+
+    if (!todayKey) {
+        throw new Error("Wajibi ne a turo kwanan wata (today) tare da request.");
+    }
+    
+    if (isLiveUpdate) {
+       
+        return { status: "live_update_triggered", message: "Live update request received and processed." };
+    } 
+    
+    
+    return await fetchAndSaveAllFixtures(todayKey, env);
+}
+
+
+
 async function fetchMatchStatus(matchId, env) {
     const apiUrl = `https://api.football-data.org/v4/matches/${matchId}`;
     
@@ -83,7 +106,6 @@ async function fetchMatchStatus(matchId, env) {
     return data.match || {}; 
 }
 
-// Babban Export don Cloudflare Pages Function Handler
 export async function onRequest({ request, env }) {
     const url = new URL(request.url);
     const requestOrigin = request.headers.get('Origin');
@@ -109,7 +131,7 @@ export async function onRequest({ request, env }) {
     
     const path = url.pathname;
     
-    // Hanyar karɓar Match Status (misali: /api/site6/status/123456)
+   
     if (path.startsWith("/api/site6/status/")) {
         const matchId = path.substring(path.lastIndexOf('/') + 1); 
         
@@ -132,7 +154,7 @@ export async function onRequest({ request, env }) {
     // Hanyar Babban Data (Update Fixtures)
     else if (path === "/api/site6" || path === "/site6") { 
         try {
-            const result = await updateFixtures(env);
+            const result = await updateFixturesHandler(url, env);
             return new Response(JSON.stringify(result), { headers });
         } catch (error) {
             console.error(`Update Fixtures Failed: ${error.message}`);
