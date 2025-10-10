@@ -16,22 +16,32 @@ function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// Jerin keys din da za mu yi amfani da su a Firebase (Total 9 days: 2 baya, 7 gaba)
+const DAY_KEYS = [
+    'day_0', 'day_1', 'day_2', 'day_3', 'day_4', 'day_5', 'day_6', 'day_7', 'day_8'
+];
+
 /**
  * Aiki don tattara wasanni daga Leagues daban-daban kuma adana su a Firebase.
  */
 async function updateFixtures(env) {
     const now = Date.now();
-    const start = new Date(now);
-    start.setDate(start.getDate() - 2); // Kwanaki 2 baya (Shekaran Jiya)
-    const end = new Date(now);
-    end.setDate(end.getDate() + 7); // Kwanaki 7 gaba
+    const today = new Date();
     
-    const dateFrom = start.toISOString().split("T")[0];
-    const dateTo = end.toISOString().split("T")[0];
+    // Nemi kwanaki 2 baya da 7 gaba (total 9 days)
+    const datesToFetch = [];
+    for (let i = -2; i <= 6; i++) { 
+        const date = new Date(today);
+        date.setDate(today.getDate() + i);
+        datesToFetch.push(date.toISOString().split("T")[0]);
+    }
+    
+    const dateFrom = datesToFetch[0];
+    const dateTo = datesToFetch[datesToFetch.length - 1];
     
     let allFixtures = [];
     
-    // Kira API dayake gudanar League bayan League tare da jinkiri
+    // Kira API League bayan League tare da jinkiri
     for (const competitionCode of COMPETITION_CODES) {
         const apiUrl = `https://api.football-data.org/v4/competitions/${competitionCode}/matches?dateFrom=${dateFrom}&dateTo=${dateTo}`;
         
@@ -41,9 +51,8 @@ async function updateFixtures(env) {
             });
             
             if (!response.ok) {
-                const errorText = await response.text();
                 if (response.status !== 404) {
-                    console.error(`Error fetching ${competitionCode}: HTTP ${response.status}: ${errorText}`);
+                    console.error(`Error fetching ${competitionCode}: HTTP ${response.status}`);
                 }
             } else {
                 const data = await response.json();
@@ -59,19 +68,29 @@ async function updateFixtures(env) {
             console.error(`Network Error for ${competitionCode}: ${error.message}`);
         }
         
-        // Jinkiri na sakan 3
         await delay(API_DELAY_MS); 
     }
     
-    // Rarraba wasanni ta ranar bugawa
+    // Rarraba wasanni ta hanyar Fixed Day Keys (day_0, day_1, day_2, etc.)
     const categorized = {};
-    allFixtures.forEach((f) => {
-        const fixtureDate = new Date(f.utcDate).toISOString().split("T")[0]; 
-        if (!categorized[fixtureDate]) categorized[fixtureDate] = [];
-        categorized[fixtureDate].push(f);
+    let totalFixtures = 0;
+    
+    datesToFetch.forEach((dateStr, index) => {
+        const key = DAY_KEYS[index];
+        const matchesForDate = allFixtures
+            .filter(f => new Date(f.utcDate).toISOString().split("T")[0] === dateStr)
+            // Cire wasannin da aka dage ko aka soke don rage rudani a nuni
+            .filter(f => !["POSTPONED", "CANCELLED", "SUSPENDED"].includes(f.status));
+
+        // Adana date na ranar da kuma matches
+        categorized[key] = { 
+            date: dateStr, 
+            matches: matchesForDate 
+        };
+        totalFixtures += matchesForDate.length;
     });
     
-    // ===== SAVE TO FIREBASE =====
+    // ===== SAVE TO FIREBASE (PUT zai goge tsohon data duka) =====
     const fbUrl = `https://tauraronwasa-default-rtdb.firebaseio.com/fixtures.json?auth=${env.FIREBASE_SECRET}`;
     
     const dataToSave = {
@@ -80,7 +99,7 @@ async function updateFixtures(env) {
     };
 
     const fbRes = await fetch(fbUrl, {
-        method: "PUT", 
+        method: "PUT", // Yana amfani da PUT don goge tsohon data duka ya sabunta sabo
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dataToSave),
     });
@@ -92,7 +111,7 @@ async function updateFixtures(env) {
     
     return {
         status: "success",
-        totalMatches: allFixtures.length,
+        totalMatchesSaved: totalFixtures,
         dateRange: `${dateFrom} -> ${dateTo}`,
     };
 }
@@ -118,6 +137,7 @@ async function getMatchStatus(env, matchId) {
         throw new Error("Match not found or data is incomplete.");
     }
     
+    // Mayar da karancin data don sabunta Live
     return {
         id: match.id,
         status: match.status,
@@ -153,7 +173,7 @@ export async function onRequest({ request, env }) {
             }
         }
 
-        // 2. Kashi na Cekawar Izini (Authorization Check)
+        // 2. Kashi na Cekawar Izini
         const apiKey = url.searchParams.get('key');
         if (apiKey !== REQUIRED_API_KEY) {
             return new Response(JSON.stringify({ error: true, message: "Invalid API Key." }), { status: 401, headers });
