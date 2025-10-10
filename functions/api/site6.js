@@ -6,12 +6,10 @@ const ALLOWED_ORIGINS = [
 ];
 const REQUIRED_API_KEY = "@haruna66";
 
-// Jerin manyan gasa da muke neman wasanninsu
 const COMPETITION_CODES = [
     "WC", "PL", "BL1", "SA", "FL1", "PD", "DED", "PPL", "BSA", "CL", "ELC", "CDR", "FAC",
 ];
 
-// Jinkiri tsakanin kiran API don guje wa Rate Limiting
 const API_DELAY_MS = 3000;
 
 function delay(ms) {
@@ -24,9 +22,9 @@ function delay(ms) {
 async function updateFixtures(env) {
     const now = Date.now();
     const start = new Date(now);
-    start.setDate(start.getDate() - 2); // Kwanaki 2 baya
+    start.setDate(start.getDate() - 2); // Kwanaki 2 baya (Shekaran Jiya)
     const end = new Date(now);
-    end.setDate(end.getDate() + 7); // Kwanaki 7 gaba (total 9 days)
+    end.setDate(end.getDate() + 7); // Kwanaki 7 gaba
     
     const dateFrom = start.toISOString().split("T")[0];
     const dateTo = end.toISOString().split("T")[0];
@@ -35,7 +33,6 @@ async function updateFixtures(env) {
     
     // Kira API dayake gudanar League bayan League tare da jinkiri
     for (const competitionCode of COMPETITION_CODES) {
-        // Muna amfani da COMPETITION API don samun wasannin gasa guda daya tak
         const apiUrl = `https://api.football-data.org/v4/competitions/${competitionCode}/matches?dateFrom=${dateFrom}&dateTo=${dateTo}`;
         
         try {
@@ -45,17 +42,13 @@ async function updateFixtures(env) {
             
             if (!response.ok) {
                 const errorText = await response.text();
-                // Yi Ignore ga gasa marasa data a halin yanzu (misali, WC ba ya gudana)
-                if (response.status === 404 && errorText.includes("competition not found")) {
-                    console.log(`Skipping ${competitionCode}: Competition not active/found.`);
-                } else {
+                if (response.status !== 404) {
                     console.error(`Error fetching ${competitionCode}: HTTP ${response.status}: ${errorText}`);
                 }
             } else {
                 const data = await response.json();
                 const newMatches = data.matches || [];
                 
-                // Cire wasanni masu maimaitawa (misali: UCL matches suna maimaitawa)
                 newMatches.forEach(match => {
                     if (!allFixtures.some(f => f.id === match.id)) {
                         allFixtures.push(match);
@@ -73,7 +66,6 @@ async function updateFixtures(env) {
     // Rarraba wasanni ta ranar bugawa
     const categorized = {};
     allFixtures.forEach((f) => {
-        // Tabbatar an ajiye wasa a ranar sa daidai
         const fixtureDate = new Date(f.utcDate).toISOString().split("T")[0]; 
         if (!categorized[fixtureDate]) categorized[fixtureDate] = [];
         categorized[fixtureDate].push(f);
@@ -101,7 +93,6 @@ async function updateFixtures(env) {
     return {
         status: "success",
         totalMatches: allFixtures.length,
-        competitionsScanned: COMPETITION_CODES.length,
         dateRange: `${dateFrom} -> ${dateTo}`,
     };
 }
@@ -127,7 +118,6 @@ async function getMatchStatus(env, matchId) {
         throw new Error("Match not found or data is incomplete.");
     }
     
-    // Mayar da karancin data don sabunta Live
     return {
         id: match.id,
         status: match.status,
@@ -138,7 +128,6 @@ async function getMatchStatus(env, matchId) {
 
 export async function onRequest({ request, env }) {
     const url = new URL(request.url);
-    const requestOrigin = request.headers.get('Origin');
     
     const headers = { 
         "Content-Type": "application/json",
@@ -170,7 +159,7 @@ export async function onRequest({ request, env }) {
             return new Response(JSON.stringify({ error: true, message: "Invalid API Key." }), { status: 401, headers });
         }
         
-        // 3. Kashi na Update Fixtures (wanda Site ke kira)
+        // 3. Kashi na Update Fixtures 
         const result = await updateFixtures(env);
         return new Response(JSON.stringify(result), { headers });
         
