@@ -6,34 +6,29 @@ const ALLOWED_ORIGINS = [
 ];
 const REQUIRED_API_KEY = "@haruna66";
 
-// Jerin gasa (competitions) da kuke buƙata
-const COMPETITION_CODES = [
-    "WC", "PL", "BL1", "SA", "FL1", "PD", "DED", "PPL", "BSA", "CL", "ELC", "CDR", "FAC",
-];
+// Ba a buƙatar COMPETITION_CODES kuma.
 
-const API_DELAY_MS = 3000; // Jinkiri tsakanin kiran API don guje wa yawan requests
-
-function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-// Fixed Keys din da za mu yi amfani da su a Firebase (day_0: Shekaran Jiya -> day_8: Kwana 6 gaba)
+// Fixed Keys din da za mu yi amfani da su a Firebase (day_0: Jiya -> day_5: Kwana 4 gaba)
 const DAY_KEYS = [
-    'day_0', 'day_1', 'day_2', 'day_3', 'day_4', 'day_5', 'day_6', 'day_7', 'day_8'
+    'day_0', 'day_1', 'day_2', 'day_3', 'day_4', 'day_5' 
 ];
+
+// An cire delay saboda yanzu muna kiran API sau daya kacal
 
 /**
  * Aiki don tattara wasanni daga Leagues daban-daban kuma adana su a Firebase.
+ * Yanzu an yi amfani da babban API guda daya mai neman dukkan wasanni tsakanin kwanaki.
  */
 async function updateFixtures(env) {
     const now = Date.now();
     const today = new Date();
     
-    // An yi gyara anan: Muna amfani da UTC date don kiyaye daidaito
+    // Nemi kwanaki 6 (Jiya, Yau, Gobe, Jibi, Gata, Citta)
     const datesToFetch = [];
     const dateStrings = [];
     
-    for (let i = -2; i <= 6; i++) { 
+    // Fara daga i = -1 (Jiya) zuwa i = 4 (Kwana 4 gaba). Total 6 days.
+    for (let i = -1; i <= 4; i++) { 
         const date = new Date(today);
         date.setDate(today.getDate() + i);
         // Fitar da ISO Date string (YYYY-MM-DD)
@@ -42,44 +37,31 @@ async function updateFixtures(env) {
         dateStrings.push(dateStr);
     }
     
-    const dateFrom = dateStrings[0];
-    const dateTo = dateStrings[dateStrings.length - 1];
+    const dateFrom = dateStrings[0]; // Jiya
+    const dateTo = dateStrings[dateStrings.length - 1]; // Kwana 4 Gaba
     
     let allFixtures = [];
-    let apiFetchStatus = {}; // Don logging
 
-    // Kira API League bayan League tare da jinkiri
-    for (const competitionCode of COMPETITION_CODES) {
-        // Football Data API yana amfani da UTC a bayan fage
-        const apiUrl = `https://api.football-data.org/v4/competitions/${competitionCode}/matches?dateFrom=${dateFrom}&dateTo=${dateTo}`;
+    // KIRAN API GUDA DAYA MAI NEMO DUKKAN WASANNI A KWANA 6
+    const apiUrl = `https://api.football-data.org/v4/matches?dateFrom=${dateFrom}&dateTo=${dateTo}`;
+    
+    try {
+        console.log(`Fetching fixtures from ${dateFrom} to ${dateTo}...`);
+        const response = await fetch(apiUrl, {
+            headers: { "X-Auth-Token": env.FOOTBALL_DATA_API_KEY6 },
+        });
         
-        try {
-            const response = await fetch(apiUrl, {
-                headers: { "X-Auth-Token": env.FOOTBALL_DATA_API_KEY6 },
-            });
-            
-            apiFetchStatus[competitionCode] = response.status;
-            
-            if (!response.ok) {
-                // Tunda muna da jinkiri, zamu iya samun matsala.
-                if (response.status !== 404 && response.status !== 400) {
-                    console.error(`Error fetching ${competitionCode}: HTTP ${response.status}`);
-                }
-            } else {
-                const data = await response.json();
-                const newMatches = data.matches || [];
-                
-                newMatches.forEach(match => {
-                    if (!allFixtures.some(f => f.id === match.id)) {
-                        allFixtures.push(match);
-                    }
-                });
-            }
-        } catch (error) {
-            console.error(`Network Error for ${competitionCode}: ${error.message}`);
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Football API Error: HTTP ${response.status}: ${errorText}`);
         }
         
-        await delay(API_DELAY_MS); 
+        const data = await response.json();
+        allFixtures = data.matches || [];
+        
+    } catch (error) {
+        console.error(`Fatal API Fetch Error: ${error.message}`);
+        throw new Error(`Kuskure wajen karɓar matches daga API: ${error.message}`);
     }
     
     // Rarraba wasanni ta hanyar Fixed Day Keys (day_0, day_1, day_2, etc.)
@@ -89,14 +71,12 @@ async function updateFixtures(env) {
     datesToFetch.forEach(({ dateStr }, index) => {
         const key = DAY_KEYS[index];
         const matchesForDate = allFixtures
-            // An gyara anan: Muna amfani da ISO string wajen filter
             .filter(f => new Date(f.utcDate).toISOString().split("T")[0] === dateStr)
             // Cire wasannin da aka dage ko aka soke
             .filter(f => !["POSTPONED", "CANCELLED", "SUSPENDED"].includes(f.status));
 
         // Adana date na ranar da kuma matches
         categorized[key] = { 
-            // Wannan dateStr shine yake bayyana ranar a Site Code
             date: dateStr, 
             matches: matchesForDate 
         };
@@ -106,19 +86,11 @@ async function updateFixtures(env) {
     // ===== SAVE TO FIREBASE (PUT zai goge tsohon data duka) =====
     const fbUrl = `https://tauraronwasa-default-rtdb.firebaseio.com/fixtures.json?auth=${env.FIREBASE_SECRET}`;
     
-    // YANZU DATA ZA A AJIYE TANA KUNSHE DA FICTURES DA FIXED KEYS KAWAI
     const dataToSave = {
-        fixtures: categorized, // Wannan yana da FIXED KEYS (day_0, day_1,...)
+        fixtures: categorized, // Yana da Fixed Keys
         lastUpdated: now,
-        // Ana iya cire wannan don rage girman data: apiStatus: apiFetchStatus 
     };
 
-    // A nan ne gyaran Rikicin Keys yake: 
-    // Maimakon PUT kai tsaye ga babban root, zamu tabbatar mun saka shi a karkashin 'fixtures' key
-    // A gaskiya, PUT a .json?auth=... a kan root yana nufin gogewa da sabuntawa.
-    // Idan kuna ganin kwanakin ne a root, yana nufin cewa a baya an yi PUT ba tare da 'fixtures' wrapper ba.
-    // Don tabbatar da cewa ba za ku sake samun Date Keys a root ba, za mu yi PUT kai tsaye zuwa /fixtures
-    
     const payload = JSON.stringify(dataToSave);
     
     const fbRes = await fetch(fbUrl, {
@@ -136,12 +108,11 @@ async function updateFixtures(env) {
         status: "success",
         totalMatchesSaved: totalFixtures,
         dateRange: `${dateFrom} -> ${dateTo}`,
-        apiStatusSummary: apiFetchStatus,
     };
 }
 
 /**
- * Aiki don neman cikakken bayani (status) na wasa daya ta ID
+ * Aiki don neman cikakken bayani (status) na wasa daya ta ID (Wannan yana nan yadda yake)
  */
 async function getMatchStatus(env, matchId) {
     const apiUrl = `https://api.football-data.org/v4/matches/${matchId}`;
