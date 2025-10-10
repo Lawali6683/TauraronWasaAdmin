@@ -79,7 +79,7 @@ async function updateFixtures(env) {
         const key = DAY_KEYS[index];
         const matchesForDate = allFixtures
             .filter(f => new Date(f.utcDate).toISOString().split("T")[0] === dateStr)
-            // Cire wasannin da aka dage ko aka soke don rage rudani a nuni
+            // Cire wasannin da aka dage ko aka soke
             .filter(f => !["POSTPONED", "CANCELLED", "SUSPENDED"].includes(f.status));
 
         // Adana date na ranar da kuma matches
