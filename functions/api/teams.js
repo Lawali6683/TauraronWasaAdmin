@@ -21,7 +21,7 @@ export async function onRequest(context) {
     const WORKER_API_KEY = request.headers.get("x-api-key");
     const EXPECTED_KEY = "@haruna66"; // Wannan shine key din da ka bayar
     const BASE_API_URL = "https://api.football-data.org/v4";
-    const FOOTBALL_API_TOKEN = env.FOOTBALL_API_TOKEN; // An ɗauka za'a sa TOKEN a Cloudflare Environment Variables
+    const FOOTBALL_API_TOKEN = env.FOOTBALL_API_TOKEN6; // An ɗauka za'a sa TOKEN a Cloudflare Environment Variables
 
     // CORS Preflight Request (OPTIONS)
     if (request.method === "OPTIONS") {
