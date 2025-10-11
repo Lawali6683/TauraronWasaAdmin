@@ -19,16 +19,16 @@ export async function onRequest(context) {
     const { request, env } = context;
     const origin = request.headers.get("Origin");
     const WORKER_API_KEY = request.headers.get("x-api-key");
-    const EXPECTED_KEY = "@haruna66"; // Wannan shine key din da ka bayar
+    const EXPECTED_KEY = "@haruna66"; 
     const BASE_API_URL = "https://api.football-data.org/v4";
-    const FOOTBALL_API_TOKEN = env.FOOTBALL_API_TOKEN6; // An ɗauka za'a sa TOKEN a Cloudflare Environment Variables
+    const FOOTBALL_API_TOKEN = env.FOOTBALL_DATA_API_KEY6; 
 
-    // CORS Preflight Request (OPTIONS)
+    
     if (request.method === "OPTIONS") {
         return withCORSHeaders(new Response(null, { status: 204 }), origin);
     }
 
-    // Tabbatar da API Key
+    
     if (WORKER_API_KEY !== EXPECTED_KEY) {
         const response = new Response(
             JSON.stringify({ error: true, message: "Invalid API Key" }), {
@@ -39,7 +39,7 @@ export async function onRequest(context) {
         return withCORSHeaders(response, origin);
     }
 
-    // Tabbatar da Method da Content-Type
+   
     const contentType = request.headers.get("content-type") || "";
     if (request.method !== "POST" || !contentType.includes("application/json")) {
         const response = new Response(
@@ -64,7 +64,7 @@ export async function onRequest(context) {
             case 'get_team_details':
                 if (!teamId) throw new Error("ID na Kungiya ya ɓace.");
                 
-                // 1. Kira API don Bayanin Kungiya
+              
                 const teamUrl = `${BASE_API_URL}/teams/${teamId}`;
                 const teamRes = await fetch(teamUrl, {
                     headers: { 'X-Auth-Token': FOOTBALL_API_TOKEN }
@@ -72,8 +72,7 @@ export async function onRequest(context) {
                 if (!teamRes.ok) throw new Error(`Kuskure wajen ɗauko Bayanin Kungiya: ${teamRes.statusText}`);
                 const teamData = await teamRes.json();
 
-                // 2. Kira API don Wasannin Kungiya
-                // Na ƙara 'timeZone' a matsayin parameter a Request
+                
                 const matchesUrl = `${BASE_API_URL}/teams/${teamId}/matches?timeZone=${timeZone || 'UTC'}&status=FINISHED,SCHEDULED,LIVE`; 
                 const matchesRes = await fetch(matchesUrl, {
                     headers: { 'X-Auth-Token': FOOTBALL_API_TOKEN }
@@ -81,17 +80,17 @@ export async function onRequest(context) {
                 if (!matchesRes.ok) throw new Error(`Kuskure wajen ɗauko Wasanni: ${matchesRes.statusText}`);
                 const matchesData = await matchesRes.json();
                 
-                // Hada Bayanan
+              
                 apiResponseData = {
                     team: teamData,
-                    matches: matchesData.matches // Dawo da wasannin kawai
+                    matches: matchesData.matches 
                 };
                 break;
                 
             case 'get_player_details':
                 if (!playerId) throw new Error("ID na Dan Wasa ya ɓace.");
                 
-                // Kira API don Bayanin Dan Wasa
+               
                 const playerUrl = `${BASE_API_URL}/persons/${playerId}`;
                 const playerRes = await fetch(playerUrl, {
                     headers: { 'X-Auth-Token': FOOTBALL_API_TOKEN }
