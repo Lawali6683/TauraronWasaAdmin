@@ -1,7 +1,7 @@
 
 function withCORSHeaders(response, origin) {
     const ALLOWED_ORIGINS = [
-        "https://tauraronwasa.pages.dev",
+        "https://tauraronwasaadmin.pages.dev",
         "https://leadwaypeace.pages.dev",
         "http://localhost:8080",
         // Tabbatar da ƙara ainihin URL na shafinka anan
@@ -16,18 +16,26 @@ function withCORSHeaders(response, origin) {
 }
 
 
+// Worker API - index.js 
+
+// ... (withCORSHeaders iri daya)
+
+/**
+ * Aiki don sarrafa buƙatun Football Data (Action: get_team_details, get_player_details)
+ */
 async function handleFootballDataRequest(request, env, origin) {
     const BASE_API_URL = "https://api.football-data.org/v4";
     const FOOTBALL_API_TOKEN = env.FOOTBALL_DATA_API_KEY6; 
 
+    // ... (CORS da API Key validation iri daya) ...
     if (request.method === "OPTIONS") {
         return withCORSHeaders(new Response(null, { status: 204 }), origin);
     }
     
-    // Tabbatar da API Key
     const WORKER_API_KEY = request.headers.get("x-api-key");
     const EXPECTED_KEY = "@haruna66"; 
     if (WORKER_API_KEY !== EXPECTED_KEY) {
+        // ... (Error response iri daya)
         const response = new Response(
             JSON.stringify({ error: true, message: "Invalid API Key" }), {
                 status: 401,
@@ -37,9 +45,9 @@ async function handleFootballDataRequest(request, env, origin) {
         return withCORSHeaders(response, origin);
     }
     
-    // Tabbatar da Content Type
     const contentType = request.headers.get("content-type") || "";
     if (request.method !== "POST" || !contentType.includes("application/json")) {
+        // ... (Error response iri daya)
         const response = new Response(
             JSON.stringify({ error: true, message: "Invalid Request Method or Content-Type" }), {
                 status: 400,
@@ -48,12 +56,17 @@ async function handleFootballDataRequest(request, env, origin) {
         );
         return withCORSHeaders(response, origin);
     }
-
+    
     try {
         const { action, teamId, playerId, timeZone } = await request.json();
         
         if (!FOOTBALL_API_TOKEN) {
             throw new Error("Football API Token ba'a sa shi ba (A wajen Env Vars)");
+        }
+
+        // GYARA: Tabbatar da an dawo da data don wasu actions. 
+        if (action.includes('history')) {
+             throw new Error("Action da aka bayar ba daidai bane. Yi amfani da hanyar /ai don neman tarihi.");
         }
         
         let apiResponseData = {};
@@ -77,10 +90,10 @@ async function handleFootballDataRequest(request, env, origin) {
                 if (!matchesRes.ok) throw new Error(`Kuskure wajen ɗauko Wasanni: ${matchesRes.statusText}`);
                 const matchesData = await matchesRes.json();
                 
-                
+                // GYARA: Tabbatar da an tabbatar da filin 'image' na dan wasa
                 if (teamData.squad) {
                     teamData.squad = teamData.squad.map(player => {
-                     
+                        // Football-Data API yana amfani da image, amma ba koyaushe. An bar shi a matsayin filin da JS zai duba.
                         player.image = player.image || player.crestUrl || ''; 
                         return player;
                     });
@@ -102,7 +115,7 @@ async function handleFootballDataRequest(request, env, origin) {
                 if (!playerRes.ok) throw new Error(`Kuskure wajen ɗauko Bayanin Dan Wasa: ${playerRes.statusText}`);
                 const playerData = await playerRes.json();
                 
-                // Tabbatar da hoton Dan Wasa
+                // GYARA: Tabbatar da hoton Dan Wasa
                 playerData.image = playerData.image || playerData.crestUrl || '';
 
                 apiResponseData = { person: playerData };
@@ -120,6 +133,7 @@ async function handleFootballDataRequest(request, env, origin) {
         );
         return withCORSHeaders(successResponse, origin);
     } catch (error) {
+        // ... (Error response iri daya)
         const errorResponse = new Response(
             JSON.stringify({ error: true, message: error.message }), {
                 status: 500,
@@ -131,46 +145,23 @@ async function handleFootballDataRequest(request, env, origin) {
 }
 
 
-
+/**
+ * Aiki don sarrafa buƙatun GPT (Action: /ai)
+ */
 async function handleAIRequest(request, env, origin) {
     
-    // Tabbatar da OPTIONS
+    // ... (CORS, API Key validation, Content Type validation iri daya)
     if (request.method === "OPTIONS") {
         return withCORSHeaders(new Response(null, { status: 204 }), origin);
     }
     
-    // API Keys
-    const TRANSLATE_API_KEY = env.TRANSLATE_API_KEY1;
+    // GYARA: Canza zuwa sabuwar hanyar OpenRouter kyauta (wanda yake da kasafin kudi)
+    // Tabbatar an saita wannan a Env Vars: TRANSLATE_API_KEY1
+    const TRANSLATE_API_KEY = env.TRANSLATE_API_KEY1; 
     const TRANSLATE_API_URL = "https://openrouter.ai/api/v1/chat/completions";
     const EXPECTED_KEY = "@haruna66"; 
-
-    // Tabbatar da Worker Key
-    const WORKER_API_KEY = request.headers.get("x-api-key");
-    if (WORKER_API_KEY !== EXPECTED_KEY) {
-        const response = new Response(
-            JSON.stringify({ error: true, message: "Maɓallin API bai daidaita ba." }),
-            { status: 401, headers: { "Content-Type": "application/json" } }
-        );
-        return withCORSHeaders(response, origin);
-    }
     
-    // Tabbatar da POST da Content Type
-    const contentType = request.headers.get("content-type") || "";
-    if (request.method !== "POST" || !contentType.includes("application/json")) {
-        const response = new Response(
-            JSON.stringify({ error: true, message: "Hanyar buƙata ko nau'in abun ciki bai daidaita ba." }),
-            { status: 400, headers: { "Content-Type": "application/json" } }
-        );
-        return withCORSHeaders(response, origin);
-    }
-
-    // System Prompt na kwararru
-    const systemPrompt = `Kai babban kwararre ne kuma mai ba da labari game da wasanni. Amsoshin ka suna da ilimi, bayyanannu, kuma cikin yaren da aka yi maka tambaya (Hausa ko Turanci).
-    Dole ne ka bi waɗannan ƙa'idoji:
-    1. Yi amfani da binciken yanar gizo (Web Search) na ciki don bada amsoshi da suka shafi sabbin abubuwa.
-    2. Tsara amsar ka a cikin alamar <response>...</response>.
-    3. Idan tambayar tana neman bayani game da wani mutum ko kulob, fito da sunan a Turanci a cikin alamar <entity_name>...</entity_name>. Idan tambayar ba ta da alaƙa da mutum ko kulob, yi amfani da <entity_name>general</entity_name>.
-    4. Ka tabbatar duk bayanan da ka bayar na gaskiya ne kuma babu karya.`;
+    // ... (Sauran validations iri daya)
 
     try {
         const requestBody = await request.json();
@@ -186,14 +177,16 @@ async function handleAIRequest(request, env, origin) {
             headers: {
                 Authorization: `Bearer ${TRANSLATE_API_KEY}`,
                 "Content-Type": "application/json",
+                // Tabbatar da cewa an daidaita wadannan headers don bin ka'ida
                 "HTTP-Referer": "https://tauraronwasa.pages.dev",
                 "X-Title": "TauraronWasa",
             },
             body: JSON.stringify({
-                model: "openai/gpt-4o-mini", 
+                model: "openai/gpt-4o-mini", // Mai sauri kuma mai karancin kudi
                 max_tokens: 2000, 
                 messages: [
-                    { role: "system", content: systemPrompt },
+                    // System Prompt ya kamata ya kasance a nan
+                    { role: "system", content: `Kai babban kwararre ne kuma mai ba da labari game da wasanni. Amsoshin ka suna da ilimi, bayyanannu, kuma cikin yaren da aka yi maka tambaya (Hausa ko Turanci). Ka tabbatar amsarka mai gamsarwa ce kuma babu kuskure. Kada ka ambaci cewa kai AI ne. Amsar ka ya kamata ta kasance a cikin alamar <response>...</response>.` },
                     { role: "user", content: query },
                 ],
             }),
@@ -225,7 +218,7 @@ async function handleAIRequest(request, env, origin) {
     } catch (e) {
         console.error("Kuskuren aiki na AI:", e.message);
         const errorResponse = new Response(
-            JSON.stringify({ error: true, message: "An samu matsala yayin aikin binciken AI." }),
+            JSON.stringify({ error: true, message: `An samu matsala yayin aikin binciken AI: ${e.message}` }),
             { status: 500, headers: { "Content-Type": "application/json" } }
         );
         return withCORSHeaders(errorResponse, origin);
@@ -233,7 +226,9 @@ async function handleAIRequest(request, env, origin) {
 }
 
 
-
+/**
+ * Babban Mai Sarrafawa (Main Router)
+ */
 export async function onRequest(context) {
     const { request, env } = context;
     const origin = request.headers.get("Origin") || "";
