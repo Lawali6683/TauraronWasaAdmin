@@ -1,10 +1,34 @@
 export async function onRequest(context) {
   const { request } = context;
 
+  // ----- 1️⃣ CORS CONFIG -----
+  const allowedOrigins = [
+    "https://tauraronwasa.pages.dev",
+    "https://leadwaypeace.pages.dev",
+    "http://localhost:8080"
+  ];
+
+  const origin = request.headers.get("Origin") || "";
+  const isAllowedOrigin = allowedOrigins.includes(origin);
+
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": isAllowedOrigin ? origin : "https://tauraronwasa.pages.dev",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Credentials": "true",
+    "Content-Type": "application/json"
+  };
+
+  // ----- 2️⃣ Handle OPTIONS request -----
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: corsHeaders });
+  }
+
+  // ----- 3️⃣ Main Logic -----
   if (request.method !== "POST") {
     return new Response(JSON.stringify({ error: true, message: "Sai POST request kawai ake yarda." }), {
       status: 405,
-      headers: { "Content-Type": "application/json" }
+      headers: corsHeaders
     });
   }
 
@@ -16,7 +40,6 @@ export async function onRequest(context) {
 
     let apiUrl = "";
 
-    // Duba irin request ɗin
     if (query.includes("today")) {
       apiUrl = `https://api.sportmonks.com/api/v3/football/livescores?api_token=${SPORTMONKS_API_KEY}`;
     } else if (query.includes("tomorrow")) {
@@ -26,7 +49,7 @@ export async function onRequest(context) {
     } else {
       return new Response(JSON.stringify({ error: true, message: "Ba a gane irin request ɗin ba." }), {
         status: 400,
-        headers: { "Content-Type": "application/json" }
+        headers: corsHeaders
       });
     }
 
@@ -40,7 +63,7 @@ export async function onRequest(context) {
         details: errorText
       }), {
         status: apiResponse.status,
-        headers: { "Content-Type": "application/json" }
+        headers: corsHeaders
       });
     }
 
@@ -52,7 +75,7 @@ export async function onRequest(context) {
       data
     }, null, 2), {
       status: 200,
-      headers: { "Content-Type": "application/json" }
+      headers: corsHeaders
     });
 
   } catch (err) {
@@ -62,7 +85,7 @@ export async function onRequest(context) {
       details: err.message
     }), {
       status: 500,
-      headers: { "Content-Type": "application/json" }
+      headers: corsHeaders
     });
   }
 }
