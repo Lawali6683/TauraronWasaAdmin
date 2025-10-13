@@ -1,6 +1,6 @@
 function withCORSHeaders(response, origin) {
     const ALLOWED_ORIGINS = [
-        "https://tauraronwasa.pages.dev",
+        "https://tauraronwasaadmin.pages.dev",
         "https://leadwaypeace.pages.dev",
         "http://localhost:8080",
     ];
@@ -11,6 +11,17 @@ function withCORSHeaders(response, origin) {
     response.headers.set("Access-Control-Allow-Headers", "Content-Type, x-api-key");
     response.headers.set("Access-Control-Max-Age", "86400");
     return response;
+}
+
+async function fetchFootballApi(url, token) {
+    const response = await fetch(url, {
+        headers: { 'X-Auth-Token': token }
+    });
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Football API Error (${response.status}): ${errorText.substring(0, 100)}...`);
+    }
+    return response.json();
 }
 
 async function handleFootballDataRequest(request, env, origin) {
@@ -45,61 +56,52 @@ async function handleFootballDataRequest(request, env, origin) {
     }
 
     try {
-        const { action, teamId, playerId, timeZone } = await request.json();
+        const { action, teamId, playerId, timeZone, teamName, playerName } = await request.json();
         
         if (!FOOTBALL_API_TOKEN) {
             throw new Error("Football API Token ba'a sa shi ba.");
         }
-
-        if (action.includes('history')) {
-             throw new Error("Action da aka bayar ba daidai bane. Yi amfani da hanyar /ai don neman tarihi.");
-        }
         
         let apiResponseData = {};
+        let aiHistory = {};
+
         switch (action) {
             case 'get_team_details':
                 if (!teamId) throw new Error("ID na Kungiya ya ɓace.");
                 
-                const teamUrl = `${BASE_API_URL}/teams/${teamId}`;
-                const teamRes = await fetch(teamUrl, {
-                    headers: { 'X-Auth-Token': FOOTBALL_API_TOKEN }
-                });
-                if (!teamRes.ok) throw new Error(`Kuskure wajen ɗauko Bayanin Kungiya: ${teamRes.statusText}`);
-                const teamData = await teamRes.json();
-                
-                const matchesUrl = `${BASE_API_URL}/teams/${teamId}/matches?timeZone=${timeZone || 'UTC'}&status=FINISHED,SCHEDULED,LIVE`; 
-                const matchesRes = await fetch(matchesUrl, {
-                    headers: { 'X-Auth-Token': FOOTBALL_API_TOKEN }
-                });
-                if (!matchesRes.ok) throw new Error(`Kuskure wajen ɗauko Wasanni: ${matchesRes.statusText}`);
-                const matchesData = await matchesRes.json();
-                
+                const [teamData, matchesData] = await Promise.all([
+                    fetchFootballApi(`${BASE_API_URL}/teams/${teamId}`, FOOTBALL_API_TOKEN),
+                    fetchFootballApi(`${BASE_API_URL}/teams/${teamId}/matches?timeZone=${timeZone || 'UTC'}&status=FINISHED,SCHEDULED,LIVE`, FOOTBALL_API_TOKEN)
+                ]);
+
                 if (teamData.squad) {
                     teamData.squad = teamData.squad.map(player => {
                         player.image = player.image || player.crestUrl || ''; 
                         return player;
                     });
                 }
-
+                
+                aiHistory = await fetchAIHistory('get_team_history', { teamName });
+                
                 apiResponseData = {
                     team: teamData,
-                    matches: matchesData.matches 
+                    matches: matchesData.matches,
+                    history: aiHistory 
                 };
                 break;
                 
             case 'get_player_details':
                 if (!playerId) throw new Error("ID na Dan Wasa ya ɓace.");
                 
-                const playerUrl = `${BASE_API_URL}/persons/${playerId}`;
-                const playerRes = await fetch(playerUrl, {
-                    headers: { 'X-Auth-Token': FOOTBALL_API_TOKEN }
-                });
-                if (!playerRes.ok) throw new Error(`Kuskure wajen ɗauko Bayanin Dan Wasa: ${playerRes.statusText}`);
-                const playerData = await playerRes.json();
-                
+                const playerData = await fetchFootballApi(`${BASE_API_URL}/persons/${playerId}`, FOOTBALL_API_TOKEN);
                 playerData.image = playerData.image || playerData.crestUrl || '';
+                
+                aiHistory = await fetchAIHistory('get_player_history', { playerName });
 
-                apiResponseData = { person: playerData };
+                apiResponseData = { 
+                    person: playerData,
+                    history: aiHistory
+                };
                 break;
                 
             default:
@@ -124,42 +126,20 @@ async function handleFootballDataRequest(request, env, origin) {
     }
 }
 
-async function handleAIRequest(request, env, origin) {
-    
-    if (request.method === "OPTIONS") {
-        return withCORSHeaders(new Response(null, { status: 204 }), origin);
-    }
-    
+async function fetchAIHistory(action, payload) {
     const TRANSLATE_API_KEY = env.TRANSLATE_API_KEY1; 
     const TRANSLATE_API_URL = "https://openrouter.ai/api/v1/chat/completions";
-    const EXPECTED_KEY = "@haruna66"; 
 
-    const WORKER_API_KEY = request.headers.get("x-api-key");
-    if (WORKER_API_KEY !== EXPECTED_KEY) {
-        const response = new Response(
-            JSON.stringify({ error: true, message: "Maɓallin API bai daidaita ba." }),
-            { status: 401, headers: { "Content-Type": "application/json" } }
-        );
-        return withCORSHeaders(response, origin);
-    }
-    
-    const contentType = request.headers.get("content-type") || "";
-    if (request.method !== "POST" || !contentType.includes("application/json")) {
-        const response = new Response(
-            JSON.stringify({ error: true, message: "Hanyar buƙata ko nau'in abun ciki bai daidaita ba." }),
-            { status: 400, headers: { "Content-Type": "application/json" } }
-        );
-        return withCORSHeaders(response, origin);
+    let prompt = "";
+    if (action === 'get_team_history') {
+        prompt = `Da fatan za a ba da cikakken bayani (Labarin) na ƙungiyar **${payload.teamName}** a cikin harshen Hausa. Amsar ta haɗa da: 1. Taƙaitaccen Tarihin Kulob. 2. Manyan kofuna da suka ci. 3. Sunayen Manyan Coach ɗin tarihi (3 zuwa 5). 4. Sunayen Manyan 'Yan Wasa na tarihi (3 zuwa 5). 5. Duk wani muhimmin abu na tarihi. Ka tabbatar da amfani da Hausa mai inganci.`;
+    } else if (action === 'get_player_history') {
+        prompt = `Da fatan za a ba da cikakken bayani (Labarin) na ɗan wasa **${payload.playerName}** a cikin harshen Hausa. Amsar ta haɗa da: 1. Cikakken bayanin 'yan wasa (Shekarun haihuwa, ƙasarsa, matsayi). 2. Ƙungiyoyin da ya buga ma mafi muhimmanci. 3. Mahimman nasarorin da ya samu. 4. Gudunmawar da ya bayar. 5. Duk wani muhimmin abu. Ka tabbatar da amfani da Hausa mai inganci.`;
+    } else {
+        return { message: "AI Action ba daidai bane.", error: true };
     }
 
     try {
-        const requestBody = await request.json();
-        const { query } = requestBody;
-        
-        if (!query) {
-            throw new Error("Tambaya ba ta nan.");
-        }
-
         const chatRes = await fetch(TRANSLATE_API_URL, {
             method: "POST",
             headers: {
@@ -170,17 +150,17 @@ async function handleAIRequest(request, env, origin) {
             },
             body: JSON.stringify({
                 model: "openai/gpt-4o-mini", 
-                max_tokens: 400, // AN KAYYADE YADDA AKA BUƘATA
+                max_tokens: 350, 
                 messages: [
-                    { role: "system", content: `Kai babban kwararre ne kuma mai ba da labari game da wasanni. Amsoshin ka suna da ilimi, bayyanannu, kuma cikin yaren da aka yi maka tambaya (Hausa ko Turanci). Ka tabbatar amsarka mai gamsarwa ce kuma babu kuskure. Kada ka ambaci cewa kai AI ne. Amsar ka ya kamata ta kasance a cikin alamar <response>...</response>.` },
-                    { role: "user", content: query },
+                    { role: "system", content: `Kai babban kwararre ne kuma mai ba da labari game da wasanni. Amsoshin ka suna da ilimi, bayyanannu, kuma cikin yaren da aka yi maka tambaya. Ka tabbatar amsarka mai gamsarwa ce kuma babu kuskure. Kada ka ambaci cewa kai AI ne. Amsar ka ya kamata ta kasance a cikin alamar <response>...</response>.` },
+                    { role: "user", content: prompt },
                 ],
             }),
         });
         
         if (!chatRes.ok) {
             const text = await chatRes.text();
-            throw new Error(`Chat API failed with status ${chatRes.status}: ${text}`);
+            throw new Error(`Chat API failed: ${chatRes.status} ${text.substring(0, 50)}...`);
         }
         
         const chatData = await chatRes.json();
@@ -194,19 +174,11 @@ async function handleAIRequest(request, env, origin) {
         const responseMatch = content.match(/<response>(.*?)<\/response>/is);
         if (responseMatch) responseText = responseMatch[1].trim();
 
-        const finalResponse = new Response(
-            JSON.stringify({ message: responseText, error: false }),
-            { status: 200, headers: { "Content-Type": "application/json" } }
-        );
-        return withCORSHeaders(finalResponse, origin);
+        return { message: responseText, error: false };
         
     } catch (e) {
         console.error("Kuskuren aiki na AI:", e.message);
-        const errorResponse = new Response(
-            JSON.stringify({ error: true, message: `An samu matsala yayin aikin binciken AI: ${e.message}` }),
-            { status: 500, headers: { "Content-Type": "application/json" } }
-        );
-        return withCORSHeaders(errorResponse, origin);
+        return { error: true, message: `An samu matsala yayin aikin binciken AI: ${e.message}` };
     }
 }
 
@@ -215,9 +187,5 @@ export async function onRequest(context) {
     const origin = request.headers.get("Origin") || "";
     const url = new URL(request.url);
     
-    if (url.pathname.endsWith('/ai')) {
-        return handleAIRequest(request, env, origin);
-    } else {
-        return handleFootballDataRequest(request, env, origin);
-    }
+    return handleFootballDataRequest(request, env, origin);
 }
