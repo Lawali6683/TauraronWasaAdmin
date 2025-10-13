@@ -1,7 +1,6 @@
 export async function onRequest(context) {
   const { request } = context;
 
-  // ----- 1️⃣ CORS CONFIG -----
   const allowedOrigins = [
     "https://tauraronwasa.pages.dev",
     "https://leadwaypeace.pages.dev",
@@ -19,12 +18,10 @@ export async function onRequest(context) {
     "Content-Type": "application/json"
   };
 
-  // ----- 2️⃣ Handle OPTIONS request -----
   if (request.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: corsHeaders });
   }
 
-  // ----- 3️⃣ Main Logic -----
   if (request.method !== "POST") {
     return new Response(JSON.stringify({ error: true, message: "Sai POST request kawai ake yarda." }), {
       status: 405,
@@ -37,15 +34,14 @@ export async function onRequest(context) {
     const query = (body.query || "").toLowerCase();
 
     const SPORTMONKS_API_KEY = "22Wx1265roisUdQugjYeA2fzXnxh4TpeLNNoZ869Jffsezwfu6R9efED6LLg";
-
     let apiUrl = "";
 
     if (query.includes("today")) {
-      apiUrl = `https://api.sportmonks.com/api/v3/football/livescores?api_token=${SPORTMONKS_API_KEY}`;
+      apiUrl = `https://api.sportmonks.com/v3/football/livescores?api_token=${SPORTMONKS_API_KEY}`;
     } else if (query.includes("tomorrow")) {
-      apiUrl = `https://api.sportmonks.com/api/v3/football/fixtures/date/${getFutureDate(1)}?api_token=${SPORTMONKS_API_KEY}`;
+      apiUrl = `https://api.sportmonks.com/v3/football/fixtures/date/${getFutureDate(1)}?api_token=${SPORTMONKS_API_KEY}`;
     } else if (query.includes("jibi") || query.includes("next")) {
-      apiUrl = `https://api.sportmonks.com/api/v3/football/fixtures/date/${getFutureDate(2)}?api_token=${SPORTMONKS_API_KEY}`;
+      apiUrl = `https://api.sportmonks.com/v3/football/fixtures/date/${getFutureDate(2)}?api_token=${SPORTMONKS_API_KEY}`;
     } else {
       return new Response(JSON.stringify({ error: true, message: "Ba a gane irin request ɗin ba." }), {
         status: 400,
