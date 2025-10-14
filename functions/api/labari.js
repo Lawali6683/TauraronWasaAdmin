@@ -3,8 +3,8 @@ const ALLOWED_ORIGINS = [
     "http://localhost:8080",
 ];
 const REQUIRED_API_KEY = "@haruna66";
-
 const TRANSLATE_API_URL = "https://openrouter.ai/api/v1/chat/completions";
+const MAX_GPT_TOKENS = 350;
 
 function withCORSHeaders(response, origin) {
     const headers = response.headers;
@@ -49,14 +49,16 @@ async function getMatchStatus(env, matchId) {
 
 async function getGPTAnalysis(env, homeName, awayName) {
     const systemPrompt = `Kai babban kwararre ne kuma mai ba da labari game da wasanni. Amsoshin ka suna da ilimi, bayyanannu, kuma cikin yaren da aka yi maka tambaya (Hausa).
-
 Dole ne ka bi waɗannan ƙa'idoji:
+
 1. Yi amfani da binciken yanar gizo (Web Search) don nemo bayanan tarihi, yawan haduwa, nasarori, canjaras, da kuma fitattun yan wasa/moment a tsakanin waɗannan ƙungiyoyin.
+
 2. Tsara amsar ka a cikin alamar <response>...</response> kawai.
-3. Ka ba da labarin cikin yaren **Hausa** mai inganci, ciki har da kiran kungiyoyin da sunaye na Hausa da kwararru ke amfani da su.`;
+
+3. Ka ba da labarin cikin yaren **Hausa** mai inganci, ciki har da kiran kungiyoyin da sunaye na Hausa da kwararru ke amfani da su.
+4. Tsawon rubutun kada ya wuce ${MAX_GPT_TOKENS} tokens.`;
     
     const userQuery = `Ka ba ni cikakken nazari da labarin tarihi mai zafi tsakanin ƙungiyoyin **${homeName}** da **${awayName}**. Ka shiga cikin tarihi: yawan haduwa, sakamakon haduwa (nasara, tashi, canjaras), wani babban ɗan wasa ko mai zura kwallaye tsakaninsu, da kuma kowane wasa mai zafi da suka taɓa yi (misali: final ko gasa mai mahimmanci). Tsawon amsar ya kasance aƙalla sakin layi 4.`;
-
     try {
         const chatRes = await fetch(TRANSLATE_API_URL, {
             method: "POST",
@@ -72,6 +74,7 @@ Dole ne ka bi waɗannan ƙa'idoji:
                     { role: "system", content: systemPrompt },
                     { role: "user", content: userQuery },
                 ],
+                max_tokens: MAX_GPT_TOKENS,
             }),
         });
 
@@ -91,18 +94,15 @@ Dole ne ka bi waɗannan ƙa'idoji:
         const responseText = responseMatch ? responseMatch[1].trim() : content;
         
         return { response_text: responseText };
-
     } catch (e) {
         console.error("GPT Analysis Error:", e.message);
-        return { response_text: `An kasa samun labarin tarihi saboda matsalar API. (${e.message})` };
+        return { response_text: `An kasa samun labarin tarihi saboda matsalar AI. (${e.message})` };
     }
 }
-
 
 export async function onRequest({ request, env }) {
     const url = new URL(request.url);
     const origin = request.headers.get("Origin") || "";
-
     if (request.method === "OPTIONS") {
         return withCORSHeaders(new Response(null, { status: 204 }), origin);
     }
@@ -115,7 +115,6 @@ export async function onRequest({ request, env }) {
     if (apiKey !== REQUIRED_API_KEY) {
         return withCORSHeaders(new Response(JSON.stringify({ error: true, message: "Invalid API Key." }), { status: 401 }), origin);
     }
-
     try {
         const { matchId, homeName, awayName } = await request.json();
         
@@ -123,20 +122,30 @@ export async function onRequest({ request, env }) {
             throw new Error("Ba a kammala bayanan wasan ba. (matchId, homeName, awayName)");
         }
         
-       
-        const [matchStatus, gptAnalysis] = await Promise.allSettled([
+        const [matchStatusResult, gptAnalysisResult] = await Promise.allSettled([
             getMatchStatus(env, matchId),
             getGPTAnalysis(env, homeName, awayName)
         ]);
 
-        if (matchStatus.status === 'rejected') {
-            throw new Error(`Football Data Error: ${matchStatus.reason.message}`);
+        const finalResponse = {};
+
+        // 1. Tabbatar da Match Status
+        if (matchStatusResult.status === 'fulfilled') {
+            finalResponse.matchStatus = matchStatusResult.value;
+            finalResponse.matchStatusError = null;
+        } else {
+            // An samu kuskure a Football API. A ajiye bayanin kuskuren.
+            finalResponse.matchStatus = null;
+            finalResponse.matchStatusError = `Football Data Error: ${matchStatusResult.reason.message}`;
         }
         
-        const finalResponse = {
-            matchStatus: matchStatus.value,
-            gptAnalysis: gptAnalysis.status === 'fulfilled' ? gptAnalysis.value : { response_text: "An kasa samun nazari na AI." }
-        };
+        // 2. Tabbatar da GPT Analysis
+        if (gptAnalysisResult.status === 'fulfilled') {
+            finalResponse.gptAnalysis = gptAnalysisResult.value;
+        } else {
+            // An samu kuskure a GPT Analysis.
+            finalResponse.gptAnalysis = { response_text: `An kasa samun nazari na AI. Kuskure: ${gptAnalysisResult.reason.message}` };
+        }
         
         const response = new Response(JSON.stringify(finalResponse), { 
             status: 200, 
