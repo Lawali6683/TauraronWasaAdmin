@@ -96,7 +96,7 @@ Dole ne ka bi waɗannan ƙa'idoji:
         return { response_text: responseText };
     } catch (e) {
         console.error("GPT Analysis Error:", e.message);
-        return { response_text: `An kasa samun labarin tarihi saboda matsalar AI. (${e.message})` };
+        return { response_text: `An kasa samun nazarin tarihi saboda matsalar AI. (${e.message})` };
     }
 }
 
@@ -116,11 +116,10 @@ export async function onRequest({ request, env }) {
         return withCORSHeaders(new Response(JSON.stringify({ error: true, message: "Invalid API Key." }), { status: 401 }), origin);
     }
     try {
-        // Karbar karin bayani game da teams don amfani da su idan Football API ya faɗi
-        const { matchId, homeTeam, awayTeam, homeCrest, awayCrest } = await request.json();
+        const { matchId, homeTeam, awayTeam, homeCrest, awayCrest, utcDate } = await request.json();
         
-        if (!matchId || !homeTeam || !awayTeam) {
-            throw new Error("Ba a kammala bayanan wasan ba. (matchId, homeTeam, awayTeam)");
+        if (!matchId || !homeTeam || !awayTeam || !utcDate) {
+            throw new Error("Ba a kammala bayanan wasan ba. (matchId, homeTeam, awayTeam, utcDate)");
         }
         
         const [matchStatusResult, gptAnalysisResult] = await Promise.allSettled([
@@ -135,24 +134,27 @@ export async function onRequest({ request, env }) {
             finalResponse.matchStatus = matchStatusResult.value;
             finalResponse.matchStatusError = null;
         } else {
-            // An samu kuskure a Football API. A ajiye bayanin kuskuren kuma a cusa bayanan teams da aka samu
-            // daga farko domin a iya nuna sunaye da logos a shafi
+            // An samu kuskure a Football API. A cusa bayanan teams da aka samu
+            // daga farko, da kuma lokacin wasan, don HTML ya iya nuna su.
             finalResponse.matchStatus = {
                 homeTeamName: homeTeam,
                 awayTeamName: awayTeam,
                 homeTeam: { name: homeTeam, crest: homeCrest || 'placeholder.png' },
                 awayTeam: { name: awayTeam, crest: awayCrest || 'placeholder.png' },
-                status: 'ERROR', // Don sanin cewa api ya kasa
-                utcDate: new Date().toISOString() // Saka kwanan wata kawai don kaucewa matsalar kwanan wata
+                status: 'SCHEDULED', // Zai nuna Za a buga 🕒
+                score: { fullTime: { home: null, away: null } },
+                utcDate: utcDate // Amfani da lokacin da aka ajiye
             };
-            finalResponse.matchStatusError = `Football Data Error: ${matchStatusResult.reason.message}`;
+            // Saƙon kuskuren da za a nuna ga mai amfani (ya kasance mai sauƙi ko babu shi)
+            finalResponse.matchStatusError = "Ba a dawo da bayanan wasan ba daga Football API.";
         }
         
         // Tabbatar da GPT Analysis
         if (gptAnalysisResult.status === 'fulfilled') {
             finalResponse.gptAnalysis = gptAnalysisResult.value;
         } else {
-            finalResponse.gptAnalysis = { response_text: `An kasa samun nazari na AI. Kuskure: ${gptAnalysisResult.reason.message}` };
+            // A boye ainihin kuskuren GPT daga user
+            finalResponse.gptAnalysis = { response_text: "An kasa samun nazarin tarihi na AI." };
         }
         
         const response = new Response(JSON.stringify(finalResponse), { 
