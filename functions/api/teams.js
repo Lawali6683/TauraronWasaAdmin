@@ -48,7 +48,7 @@ async function fetchAIHistory(action, payload, env) {
             },
             body: JSON.stringify({
                 model: "openai/gpt-4o-mini", 
-                max_tokens: 2000, 
+                max_tokens: 350, 
                 messages: [
                     { role: "system", content: `Kai babban kwararre ne kuma mai ba da labari game da wasanni. Amsoshin ka suna da ilimi, bayyanannu, kuma cikin yaren da aka yi maka tambaya. Ka tabbatar amsarka mai gamsarwa ce kuma babu kuskure. Kada ka ambaci cewa kai AI ne. Amsar ka ya kamata ta kasance a cikin alamar <response>...</response>.` },
                     { role: "user", content: prompt },
