@@ -4,7 +4,7 @@ const ALLOWED_ORIGINS = [
 ];
 const REQUIRED_API_KEY = "@haruna66";
 const TRANSLATE_API_URL = "https://openrouter.ai/api/v1/chat/completions";
-const MAX_GPT_TOKENS = 350;
+const MAX_GPT_TOKENS = 2000;
 
 function withCORSHeaders(response, origin) {
     const headers = response.headers;
