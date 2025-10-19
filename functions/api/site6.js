@@ -12,6 +12,7 @@ async function updateFixtures(env) {
     const datesToFetch = [];
     const dateStrings = [];
 
+    
     for (let i = -1; i <= 4; i++) {
         const date = new Date(today);
         date.setDate(today.getDate() + i);
@@ -22,24 +23,28 @@ async function updateFixtures(env) {
 
     const dateFrom = dateStrings[0];
     const dateTo = dateStrings[dateStrings.length - 1];
-
     const apiUrl = `https://api.football-data.org/v4/matches?dateFrom=${dateFrom}&dateTo=${dateTo}`;
+
+    // Kiran Football API
     const response = await fetch(apiUrl, {
         headers: { "X-Auth-Token": env.FOOTBALL_DATA_API_KEY6 }
     });
 
-    if (!response.ok) throw new Error(`Football API Error: HTTP ${response.status} - ${response.statusText}`);
+    if (!response.ok) {
+        throw new Error(`Football API Error: HTTP ${response.status} - ${response.statusText}`);
+    }
 
     const data = await response.json();
     const allFixtures = Array.isArray(data.matches) ? data.matches : [];
-
     const categorized = {};
     let totalFixtures = 0;
 
+   
     datesToFetch.forEach(({ dateStr }, index) => {
         const key = DAY_KEYS[index];
         const matchesForDate = allFixtures.filter(f => {
             const matchDate = new Date(f.utcDate).toISOString().split("T")[0];
+           
             return matchDate === dateStr && !["POSTPONED", "CANCELLED", "SUSPENDED"].includes(f.status);
         });
         categorized[key] = { date: dateStr, matches: matchesForDate };
@@ -49,7 +54,7 @@ async function updateFixtures(env) {
     
     const fbUrl = `https://tauraronwasa-default-rtdb.firebaseio.com/fixtures.json?auth=${env.FIREBASE_SECRET}`;
     const fbRes = await fetch(fbUrl, {
-        method: "PUT", 
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(categorized)
     });
@@ -59,6 +64,7 @@ async function updateFixtures(env) {
         throw new Error(`Firebase Error: ${fbRes.status} - ${fbErrorBody}`);
     }
 
+    
     const metaUrl = `https://tauraronwasa-default-rtdb.firebaseio.com/metadata.json?auth=${env.FIREBASE_SECRET}`;
     await fetch(metaUrl, {
         method: "PATCH",
@@ -81,24 +87,38 @@ async function getMatchStatus(env, matchId) {
         headers: { "X-Auth-Token": env.FOOTBALL_DATA_API_KEY6 }
     });
 
-    if (!response.ok) throw new Error(`Football API Status Error: HTTP ${response.status} - ${response.statusText}`);
+    if (!response.ok) {
+        throw new Error(`Football API Status Error: HTTP ${response.status} - ${response.statusText}`);
+    }
 
     const data = await response.json();
     const match = data.match;
 
-    if (!match) throw new Error("Match not found or data incomplete");
+    if (!match) {
+        throw new Error("Match not found or data incomplete");
+    }
 
-    return { id: match.id, status: match.status, score: match.score, utcDate: match.utcDate, competition: match.competition, homeTeam: match.homeTeam, awayTeam: match.awayTeam };
+   
+    return { 
+        id: match.id, 
+        status: match.status, 
+        score: match.score, 
+        utcDate: match.utcDate, 
+        competition: match.competition, 
+        homeTeam: match.homeTeam, 
+        awayTeam: match.awayTeam 
+    };
 }
+
 
 export async function onRequest({ request, env }) {
     const url = new URL(request.url);
-    const origin = request.headers.get('Origin');
+    const origin = request.headers.get("Origin");
 
     const headers = {
         "Content-Type": "application/json",
-        
-        "Access-Control-Allow-Origin": ALLOWED_ORIGINS.includes(origin) ? origin : "*", 
+       
+        "Access-Control-Allow-Origin": ALLOWED_ORIGINS.includes(origin) ? origin : "*",
         "Access-Control-Allow-Methods": "GET, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, x-api-key, Origin"
     };
@@ -106,17 +126,16 @@ export async function onRequest({ request, env }) {
     if (request.method === "OPTIONS") {
         return new Response(null, { status: 204, headers });
     }
-
+    
   
-    if (!ALLOWED_ORIGINS.includes(origin) && origin) {
-        
-        headers["Access-Control-Allow-Origin"] = "*"; 
+    if (origin && !ALLOWED_ORIGINS.includes(origin)) {
+       
     }
 
     try {
         const pathSegments = url.pathname.split('/').filter(p => p.length > 0);
-        
-     
+
+       
         if (pathSegments.length >= 2 && pathSegments[pathSegments.length - 2] === 'site6') {
             const matchId = pathSegments[pathSegments.length - 1];
             if (!isNaN(parseInt(matchId))) {
@@ -124,25 +143,23 @@ export async function onRequest({ request, env }) {
                 return new Response(JSON.stringify(statusData), { headers });
             }
         }
-        
-        
+
+       
         const apiKey = url.searchParams.get('key');
         if (apiKey !== REQUIRED_API_KEY) {
             return new Response(JSON.stringify({ error: true, message: "Invalid API Key" }), { status: 401, headers });
         }
 
         const result = await updateFixtures(env);
-        
-        return new Response(JSON.stringify(result), { headers, status: 200 }); 
+
+              
+        return new Response(JSON.stringify(result), { headers, status: 200 });
 
     } catch (error) {
-        
-        console.error("API Processing Error:", error.message, error.stack); 
-        
+        console.error("API Kuskure:", error);
         return new Response(JSON.stringify({
             error: true,
-            message: `Kuskuren API: ${error.message || "Internal Server Error"}`,
-            details: env.NODE_ENV !== 'production' ? error.stack : undefined  
+            message: `Kuskuren API: ${error.message || "Internal Server Error"}`
         }), {
             status: 500,
             headers
