@@ -35,8 +35,12 @@ async function updateFixtures(env) {
             const matchDate = new Date(f.utcDate).toISOString().split("T")[0];
             return matchDate === dateStr && !["POSTPONED", "CANCELLED", "SUSPENDED"].includes(f.status);
         });
-        categorized[key] = { date: dateStr, matches: matchesForDate };
-        totalFixtures += matchesForDate.length;
+        if (matchesForDate.length === 0) {
+            categorized[key] = { date: dateStr, matches: "babu match" };
+        } else {
+            categorized[key] = { date: dateStr, matches: matchesForDate };
+            totalFixtures += matchesForDate.length;
+        }
     });
     const fbUrl = `https://tauraronwasa-default-rtdb.firebaseio.com/fixtures.json?auth=${env.FIREBASE_SECRET}`;
     const fbRes = await fetch(fbUrl, {
@@ -97,14 +101,6 @@ export async function onRequest({ request, env }) {
             return new Response(JSON.stringify({ error: true, message: "Invalid API Key" }), { status: 401, headers });
         }
         const result = await updateFixtures(env);
-        if (result.totalMatchesSaved === 0) {
-            return new Response(JSON.stringify({
-                status: "success",
-                message: "An kammala sabunta Firebase cikin nasara amma babu fixtures a lokacin.",
-                totalMatchesSaved: 0,
-                dateRange: result.dateRange
-            }), { headers, status: 200 });
-        }
         return new Response(JSON.stringify(result), { headers, status: 200 });
     } catch (error) {
         return new Response(JSON.stringify({
