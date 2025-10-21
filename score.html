@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ha">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Saka Sakamakon Wasan</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Poppins:400,600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to bottom, #180022, #300040);
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      background-size: cover;
+      color: #fff;
+      min-height: 100vh;
+    }
+    .logo-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 24px;
+      margin-bottom: 12px;
+    }
+    .logo-header img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 4px 16px #000a;
+      object-fit: cover;
+    }
+    .logo-header h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      margin: 0;
+      color: #c7b2ff;
+      text-shadow: 0 2px 8px #18002288;
+    }
+    .main-container {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    .card-container {
+      background: #2a0044;
+      border-radius: 18px;
+      box-shadow: 0 2px 12px #0005;
+      margin-bottom: 26px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: box-shadow 0.2s;
+      position: relative;
+    }
+    .card-container:hover {
+      box-shadow: 0 6px 24px #0009;
+    }
+    .score-tag-success {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: #ffd800;
+      color: #2a0044;
+      font-weight: bold;
+      padding: 6px 16px;
+      border-radius: 16px;
+      font-size: .97rem;
+      box-shadow: 0 2px 8px #0005;
+      z-index: 3;
+      border: 2px solid #fff;
+      letter-spacing: 1px;
+    }
+    .aite7-teams {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      margin-bottom: 8px;
+    }
+    .aite7-team-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .aite7-game-logo {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: 0 2px 8px #0005;
+      margin-bottom: 2px;
+    }
+    .aite7-game-name {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #e5d5ff;
+      text-shadow: 0 1px 6px #18002266;
+      text-align: center;
+    }
+    .aite7-vs-label {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #ffd800;
+      padding: 0 10px;
+    }
+    .aite7-game-time {
+      text-align: center;
+      font-size: 1rem;
+      color: #bbb;
+      margin-bottom: 4px;
+    }
+    .aite7-score-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      margin-bottom: 6px;
+    }
+    .aite7-vote-box {
+      background: #420076;
+      border-radius: 12px;
+      padding: 10px 18px;
+      min-width: 64px;
+      box-shadow: 0 2px 8px #0004;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .aite7-box-count {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #ffd800;
+      margin-left: 4px;
+    }
+    .score-input-row {
+      display: flex;
+      gap: 16px;
+      margin: 10px 0 12px 0;
+      justify-content: center;
+    }
+    .score-input-box {
+      width: 70px;
+      font-size: 1.3rem;
+      border-radius: 8px;
+      border: 1px solid #aaa;
+      padding: 7px;
+      background: #fff;
+      color: #38006b;
+      font-weight: 600;
+      text-align: center;
+      box-shadow: 0 1px 5px #0003;
+      outline: none;
+      transition: border 0.2s;
+    }
+    .score-input-box:focus {
+      border: 2px solid #ffd800;
+    }
+    .submit-score-btn {
+      display: block;
+      width: 110px;
+      margin: 0 auto;
+      padding: 8px 0;
+      background: linear-gradient(90deg, #ffd800 60%, #c7b2ff 100%);
+      color: #38006b;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      box-shadow: 0 2px 8px #0005;
+      margin-top: 7px;
+    }
+    .submit-score-btn:active {
+      background: linear-gradient(90deg, #c7b2ff 40%, #ffd800 100%);
+    }
+    .aite7-poster {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .aite7-poster img {
+      width: 60%;
+      max-width: 230px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px #fff3;
+      cursor: pointer;
+      margin-bottom: 4px;
+    }
+    .aite7-content {
+      font-size: 1rem;
+      color: #eee;
+      margin-bottom: 6px;
+      text-align: center;
+      word-break: break-word;
+    }
+    .notification-box {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ffd800;
+      color: #38006b;
+      font-weight: 700;
+      padding: 12px 24px;
+      border-radius: 10px;
+      box-shadow: 0 6px 24px #000a;
+      z-index: 99;
+      font-size: 1.1rem;
+      display: none;
+    }
+    @media (max-width: 700px) {
+      .main-container { max-width: 98vw; padding: 4px; }
+      .card-container { padding: 8px; }
+      .aite7-poster img { width: 90%; max-width: 170px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="logo-header">
+    <img src="https://i.imgur.com/CgvdgMA.png" alt="Logo">
+    <h1>Admin Saka Sakamako</h1>
+  </div>
+  <div class="main-container" id="main-container"></div>
+  <div class="notification-box" id="notification-box"></div>
+  <script type="module">
+    import { app, analytics, firebaseConfig } from './firebase.js';
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+    const db = getDatabase();
+    const auth = getAuth();
+    let currentUser = null;
+
+    function showNotification(msg) {
+      const box = document.getElementById('notification-box');
+      box.textContent = msg;
+      box.style.display = 'block';
+      setTimeout(() => { box.style.display = 'none'; box.textContent = ''; }, 4000);
+    }
+
+    function aite7_numFormat(val) {
+      return Number(val || 0).toLocaleString('en-US');
+    }
+
+    async function loadPosts() {
+      const main = document.getElementById('main-container');
+      main.innerHTML = '';
+      const postsRef = ref(db, 'wasaniMasuZabi');
+      const snapshot = await get(postsRef);
+      if (!snapshot.exists()) {
+        main.innerHTML = '<p style="text-align:center;">Ba a samu wasanni ba</p>';
+        return;
+      }
+      const postsData = snapshot.val();
+      // Sort postCodes: Sabbin post su fara (idan kana da timestamp, sorting by it is best)
+      // Za a yi reverse a nan
+      const postCodes = Object.keys(postsData).reverse();
+      // Idan kana da timestamp a post, zaka iya:
+      // const postCodes = Object.keys(postsData).sort((a, b) => new Date(postsData[b].payGameTime) - new Date(postsData[a].payGameTime));
+      postCodes.forEach(postCode => {
+        const post = postsData[postCode];
+        main.appendChild(createPostCard(post));
+      });
+    }
+
+    function createPostCard(post) {
+      const card = document.createElement('div');
+      card.className = 'card-container';
+      card.setAttribute('data-post', post.postCode);
+
+      // == NUNA ALAMAR AN SAKA SAKAMAKO
+      if (
+        post.result
+        && post.result.homeTeam !== undefined
+        && post.result.awayTeam !== undefined
+        && post.result.alamarTabbatarwa !== undefined
+        && post.result.alamarTabbatarwa !== null
+        && post.result.alamarTabbatarwa !== "null"
+      ) {
+        const tag = document.createElement('div');
+        tag.className = "score-tag-success";
+        tag.innerHTML = '<i class="fa-solid fa-check"></i> An saka sakamako';
+        card.appendChild(tag);
+      }
+
+      const teamsDiv = document.createElement('div');
+      teamsDiv.className = "aite7-teams";
+      const homeTeamCol = document.createElement('div');
+      homeTeamCol.className = "aite7-team-col";
+      const team1Logo = document.createElement('img');
+      team1Logo.className = "aite7-game-logo";
+      team1Logo.src = post.game1logo || "";
+      team1Logo.alt = "Home Team Logo";
+      homeTeamCol.appendChild(team1Logo);
+      const team1Name = document.createElement('span');
+      team1Name.className = "aite7-game-name";
+      team1Name.textContent = post.game1Name || "";
+      homeTeamCol.appendChild(team1Name);
+      teamsDiv.appendChild(homeTeamCol);
+      const vsSpan = document.createElement('span');
+      vsSpan.className = "aite7-vs-label";
+      vsSpan.textContent = "VS";
+      teamsDiv.appendChild(vsSpan);
+      const awayTeamCol = document.createElement('div');
+      awayTeamCol.className = "aite7-team-col";
+      const team2Logo = document.createElement('img');
+      team2Logo.className = "aite7-game-logo";
+      team2Logo.src = post.game2logo || "";
+      team2Logo.alt = "Away Team Logo";
+      awayTeamCol.appendChild(team2Logo);
+      const team2Name = document.createElement('span');
+      team2Name.className = "aite7-game-name";
+      team2Name.textContent = post.game2Name || "";
+      awayTeamCol.appendChild(team2Name);
+      teamsDiv.appendChild(awayTeamCol);
+      card.appendChild(teamsDiv);
+      const matchTimeDiv = document.createElement('div');
+      matchTimeDiv.className = "aite7-game-time";
+      matchTimeDiv.textContent = post.payGameTime || "";
+      card.appendChild(matchTimeDiv);
+      const scoreBarDiv = document.createElement('div');
+      scoreBarDiv.className = "aite7-score-bar";
+      const homeVoteBox = document.createElement('div');
+      homeVoteBox.className = "aite7-vote-box";
+      homeVoteBox.dataset.side = "home";
+      const homeTeamSpan = document.createElement('span');
+      homeTeamSpan.innerHTML = `<i class="fa-solid fa-user-ninja aite7-team-icon"></i> <span class="aite7-box-count" data-current-count="${post.game1box || 0}">${aite7_numFormat(post.game1box || 0)}</span>`;
+      homeVoteBox.appendChild(homeTeamSpan);
+      scoreBarDiv.appendChild(homeVoteBox);
+      const dividerDiv = document.createElement('div');
+      dividerDiv.className = "aite7-divider";
+      dividerDiv.textContent = "➖➖➖";
+      scoreBarDiv.appendChild(dividerDiv);
+      const awayVoteBox = document.createElement('div');
+      awayVoteBox.className = "aite7-vote-box";
+      awayVoteBox.dataset.side = "away";
+      const awayTeamSpan = document.createElement('span');
+      awayTeamSpan.innerHTML = `<i class="fa-solid fa-user-ninja aite7-team-icon"></i> <span class="aite7-box-count" data-current-count="${post.game2box || 0}">${aite7_numFormat(post.game2box || 0)}</span>`;
+      awayVoteBox.appendChild(awayTeamSpan);
+      scoreBarDiv.appendChild(awayVoteBox);
+      card.appendChild(scoreBarDiv);
+      const posterDiv = document.createElement('div');
+      posterDiv.className = "aite7-poster";
+      if (post.photalinlink) {
+        const posterImg = document.createElement('img');
+        posterImg.src = post.photalinlink;
+        posterImg.alt = "Photo Show";
+        posterDiv.appendChild(posterImg);
+      }
+      card.appendChild(posterDiv);
+      const contentDiv = document.createElement('div');
+      contentDiv.className = "aite7-content";
+      if (post.test) {
+        contentDiv.textContent = post.test;
+      } else if (post.audioLink) {
+        const audio = document.createElement('audio');
+        audio.src = post.audioLink;
+        audio.controls = true;
+        contentDiv.appendChild(audio);
+      }
+      card.appendChild(contentDiv);
+      const scoreInputRow = document.createElement('div');
+      scoreInputRow.className = "score-input-row";
+      const homeInput = document.createElement('input');
+      homeInput.type = "number";
+      homeInput.className = "score-input-box";
+      homeInput.placeholder = post.game1Name || "Home";
+      homeInput.min = "0";
+      homeInput.max = "99";
+      const awayInput = document.createElement('input');
+      awayInput.type = "number";
+      awayInput.className = "score-input-box";
+      awayInput.placeholder = post.game2Name || "Away";
+      awayInput.min = "0";
+      awayInput.max = "99";
+      scoreInputRow.appendChild(homeInput);
+      scoreInputRow.appendChild(document.createElement('span')).textContent = "VS";
+      scoreInputRow.appendChild(awayInput);
+      card.appendChild(scoreInputRow);
+      const submitBtn = document.createElement('button');
+      submitBtn.type = "button";
+      submitBtn.className = "submit-score-btn";
+      submitBtn.textContent = "Submit";
+      submitBtn.onclick = async () => {
+        const homeVal = Number(homeInput.value);
+        const awayVal = Number(awayInput.value);
+        if (isNaN(homeVal) || isNaN(awayVal)) {
+          showNotification("Cika duka score din daidai!");
+          return;
+        }
+        if (homeVal < 0 || awayVal < 0) {
+          showNotification("Score ba zai zama negative ba!");
+          return;
+        }
+        const resultObj = {
+          homeTeam: homeVal,
+          awayTeam: awayVal,
+          alamarTabbatarwa: "null"
+        };
+        const scoreRef = ref(db, `wasaniMasuZabi/${post.postCode}/result`);
+        await set(scoreRef, resultObj);
+        showNotification("An ajje sakamakon cikin nasara!");
+        homeInput.value = "";
+        awayInput.value = "";
+      };
+      card.appendChild(submitBtn);
+      return card;
+    }
+
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        currentUser = user;
+        loadPosts();
+      } else {
+        showLoginForm();
+      }
+    });
+
+    function showLoginForm() {
+      const main = document.getElementById('main-container');
+      main.innerHTML = `
+        <form id="login-form" style="margin: 30px auto; max-width: 340px; background:#220033; border-radius:16px; box-shadow:0 2px 12px #0006; padding:24px;">
+          <h2 style="text-align:center; color:#ffd800;">Login Admin</h2>
+          <input type="email" id="login-email" placeholder="Email" required style="width:98%; font-size:1.1rem; margin-bottom:14px; border-radius:6px; border:1px solid #aaa; padding:10px;">
+          <input type="password" id="login-pass" placeholder="Password" required style="width:98%; font-size:1.1rem; margin-bottom:14px; border-radius:6px; border:1px solid #aaa; padding:10px;">
+          <button type="submit" style="width:100%; padding:10px; background:linear-gradient(90deg,#ffd800 60%,#c7b2ff 100%); color:#38006b; font-weight:700; border-radius:6px; font-size:1.1rem; border:none; cursor:pointer;">Login</button>
+        </form>
+      `;
+      const form = document.getElementById('login-form');
+      form.onsubmit = async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value.trim();
+        const pass = document.getElementById('login-pass').value;
+        try {
+          await signInWithEmailAndPassword(auth, email, pass);
+          showNotification("An shiga cikin nasara!");
+        } catch {
+          showNotification("Bai yi nasara ba! Email ko Password ba daidai ba.");
+        }
+      };
+    }
+  </script>
+</body>
+</html>
