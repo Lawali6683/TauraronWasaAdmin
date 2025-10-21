@@ -7,8 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
     <link rel="stylesheet" href="agents.css">
-    <style>
-        /* Custom Properties */
+    <style>      
+       
 :root {
     --primary: #a05aff;
     --secondary: #300040;
@@ -585,6 +585,256 @@ main {
     }
 }
     </style>
+    <style>
+        
+        /* ==== STYLE NA ADMIN POLL FORM ==== */
+.admin-poll-post-container {
+    width: 90%;
+    max-width: 650px;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    background-color: #f7f7f7;
+    border-left: 5px solid #ff5722;
+}
+
+.admin-poll-post-container h3 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 25px;
+    border-bottom: 1px dashed #ccc;
+    padding-bottom: 10px;
+}
+
+#poll-post-form textarea,
+#poll-post-form input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1em;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+#poll-text {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.option-input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.candidate-option {
+    margin-bottom: 0 !important;
+}
+
+#add-option-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-bottom: 15px;
+    transition: background-color 0.3s;
+}
+
+#add-option-button:hover {
+    background-color: #45a049;
+}
+
+#submit-poll-button {
+    background-color: #007bff;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    width: 100%;
+    transition: background-color 0.3s;
+}
+
+#submit-poll-button:hover {
+    background-color: #0056b3;
+}
+
+/* Push Notification Style */
+#push-notification-container {
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+    transition: opacity 0.5s ease;
+    opacity: 0;
+    height: auto;
+}
+
+.notification-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    opacity: 1;
+}
+
+.notification-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    opacity: 1;
+}
+
+.notification-hidden {
+    opacity: 0;
+    height: 0;
+    padding: 0;
+    margin-bottom: 0;
+}
+
+/* ==== STYLE NA POLL POST A CIKIN APPROVED CARD ==== */
+.poll-card {
+    border: 2px solid #ff5722 !important;
+    padding: 20px !important;
+}
+
+.poll-header-approved {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #ddd;
+}
+
+.poll-text-approved {
+    font-size: 1.15em;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.poll-options-list {
+    margin-bottom: 15px;
+}
+
+.total-votes-approved {
+    text-align: center;
+    font-size: 1em;
+    color: #666;
+    padding-top: 10px;
+    border-top: 1px dashed #eee;
+}
+
+.total-votes-approved strong {
+    color: #ff5722;
+}
+
+/* Kashi na style na kowane zaɓi (kamar yadda aka gyara a baya) */
+.candidate-item {
+    margin-bottom: 10px;
+    padding: 8px 0;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.vote-button-circle {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 3px solid #007bff;
+    background-color: transparent;
+    margin-right: 15px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.candidate-details-content {
+    flex-grow: 1;
+}
+        
+.candidate-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    color: #444;
+    margin-bottom: 5px;
+}
+
+.candidate-name {
+    font-size: 1.1em;
+    color: #333;
+}
+
+.vote-count {
+    background-color: #ff5722;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    min-width: 30px;
+    text-align: center;
+}
+
+.progress-bar-container {
+    height: 18px; 
+    background-color: #e9ecef;
+    border-radius: 9px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%; 
+    border-radius: 9px;
+    transition: width 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+    position: relative;
+}
+
+/* Launuka Daban-daban */
+.poll-options-list .candidate-item:nth-child(1) .progress-bar { background: linear-gradient(to right, #00BCD4, #03A9F4); } 
+.poll-options-list .candidate-item:nth-child(2) .progress-bar { background: linear-gradient(to right, #FF9800, #FFC107); } 
+.poll-options-list .candidate-item:nth-child(3) .progress-bar { background: linear-gradient(to right, #4CAF50, #8BC34A); } 
+.poll-options-list .candidate-item:nth-child(4) .progress-bar { background: linear-gradient(to right, #E91E63, #F48FB1); } 
+.poll-options-list .candidate-item:nth-child(5) .progress-bar { background: linear-gradient(to right, #9C27B0, #BA68C8); } 
+
+.progress-bar::after {
+    content: attr(data-percentage);
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    transform: translateY(-50%);
+    color: white;
+    font-size: 0.85em;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+    z-index: 2;
+}
+
+/* Tsarin Advanced: Kashi a waje idan bar yayi gajere */
+.progress-bar[style*="width: 0%"]::after,
+.progress-bar[style*="width: 1%"]::after,
+.progress-bar[style*="width: 2%"]::after,
+.progress-bar[style*="width: 3%"]::after,
+.progress-bar[style*="width: 4%"]::after,
+.progress-bar[style*="width: 5%"]::after,
+.progress-bar[style*="width: 6%"]::after,
+.progress-bar[style*="width: 7%"]::after {
+    right: auto;
+    left: 5px;
+    color: #333;
+    text-shadow: none;
+}
+    </style>
 </head>
 <body>
     <div id="preloader">
@@ -672,6 +922,22 @@ main {
                     <button type="submit" class="main-btn"><i class="fas fa-plus"></i> Tura Post</button>
                 </form>
             </section>
+            
+            <div class="admin-poll-post-container">
+    <h3>Ƙirƙiri Sabon Zaɓen Wasa</h3>
+    <div id="push-notification-container" class="notification-hidden">An gudanar da post cikin nasara!</div>
+    
+    <form id="poll-post-form">
+        <textarea id="poll-text" placeholder="Rubuta tambaya ko bayani game da zaɓen (e.g., Zaku iya zabin wanda juke ganin zai yi nasara a wannan Wasa)..." required></textarea>
+        
+        <div id="options-container">
+            </div>
+        
+        <button type="button" id="add-option-button">Ƙara Wani Zaɓi</button>
+        
+        <button type="submit" id="submit-poll-button">Gudanar da Post</button>
+    </form>
+</div>
 
             <section id="posted-list-section">
                 <h2>Posts da aka amince da su</h2>
@@ -680,66 +946,58 @@ main {
         </main>
     </section>
 
-    <script type="module">
-        
-        // ==== CONFIGURABLES ====
-const ALLOWED_EMAILS = [
+   <script type="module">
+       
+     const ALLOWED_EMAILS = [
     "harunalawali5522@gmail.com",
     "lawaliharuna943@gmail.com",
     "tauraronwasa@gmil.com"
 ];
-const NEWS_API_KEY = "1822c050ab854d38b14ab13a39bce061";
-const OPENROUTER_API_KEY = "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";
 const IMGUR_CLIENT_ID = "5acf7eff9c91660";
-const POSTING_ID = "Posting"; // Changed to "Posting" as per your data structure
-const SOCIAL_MEDIA_WORKER_URL = "https://worker33.workers.dev/socialPost"; // Social media worker URL
-const BASE_VIEWS_LINK = "https://tauraronwasa.pages.dev"; // Base URL for view link
+const POSTING_ID = "Posting";
+const SOCIAL_MEDIA_WORKER_URL = "https://tauraronwasa.dev/socialPost";
+const BASE_VIEWS_LINK = "https://tauraronwasa.pages.dev";
 
-// ==== FIREBASE IMPORTS ====
-import { app, firebaseConfig } from './firebase.js';
+import { app } from './firebase.js';
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-import { getDatabase, ref, set, get, push, update, remove, onValue, child } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+import { getDatabase, ref, set, get, update, onValue, remove } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
 
-// ==== DOM ELEMENTS ====
 const preloader = document.getElementById('preloader');
 const loginSection = document.getElementById('login-section');
 const dashboardSection = document.getElementById('dashboard-section');
 const loginForm = document.getElementById('login-form');
 const userFullName = document.getElementById('user-fullname');
 const logoutBtn = document.getElementById('logout-btn');
-const loadNewsBtn = document.getElementById('load-news-btn');
-const newsListSection = document.getElementById('news-list-section');
 const notificationContainer = document.getElementById('notification-container');
 const postForm = document.getElementById('post-form');
-const newPostSection = document.getElementById('new-post-section');
 const approvedPostsContainer = document.getElementById('approved-posts');
 
-// File/image/video inputs
 const img1Input = document.getElementById('post-img1');
 const img2Input = document.getElementById('post-img2');
-const audioLinkInput = document.getElementById('audio-link'); // New audio link input
+const audioLinkInput = document.getElementById('audio-link');
 const videoInput = document.getElementById('post-video');
-const postTextInput = document.getElementById('post-text'); // Renamed for clarity
-
+const postTextInput = document.getElementById('post-text');
 const previewImg1 = document.getElementById('preview-img1');
 const previewImg2 = document.getElementById('preview-img2');
 const previewVideo = document.getElementById('preview-video');
-
 const linkImgInput = document.getElementById('link-img');
 const linkVideoInput = document.getElementById('link-video');
 
-// ==== STATE ====
+const pollPostForm = document.getElementById('poll-post-form');
+const pollTextarea = document.getElementById('poll-text');
+const optionsContainer = document.getElementById('options-container');
+const addOptionButton = document.getElementById('add-option-button');
+const pushNotificationContainer = document.getElementById('push-notification-container');
+
 let currentUser = null;
 let currentUserUid = null;
-let lastSearchTime = null;
 let observer = null;
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-// ==== UTILS ====
-// Nigeria time helper
+
+
 function getNigeriaISOString(date = new Date()) {
-    // Nigeria is UTC+1
     const n = new Date(date.getTime() + (60 * 60 * 1000));
     return n.toISOString().split('.')[0] + 'Z';
 }
@@ -762,18 +1020,20 @@ function notify(message, type = "success", timeout = 3600) {
     }, timeout);
 }
 
-function clearInputs(inputs) {
-    inputs.forEach(i => i.value = "");
+function showPushNotification(message, type = "success") {
+    pushNotificationContainer.textContent = message;
+    pushNotificationContainer.className = '';
+    pushNotificationContainer.classList.add(type === 'success' ? 'notification-success' : 'notification-error');
+    pushNotificationContainer.classList.remove('notification-hidden');
+    setTimeout(() => {
+        pushNotificationContainer.classList.add('notification-hidden');
+    }, 5000);
 }
 
 function resetPreviews() {
     previewImg1.innerHTML = "";
     previewImg2.innerHTML = "";
     previewVideo.innerHTML = "";
-}
-
-function disableForm(form, disable = true) {
-    Array.from(form.elements).forEach(el => el.disabled = disable);
 }
 
 function fadeUpOnScroll() {
@@ -786,12 +1046,11 @@ function fadeUpOnScroll() {
             }
         });
     }, { threshold: 0.21 });
-    document.querySelectorAll('.news-card:not(.visible), .approved-card:not(.visible)').forEach(card => {
+    document.querySelectorAll('.approved-card:not(.visible)').forEach(card => {
         observer.observe(card);
     });
 }
 
-// ==== AUTH ====
 onAuthStateChanged(auth, (user) => {
     if (user) {
         currentUser = user;
@@ -804,18 +1063,17 @@ onAuthStateChanged(auth, (user) => {
     showPreloader(false);
 });
 
+// ... (Login and Logout event listeners remain unchanged) ...
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     showPreloader(true);
     const email = loginForm.email.value.trim().toLowerCase();
     const password = loginForm.password.value;
-
     if (!ALLOWED_EMAILS.includes(email)) {
         showPreloader(false);
         notify("Ba a amince da wannan imel ba", "error");
         return;
     }
-
     try {
         const { user } = await signInWithEmailAndPassword(auth, email, password);
         currentUser = user;
@@ -837,9 +1095,7 @@ logoutBtn.addEventListener('click', () => {
     });
 });
 
-// ==== LOAD USER PROFILE ====
 async function loadUserProfile() {
-    // Duba database don sunan mai amfani
     const userRef = ref(db, 'users/' + currentUserUid + '/fullName');
     const snapshot = await get(userRef);
     let fullName = "";
@@ -851,7 +1107,6 @@ async function loadUserProfile() {
     userFullName.textContent = fullName;
 }
 
-// ==== SHOW/HIDE SECTIONS ====
 function showLogin() {
     loginSection.style.display = "flex";
     dashboardSection.style.display = "none";
@@ -863,185 +1118,20 @@ function showDashboard() {
     loadApprovedPosts();
 }
 
-// ==== NEWS FETCHING AND PROCESSING ====
-loadNewsBtn.addEventListener('click', async () => {
-    showPreloader(true);
-    newsListSection.innerHTML = '';
-    let lastTime = await getLastSearchTime();
-    let fromTime = lastTime ? lastTime : getNigeriaISOString(new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)); // 2 days default
-    let toTime = getNigeriaISOString();
-
-    // Save new last search
-    await setLastSearchTime(toTime);
-
-    // Fetch news
-    try {
-        const url = `https://newsapi.org/v2/everything?q=football&from=${fromTime}&to=${toTime}&sortBy=publishedAt&apiKey=${NEWS_API_KEY}`;
-        const resp = await fetch(url);
-        const data = await resp.json();
-
-        if (data.status !== "ok" || !data.articles || data.articles.length === 0) {
-            notify("Ba a samu sabbin labarai ba", "error");
-            showPreloader(false);
-            return;
-        }
-
-        let loadedNews = [];
-        for (let article of data.articles.slice(0, 10)) { // Limit to 10 for speed
-            const hausaNews = await translateToHausa(article);
-            if (hausaNews.includes("Kuskure wajen fassara labari") || hausaNews.includes("Ba a samu fassarar labari ba")) {
-                notify("An sami matsala wajen fassarar labari. An cire labarin.", "error");
-                continue; // Skip this article if translation failed
-            }
-            loadedNews.push({ ...article, hausa: hausaNews });
-        }
-        showNewsCards(loadedNews);
-        showPreloader(false);
-    } catch (err) {
-        showPreloader(false);
-        notify("Kuskure wajen samo labarai: " + err.message, "error");
-    }
-});
-
-// ==== TRANSLATE TO HAUSA (USING OPENROUTER) ====
-async function translateToHausa(article) {
-    const prompt = `Fassara wannan labarin zuwa Hausa mai sauƙi da fahimta, kamar yadda za a yi amfani da shi a Facebook post. Kar ka ƙara ko canza ma'ana. Idan babu description, yi amfani da content. Idan babu content, yi amfani da description. Kuma idan babu ko ɗaya, fassara title kawai.
-    Ga labarin:
-    Title: ${article.title || ''}
-    Description: ${article.description || ''}
-    Content: ${article.content || ''}`;
-
-    try {
-        const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                model: 'openai/gpt-4o',
-                messages: [{ role: 'user', content: prompt }]
-            })
-        });
-        const data = await resp.json();
-        if (data.choices && data.choices.length > 0) {
-            return data.choices[0].message.content;
-        }
-        return "Ba a samu fassarar labari ba";
-    } catch (err) {
-        console.error("Translation error:", err);
-        return "Kuskure wajen fassara labari";
-    }
-}
-
-// ==== SHOW NEWS CARDS ====
-function showNewsCards(newsArr) {
-    newsListSection.innerHTML = "";
-    newsArr.forEach((news, idx) => {
-        const card = document.createElement('div');
-        card.className = "news-card";
-        card.innerHTML = `
-            ${news.urlToImage ? `<img src="${news.urlToImage}" alt="hoto" class="news-img">` : ""}
-            <div class="news-title">${news.title}</div>
-            <div class="news-meta">
-                <i class="fas fa-user"></i> ${news.author || 'Ba a sani ba'} &nbsp; 
-                <i class="fas fa-calendar"></i> ${formatDate(news.publishedAt)}
-            </div>
-            <div class="news-content" contenteditable="false">${news.hausa}</div>
-            <div class="news-actions">
-                <button onclick="window.open('${news.url}', '_blank')"><i class="fas fa-link"></i> Duba Asali</button>
-                <button class="edit-btn"><i class="fas fa-edit"></i> Gyara</button>
-                <button class="approve-btn"><i class="fas fa-check"></i> Aprob</button>
-                <button class="delete-btn"><i class="fas fa-trash"></i> Goge</button>
-            </div>
-        `;
-        // Approve button: save to firebase
-        card.querySelector('.approve-btn').addEventListener('click', () => approvePostFromNews(card, news));
-        // Edit button: allow editing the text
-        card.querySelector('.edit-btn').addEventListener('click', () => enableEditNewsCard(card, news));
-        // Delete button: remove the card
-        card.querySelector('.delete-btn').addEventListener('click', () => card.remove());
-        newsListSection.appendChild(card);
-    });
-    fadeUpOnScroll();
-}
-
-// ==== NEWS EDIT ====
-function enableEditNewsCard(card, news) {
-    const contentDiv = card.querySelector('.news-content');
-    contentDiv.setAttribute('contenteditable', 'true');
-    contentDiv.focus();
-    notify("Yanzu zaka iya gyarawa. Idan ka gama sai ka danna 'Aprob'.", "success");
-}
-
-// ==== APPROVE NEWS TO FIREBASE ====
-async function approvePostFromNews(card, news) {
-    showPreloader(true);
-    const contentDiv = card.querySelector('.news-content');
-    const editedText = contentDiv.innerText.trim();
-
-    const postid = "post-" + Date.now();
-    const postData = {
-        postid: postid,
-        text: editedText,
-        audioLink: "", // Default empty, since it's news
-        photoLink1: news.urlToImage || null,
-        photoLink2: null,
-        videoLink: null,
-        tauraronwasaAudiolink: null,
-        see: 0,
-        like: 0,
-        icons: 0,
-        share: 0,
-        postingTime: getNigeriaISOString(),
-        userId: currentUserUid,
-        userName: userFullName.textContent,
-        userPhoto: "" // Assume user has a default photo or it's fetched later
-    };
-
-    try {
-        const postRef = ref(db, `${POSTING_ID}/${postid}`);
-        await set(postRef, postData);
-        notify("An amince da post ɗin kuma an ajiye shi cikin nasara!", "success");
-        showPreloader(false);
-        card.remove(); // Remove the news card after approval
-        loadApprovedPosts(); // Reload approved posts to show the new one
-        
-        // Send to social media worker
-        const socialPostPayload = {
-            postId: postid,
-            title: editedText.substring(0, 70) + (editedText.length > 70 ? "..." : ""), // Use edited text as title, truncate if long
-            viewsLink: `${BASE_VIEWS_LINK}?postId=${postid}`,
-            imageUrl: news.urlToImage || null,
-            timestamp: getNigeriaISOString()
-        };
-        await sendToSocialMediaWorker(socialPostPayload);
-
-    } catch (err) {
-        showPreloader(false);
-        notify("Kuskure wajen ajiye post ko tura shi social media: " + err.message, "error");
-    }
-}
-
-// ==== POST FORM HANDLING ====
+// ... (postForm event listener, uploadToImgur, and handlePreview remain unchanged) ...
 postForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     showPreloader(true);
-
     const text = postTextInput.value.trim();
     const audioLink = audioLinkInput.value.trim();
     let photoLink1 = linkImgInput.value.trim();
     let photoLink2 = "";
     let videoLink = linkVideoInput.value.trim();
-
-    // Check if at least one content type is provided
     if (!text && !img1Input.files.length && !img2Input.files.length && !videoInput.files.length && !photoLink1 && !videoLink && !audioLink) {
         showPreloader(false);
         notify("Dole ne a sami rubutu, hoto, bidiyo ko audio link.", "error");
         return;
     }
-
-    // Upload image 1 if file provided
     if (img1Input.files.length > 0) {
         try {
             photoLink1 = await uploadToImgur(img1Input.files[0]);
@@ -1051,8 +1141,6 @@ postForm.addEventListener('submit', async (e) => {
             return;
         }
     }
-
-    // Upload image 2 if file provided
     if (img2Input.files.length > 0) {
         try {
             photoLink2 = await uploadToImgur(img2Input.files[0]);
@@ -1062,8 +1150,6 @@ postForm.addEventListener('submit', async (e) => {
             return;
         }
     }
-
-    // Upload video if file provided
     if (videoInput.files.length > 0) {
         const file = videoInput.files[0];
         if (file.size > 9 * 1024 * 1024) {
@@ -1079,16 +1165,15 @@ postForm.addEventListener('submit', async (e) => {
             return;
         }
     }
-
     const postid = "post-" + Date.now();
     const postData = {
         postid: postid,
         text: text,
         audioLink: audioLink,
-        photoLink1: photoLink1 || null, // Ensure null if empty string
+        photoLink1: photoLink1 || null,
         photoLink2: photoLink2 || null,
         videoLink: videoLink || null,
-        tauraronwasaAudiolink: null, // As per schema, set to null initially
+        tauraronwasaAudiolink: null,
         see: 0,
         like: 0,
         icons: 0,
@@ -1096,10 +1181,8 @@ postForm.addEventListener('submit', async (e) => {
         postingTime: getNigeriaISOString(),
         userId: currentUserUid,
         userName: userFullName.textContent,
-        userPhoto: "" // Assume user has a default photo or it's fetched later
+        userPhoto: ""
     };
-
-    // Save post to firebase
     try {
         const postRef = ref(db, `${POSTING_ID}/${postid}`);
         await set(postRef, postData);
@@ -1108,10 +1191,8 @@ postForm.addEventListener('submit', async (e) => {
         postForm.reset();
         resetPreviews();
         loadApprovedPosts();
-
-        // Send to social media worker based on content type
         let socialPostPayload;
-        if (text && photoLink1) { // Scenario 1: text and photoLink1
+        if (text && photoLink1) {
             socialPostPayload = {
                 postId: postid,
                 title: text.substring(0, 70) + (text.length > 70 ? "..." : ""),
@@ -1119,31 +1200,28 @@ postForm.addEventListener('submit', async (e) => {
                 imageUrl: photoLink1,
                 timestamp: getNigeriaISOString()
             };
-        } else if (audioLink && photoLink1) { // Scenario 2: audioLink and photoLink1
+        } else if (audioLink && photoLink1) {
             socialPostPayload = {
                 postId: postid,
-                title: text ? text.substring(0, 70) + (text.length > 70 ? "..." : "") : "Sabon Audio Post", // Use text if available, else a default
+                title: text ? text.substring(0, 70) + (text.length > 70 ? "..." : "") : "Sabon Audio Post",
                 viewsLink: `${BASE_VIEWS_LINK}?postId=${postid}`,
                 imageUrl: photoLink1,
                 timestamp: getNigeriaISOString(),
-                audioUrl: audioLink // Include audioUrl for social media worker if applicable
+                audioUrl: audioLink
             };
         }
-        
         if (socialPostPayload) {
             await sendToSocialMediaWorker(socialPostPayload);
         }
-
     } catch (err) {
         showPreloader(false);
         notify("Kuskure wajen tura post: " + err.message, "error");
     }
 });
 
-// ==== UPLOAD TO IMGUR ====
 async function uploadToImgur(file, isVideo = false) {
     const formData = new FormData();
-    formData.append(isVideo ? "video" : "image", file); // Use "video" for video uploads
+    formData.append(isVideo ? "video" : "image", file);
     try {
         const resp = await fetch("https://api.imgur.com/3/image", {
             method: "POST",
@@ -1159,11 +1237,10 @@ async function uploadToImgur(file, isVideo = false) {
     } catch (err) {
         console.error("Imgur upload error:", err);
         notify(`Kuskure wajen loda ${isVideo ? 'bidiyo' : 'hoto'}!`, "error");
-        throw err; // Re-throw to be caught by the form submit handler
+        throw err;
     }
 }
 
-// ==== MEDIA PREVIEW HANDLING ====
 img1Input.addEventListener('change', e => handlePreview(img1Input, previewImg1, "img"));
 img2Input.addEventListener('change', e => handlePreview(img2Input, previewImg2, "img"));
 videoInput.addEventListener('change', e => handlePreview(videoInput, previewVideo, "video"));
@@ -1188,60 +1265,86 @@ function handlePreview(input, previewElem, type) {
     removeBtn.onclick = () => {
         input.value = "";
         previewElem.innerHTML = "";
-        URL.revokeObjectURL(url); // Clean up memory
+        URL.revokeObjectURL(url);
     };
     previewElem.appendChild(el);
     previewElem.appendChild(removeBtn);
 }
 
-// ==== APPROVED POSTS ====
+
+// ... (Wani ɓangare na code ɗin) ...
+
 async function loadApprovedPosts() {
-    approvedPostsContainer.innerHTML = "";
-    const postRef = ref(db, POSTING_ID);
-    onValue(postRef, (snapshot) => {
-        approvedPostsContainer.innerHTML = "";
-        if (snapshot.exists()) {
-            const posts = Object.values(snapshot.val()).sort((a, b) => new Date(b.postingTime) - new Date(a.postingTime));
+    approvedPostsContainer.innerHTML = "";
+    const postRef = ref(db, POSTING_ID);
+    onValue(postRef, (snapshot) => {
+        approvedPostsContainer.innerHTML = "";
+        if (snapshot.exists()) {
+            // 🛑 GYARARRE A NAN: Ingantaccen jeri na Sabo-sama (Newest-first)
+            const posts = Object.values(snapshot.val()).sort((a, b) => {
+                // Tabbatar da an sami lokacin kirkiro don jeri mai inganci
+                const timeA = new Date(a.postingTime).getTime() || 0;
+                const timeB = new Date(b.postingTime).getTime() || 0;
+                
+                // Idan lokutan suna daidai (ko babu), yi amfani da postid a matsayin mai raba gardama.
+                // Domin postid yana ƙunshe da Date.now() ko wani random string mai daidaitawa.
+                if (timeB === timeA) {
+                    if (b.postid > a.postid) return -1; // Sabo a sama
+                    if (b.postid < a.postid) return 1; // Tsoho a kasa
+                    return 0;
+                }
+                
+                // Jere na lokaci (Sabo zuwa Tsoho: timeB - timeA)
+                return timeB - timeA;
+            });
+            
+            
             posts.forEach(post => {
+                const isPoll = post.isPoll === true;
                 const card = document.createElement('div');
                 card.className = "approved-card";
-                card.innerHTML = `
-                    ${post.photoLink1 ? `<img src="${post.photoLink1}" class="post-img" alt="">` : ""}
-                    ${post.photoLink2 ? `<img src="${post.photoLink2}" class="post-img" alt="">` : ""}
-                    ${post.videoLink ? `<video src="${post.videoLink}" class="post-video" controls></video>` : ""}
-                    ${post.audioLink ? `<audio src="${post.audioLink}" class="post-audio" controls></audio>` : ""}
-                    <div class="post-content" contenteditable="false">${post.text}</div>
-                    <div class="post-meta"><i class="fas fa-calendar"></i> ${formatDate(post.postingTime)}</div>
-                    <div class="edit-actions">
-                        <button class="delete-btn"><i class="fas fa-trash"></i></button>
-                        <button class="edit-btn"><i class="fas fa-edit"></i></button>
-                        <button class="save-btn" style="display:none;"><i class="fas fa-save"></i></button>
-                    </div>
-                `;
-                // Delete
-                card.querySelector('.delete-btn').onclick = async () => {
-                    await remove(ref(db, `${POSTING_ID}/${post.postid}`));
-                    notify("An goge post cikin nasara!", "success");
-                    card.remove();
-                };
-                // Edit
-                card.querySelector('.edit-btn').onclick = () => {
-                    const contentDiv = card.querySelector('.post-content');
-                    contentDiv.setAttribute('contenteditable', 'true');
-                    contentDiv.focus();
-                    card.querySelector('.save-btn').style.display = '';
-                    card.querySelector('.edit-btn').style.display = 'none';
-                };
-                // Save
-                card.querySelector('.save-btn').onclick = async () => {
-                    const contentDiv = card.querySelector('.post-content');
-                    const newText = contentDiv.innerText.trim();
-                    await update(ref(db, `${POSTING_ID}/${post.postid}`), { text: newText });
-                    contentDiv.setAttribute('contenteditable', 'false');
-                    card.querySelector('.save-btn').style.display = 'none';
-                    card.querySelector('.edit-btn').style.display = '';
-                    notify("An adana gyara cikin nasara!", "success");
-                };
+                
+                if (isPoll) {
+                    card.classList.add('poll-card');
+                    card.innerHTML = createPollCardHTML(post);
+                    updatePollCardResults(card, post);
+                } else {
+                    card.innerHTML = `
+                        ${post.photoLink1 ? `<img src="${post.photoLink1}" class="post-img" alt="">` : ""}
+                        ${post.photoLink2 ? `<img src="${post.photoLink2}" class="post-img" alt="">` : ""}
+                        ${post.videoLink ? `<video src="${post.videoLink}" class="post-video" controls></video>` : ""}
+                        ${post.audioLink ? `<audio src="${post.audioLink}" class="post-audio" controls></audio>` : ""}
+                        <div class="post-content" contenteditable="false">${post.text}</div>
+                        <div class="post-meta"><i class="fas fa-calendar"></i> ${formatDate(post.postingTime)}</div>
+                        <div class="edit-actions">
+                            <button class="delete-btn" onclick="window.deletePost('${post.postid}')"><i class="fas fa-trash"></i></button>
+                            <button class="edit-btn"><i class="fas fa-edit"></i></button>
+                            <button class="save-btn" style="display:none;"><i class="fas fa-save"></i></button>
+                        </div>
+                    `;
+                    card.querySelector('.delete-btn').onclick = async () => {
+                        await remove(ref(db, `${POSTING_ID}/${post.postid}`));
+                        notify("An goge post cikin nasara!", "success");
+                        card.remove();
+                    };
+                    card.querySelector('.edit-btn').onclick = () => {
+                        const contentDiv = card.querySelector('.post-content');
+                        contentDiv.setAttribute('contenteditable', 'true');
+                        contentDiv.focus();
+                        card.querySelector('.save-btn').style.display = '';
+                        card.querySelector('.edit-btn').style.display = 'none';
+                    };
+                    card.querySelector('.save-btn').onclick = async () => {
+                        const contentDiv = card.querySelector('.post-content');
+                        const newText = contentDiv.innerText.trim();
+                        await update(ref(db, `${POSTING_ID}/${post.postid}`), { text: newText });
+                        contentDiv.setAttribute('contenteditable', 'false');
+                        card.querySelector('.save-btn').style.display = 'none';
+                        card.querySelector('.edit-btn').style.display = '';
+                        notify("An adana gyara cikin nasara!", "success");
+                    };
+                }
+                
                 approvedPostsContainer.appendChild(card);
             });
             fadeUpOnScroll();
@@ -1251,7 +1354,132 @@ async function loadApprovedPosts() {
     });
 }
 
-// ==== SOCIAL MEDIA WORKER INTEGRATION ====
+/**
+ * Yana samar da HTML na Poll Card don dashboard, yana nuna bayanan zaɓe.
+ */
+function createPollCardHTML(post) {
+    let optionsHTML = '';
+    let totalVotes = 0;
+    const candidates = [];
+    
+    // Tattara 'yan takara (har zuwa 5)
+    for (let i = 1; i <= 5; i++) {
+        if (post[`takara${i}`]) {
+            const votes = post[`zabi${i}`] || 0;
+            totalVotes += votes;
+            candidates.push({ name: post[`takara${i}`], votes: votes, index: i });
+        }
+    }
+
+    candidates.forEach(candidate => {
+        // A nan muna amfani da data-voted don alamta button a UI (misali kawai)
+        optionsHTML += `
+            <div class="candidate-item" data-votes="${candidate.votes}" data-index="${candidate.index}" data-postid="${post.postid}">
+                <div class="vote-button-circle" onclick="window.voteOnApprovedPost(this, '${post.postid}', ${candidate.index})" title="Gwaji/Ƙara Ƙuri'a" data-voted="false"></div>
+                <div class="candidate-details-content">
+                    <div class="candidate-info">
+                        <span class="candidate-name">${candidate.name}</span>
+                        <span class="vote-count">${candidate.votes}</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: 0%;" data-percentage="0%"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    return `
+        <div class="poll-header-approved">
+            <div class="poll-text-approved">${post.text}</div>
+            <div class="post-meta"><i class="fas fa-calendar"></i> ${formatDate(post.postingTime)}</div>
+        </div>
+        <div class="poll-options-list">
+            ${optionsHTML}
+        </div>
+        <div class="total-votes-approved">
+            Jimillar Zaɓe: <strong class="total-votes-display">${totalVotes}</strong>
+        </div>
+        <div class="edit-actions">
+            <button class="delete-btn" onclick="window.deletePost('${post.postid}')"><i class="fas fa-trash"></i> Goge Post</button>
+        </div>
+    `;
+}
+
+
+function updatePollCardResults(card, post) {
+    let totalVotes = 0;
+    const candidateItems = card.querySelectorAll('.candidate-item');
+
+    // 1. Lissafa Jimillar Zaɓe
+    candidateItems.forEach(item => {
+        const index = item.getAttribute('data-index');
+        totalVotes += post[`zabi${index}`] || 0;
+    });
+
+    // 2. Sabunta Total Votes Display
+    const totalVotesDisplay = card.querySelector('.total-votes-display');
+    if (totalVotesDisplay) {
+        totalVotesDisplay.textContent = totalVotes;
+    }
+
+    // 3. Sabunta kowane Zaɓi da Progress Bar
+    candidateItems.forEach(item => {
+        const index = item.getAttribute('data-index');
+        const votes = post[`zabi${index}`] || 0;
+        // Kashi (%) an lissafa shi daidai
+        const percentage = totalVotes === 0 ? 0 : Math.round((votes / totalVotes) * 100); 
+        
+        const progressBar = item.querySelector('.progress-bar');
+        const voteCountDisplay = item.querySelector('.vote-count');
+
+        if (voteCountDisplay) voteCountDisplay.textContent = votes;
+        
+        if (progressBar) {
+            // Sanya data-percentage kuma canza width don aiki da style
+            progressBar.setAttribute('data-percentage', percentage + '%'); 
+            progressBar.style.width = percentage + '%';
+        }
+        
+        item.setAttribute('data-votes', votes);
+    });
+}
+
+
+window.voteOnApprovedPost = async (button, postId, optionIndex) => {
+    const optionKey = `zabi${optionIndex}`;
+    const postRef = ref(db, `${POSTING_ID}/${postId}`);
+
+    try {
+        const snapshot = await get(postRef);
+        if (snapshot.exists()) {
+            const currentVotes = snapshot.val()[optionKey] || 0;
+            const newVoteCount = currentVotes + 1;
+            
+            const updateData = {};
+            updateData[optionKey] = newVoteCount;
+            
+            await update(postRef, updateData);
+            
+            button.style.backgroundColor = '#007bff';
+            button.style.color = 'white'; // Sanya checkmark fari (idan ya kasance)
+            button.innerHTML = '<i class="fas fa-check"></i>'; // Ƙara alamar check
+            button.onclick = null; // Kashe shi bayan dannawa
+            notify("An kara ƙuri'a cikin nasara! (Dashboard Preview)", "success", 2000);
+            
+        } else {
+            notify("Ba a sami post ɗin ba", "error");
+        }
+    } catch (error) {
+        notify("Kuskure wajen ƙara ƙuri'a: " + error.message, "error");
+    }
+};
+
+window.deletePost = async (postId) => {
+    await remove(ref(db, `${POSTING_ID}/${postId}`));
+    notify("An goge post cikin nasara!", "success");
+};
+
 async function sendToSocialMediaWorker(payload) {
     try {
         const response = await fetch(SOCIAL_MEDIA_WORKER_URL, {
@@ -1272,31 +1500,123 @@ async function sendToSocialMediaWorker(payload) {
     }
 }
 
-// ==== TIME HANDLING & LAST SEARCH ====
-async function getLastSearchTime() {
-    const lastRef = ref(db, "lastSearchTime");
-    const snapshot = await get(lastRef);
-    if (snapshot.exists()) {
-        return snapshot.val();
-    }
-    return null;
-}
-
-async function setLastSearchTime(time) {
-    await set(ref(db, "lastSearchTime"), time);
-}
-
 function formatDate(iso) {
     if (!iso) return "";
     const d = new Date(iso);
     return d.toLocaleString("ha-NG", { hour: "2-digit", minute: "2-digit", day: "numeric", month: "short", year: "numeric" });
 }
 
-// ==== PRELOADER ON PAGE LOAD ====
 window.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => showPreloader(false), 600);
 });
 
-    </script> 
+
+
+let optionCounter = 1; // Fara da 1
+
+function addPollOptionInput(defaultValue = '') {
+    // Iyakance zuwa 5
+    if (optionCounter > 5) {
+        addOptionButton.style.display = 'none';
+        showPushNotification("An amince da 'yan takara 5 ne kawai.", "error");
+        return;
+    }
+    
+    const inputGroup = document.createElement('div');
+    inputGroup.className = 'option-input-group';
+    inputGroup.innerHTML = `
+        <input type="text" class="candidate-option" placeholder="Sunan Ɗan Takara ${optionCounter}" value="${defaultValue}" required>
+    `;
+    optionsContainer.appendChild(inputGroup);
+    
+    optionCounter++;
+    
+    // Boye maɓallin idan ya cika 5
+    if (optionCounter > 5) { 
+        addOptionButton.style.display = 'none';
+    }
+}
+
+addOptionButton.addEventListener('click', () => {
+    addPollOptionInput();
+});
+
+pollPostForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    showPreloader(true);
+    
+    const text = pollTextarea.value.trim();
+    const options = Array.from(optionsContainer.querySelectorAll('.candidate-option'))
+                            .map(input => input.value.trim())
+                            .filter(name => name); 
+
+    if (!text || options.length < 2) {
+        showPreloader(false);
+        showPushNotification("Dole a rubuta tambaya kuma a saka 'yan takara biyu aƙalla.", "error");
+        return;
+    }
+    
+    if (options.length > 5) {
+        // Wannan bai kamata ya faru ba saboda logic na addPollOptionInput, amma don tabbatarwa
+        showPreloader(false);
+        showPushNotification("An amince da 'yan takara 5 ne kawai. Da fatan za a goge ɗaya.", "error");
+        return;
+    }
+
+    const postid = "vote-" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 9);
+    
+    const postData = {
+        postid: postid,
+        isPoll: true, 
+        text: text,
+        postingTime: getNigeriaISOString(),
+        userId: currentUserUid,
+        userName: userFullName.textContent,
+        userPhoto: "",
+        see: 0 
+    };
+    
+    options.forEach((name, index) => {
+        postData[`takara${index + 1}`] = name;
+        postData[`zabi${index + 1}`] = 0; 
+    });
+
+    try {
+        const postRef = ref(db, `${POSTING_ID}/${postid}`);
+        await set(postRef, postData);
+
+        showPreloader(false);
+        showPushNotification("An gudanar da post na zaɓe cikin nasara!", "success");
+        
+        // Sake saita form
+        pollPostForm.reset();
+        optionsContainer.innerHTML = '';
+        optionCounter = 1;
+        addPollOptionInput("Ɗan Takara Na Farko"); 
+        addPollOptionInput("Ɗan Takara Na Biyu"); 
+        addOptionButton.style.display = ''; 
+        loadApprovedPosts(); 
+
+        const socialPostPayload = {
+            postId: postid,
+            title: text.substring(0, 70) + (text.length > 70 ? "..." : ""),
+            viewsLink: `${BASE_VIEWS_LINK}?postId=${postid}`,
+            timestamp: getNigeriaISOString(),
+            pollOptions: options.join(', ') 
+        };
+        await sendToSocialMediaWorker(socialPostPayload);
+
+    } catch (err) {
+        showPreloader(false);
+        showPushNotification("Kuskure wajen gudanar da post na zaɓe: " + err.message, "error");
+    }
+});
+
+// Fara da 'yan takara 2
+addPollOptionInput("Ɗan Takara Na Farko"); 
+addPollOptionInput("Ɗan Takara Na Biyu");
+
+
+   </script >
 </body>
 </html>
