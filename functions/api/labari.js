@@ -4,7 +4,7 @@ const ALLOWED_ORIGINS = [
 ];
 const REQUIRED_API_KEY = "@haruna66";
 const TRANSLATE_API_URL = "https://openrouter.ai/api/v1/chat/completions";
-const MAX_GPT_TOKENS = 2000;
+const MAX_GPT_TOKENS = 350;
 
 function withCORSHeaders(response, origin) {
     const headers = response.headers;
@@ -15,13 +15,8 @@ function withCORSHeaders(response, origin) {
     return new Response(response.body, { status: response.status, headers });
 }
 
-function extractDate(utcDate) {
-    return utcDate.split('T')[0];
-}
-
-async function getMatchStatus(env, homeTeam, awayTeam, utcDate) {
-    const date = extractDate(utcDate);
-    const apiUrl = `https://api.football-data.org/v4/matches?dateFrom=${date}&dateTo=${date}`;
+async function getMatchStatus(env, matchId) {
+    const apiUrl = `https://api.football-data.org/v4/matches/${matchId}`;
     
     const response = await fetch(apiUrl, {
         headers: { "X-Auth-Token": env.FOOTBALL_DATA_API_KEY6 },
@@ -33,17 +28,11 @@ async function getMatchStatus(env, homeTeam, awayTeam, utcDate) {
     }
     
     const data = await response.json();
+    const match = data.match;
     
-    const foundMatch = data.matches.find(match => 
-        (match.homeTeam.name === homeTeam && match.awayTeam.name === awayTeam) ||
-        (match.homeTeam.name === awayTeam && match.awayTeam.name === homeTeam)
-    );
-    
-    if (!foundMatch) {
-        throw new Error("Ba a sami bayanin wasan ba daga Football API (ta amfani da kwanan wata da sunaye).");
+    if (!match) {
+        throw new Error("Ba a sami bayanin wasan ba daga Football API.");
     }
-    
-    const match = foundMatch;
     
     return {
         id: match.id,
@@ -60,13 +49,16 @@ async function getMatchStatus(env, homeTeam, awayTeam, utcDate) {
 
 async function getGPTAnalysis(env, homeName, awayName) {
     const systemPrompt = `Kai babban kwararre ne kuma mai ba da labari game da wasanni. Amsoshin ka suna da ilimi, bayyanannu, kuma cikin yaren da aka yi maka tambaya (Hausa).
+
 Dole ne ka bi waɗannan ƙa'idoji:
 1. Yi amfani da binciken yanar gizo (Web Search) don nemo bayanan tarihi, yawan haduwa, nasarori, canjaras, da kuma fitattun yan wasa/moment a tsakanin waɗannan ƙungiyoyin.
 2. Tsara amsar ka a cikin alamar <response>...</response> kawai.
 3. Ka ba da labarin cikin yaren **Hausa** mai inganci, ciki har da kiran kungiyoyin da sunaye na Hausa da kwararru ke amfani da su.
+
 4. Tsawon rubutun kada ya wuce ${MAX_GPT_TOKENS} tokens.`;
     
     const userQuery = `Ka ba ni cikakken nazari da labarin tarihi mai zafi tsakanin ƙungiyoyin **${homeName}** da **${awayName}**. Ka shiga cikin tarihi: yawan haduwa, sakamakon haduwa (nasara, tashi, canjaras), wani babban ɗan wasa ko mai zura kwallaye tsakaninsu, da kuma kowane wasa mai zafi da suka taɓa yi (misali: final ko gasa mai mahimmanci). Tsawon amsar ya kasance aƙalla sakin layi 4.`;
+    
     try {
         const chatRes = await fetch(TRANSLATE_API_URL, {
             method: "POST",
@@ -85,7 +77,7 @@ Dole ne ka bi waɗannan ƙa'idoji:
                 max_tokens: MAX_GPT_TOKENS,
             }),
         });
-
+        
         if (!chatRes.ok) {
             const text = await chatRes.text();
             throw new Error(`Chat API failed: ${chatRes.status}.`);
@@ -103,12 +95,15 @@ Dole ne ka bi waɗannan ƙa'idoji:
         
         return { response_text: responseText };
     } catch (e) {
+        console.error("GPT Analysis Error:", e.message);
         return { response_text: `An kasa samun nazarin tarihi saboda matsalar AI. (${e.message})` };
     }
 }
 
 export async function onRequest({ request, env }) {
+    const url = new URL(request.url);
     const origin = request.headers.get("Origin") || "";
+    
     if (request.method === "OPTIONS") {
         return withCORSHeaders(new Response(null, { status: 204 }), origin);
     }
@@ -123,39 +118,41 @@ export async function onRequest({ request, env }) {
     }
     
     try {
-        const { matchId, homeTeam, awayTeam, homeCrest, awayCrest, utcDate } = await request.json();
+        const requestBody = await request.json();
+        const { matchId, homeTeam, awayTeam, homeCrest, awayCrest, utcDate } = requestBody;
         
         if (!matchId || !homeTeam || !awayTeam || !utcDate) {
             throw new Error("Ba a kammala bayanan wasan ba. (matchId, homeTeam, awayTeam, utcDate)");
         }
         
         const [matchStatusResult, gptAnalysisResult] = await Promise.allSettled([
-            getMatchStatus(env, homeTeam, awayTeam, utcDate),
+            getMatchStatus(env, matchId),
             getGPTAnalysis(env, homeTeam, awayTeam)
         ]);
 
-        const finalResponse = {};
+        const finalResponse = {
+            matchStatus: null,
+            matchStatusError: null,
+            gptAnalysis: null,
+            basicMatchData: { 
+                matchId, homeTeam, awayTeam, homeCrest, awayCrest, utcDate, 
+                status: 'SCHEDULED'
+            }
+        };
 
         if (matchStatusResult.status === 'fulfilled') {
             finalResponse.matchStatus = matchStatusResult.value;
             finalResponse.matchStatusError = null;
         } else {
-            finalResponse.matchStatus = {
-                homeTeamName: homeTeam,
-                awayTeamName: awayTeam,
-                homeTeam: { name: homeTeam, crest: homeCrest || 'placeholder.png' },
-                awayTeam: { name: awayTeam, crest: awayCrest || 'placeholder.png' },
-                status: 'SCHEDULED',
-                score: { fullTime: { home: null, away: null } },
-                utcDate: utcDate
-            };
             finalResponse.matchStatusError = "Ba a dawo da bayanan wasan ba daga Football API.";
+            console.error("Football API Failed:", matchStatusResult.reason.message);
         }
         
         if (gptAnalysisResult.status === 'fulfilled') {
             finalResponse.gptAnalysis = gptAnalysisResult.value;
         } else {
             finalResponse.gptAnalysis = { response_text: "An kasa samun nazarin tarihi na AI." };
+            console.error("GPT Analysis Failed:", gptAnalysisResult.reason.message);
         }
         
         const response = new Response(JSON.stringify(finalResponse), { 
@@ -167,7 +164,11 @@ export async function onRequest({ request, env }) {
         
     } catch (error) {
         console.error("Fatal Error:", error.message);
-        const response = new Response(JSON.stringify({ error: true, message: error.message }), { 
+        const response = new Response(JSON.stringify({ 
+            error: true, 
+            message: error.message,
+            gptAnalysis: { response_text: "Babban kuskure a server." } 
+        }), { 
             status: 500, 
             headers: { "Content-Type": "application/json" } 
         });
