@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="ha">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agents - TauraronWasa</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css?family=Poppins:400,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="agents.css">
+  <style>
+   body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(to bottom, #180022, #300040);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#preloader {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(24, 0, 34, 0.9);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loader {
+  border: 6px solid #fff;
+  border-top: 6px solid #7c31ff;
+  border-radius: 50%;
+  width: 60px; height: 60px;
+  animation: spin 1.1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.centered-section {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px; 
+}
+
+.login-container {
+  background: rgba(39, 11, 64, 0.92);
+  border-radius: 14px;
+  padding: 2.5rem 2rem 2rem;
+  box-shadow: 0 6px 32px rgba(0, 0, 0, 0.38);
+  width: 95vw;
+  max-width: 370px;
+  text-align: center;
+}
+
+.login-container h2 {
+  margin-bottom: 1.5rem; 
+  font-weight: 400;
+  color: #f1c40f; 
+}
+
+.input-group {
+  margin-bottom: 1.2rem; 
+  text-align: left;
+}
+
+.input-group label {
+  font-size: 0.98rem;
+  font-weight: 400;
+  margin-bottom: .25rem;
+  display: block;
+  color: #b2a0e6; 
+}
+
+.input-group input,
+.input-group textarea {
+  width: 90%;
+  padding: 12px 15px;
+  border-radius: 8px;
+  border: 1px solid rgba(124, 49, 255, 0.3); 
+  margin-top: 5px; 
+  font-family: inherit;
+  font-size: 1rem;
+  background: #300040;
+  color: #fff;
+  outline: none;
+  transition: all 0.2s ease-in-out; 
+}
+
+.input-group input:focus,
+.input-group textarea:focus {
+  box-shadow: 0 0 0 3px rgba(124, 49, 255, 0.5); 
+  border-color: #7c31ff;
+}
+
+.input-group textarea {
+  min-height: 100px; 
+  resize: vertical;
+}
+
+.main-btn {
+  background: linear-gradient(90deg, #7c31ff, #9a42ff);
+  color: #fff;
+  border: none;
+  padding: 13px 28px;
+  border-radius: 7px;
+  font-size: 1.05rem; 
+  font-weight: 600;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+  display: inline-flex; 
+  align-items: center;
+  justify-content: center;
+  gap: 8px; 
+}
+
+.main-btn:hover {
+  background: #7c31ff;
+  box-shadow: 0 8px 25px rgba(124, 49, 255, 0.2); 
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 1.5rem; 
+  cursor: pointer;
+  padding: 5px 8px; 
+  vertical-align: middle;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.icon-btn:hover {
+  color: #9a42ff;
+  transform: translateY(-2px);
+}
+
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2rem;
+  background: rgba(39, 11, 64, 0.97);
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+header h1 {
+  font-size: 1.8rem; 
+  font-weight: 700; 
+  color: #f1c40f;
+}
+
+#welcomeMsg {
+  font-size: 1.15rem;
+  margin-left: 1.5rem;
+  color: #7c31ff;
+  font-weight: 500;
+}
+
+
+.action-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem; 
+  padding: 1.2rem 2rem; 
+  margin-bottom: 1.8rem; 
+  background: rgba(39, 11, 64, 0.9); 
+  border-bottom-left-radius: 11px;
+  border-bottom-right-radius: 11px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.action-bar .main-btn {
+  padding: 10px 20px; 
+  font-size: 0.95rem;
+}
+
+.api-links {
+  display: flex;
+  gap: 15px; 
+}
+
+.api-links a {
+  color: #9a42ff;
+  font-size: 1.4rem; 
+  text-decoration: none;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.api-links a:hover {
+  color: #fff;
+  transform: scale(1.1);
+}
+
+
+#dashboardSection {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem; 
+  flex-grow: 1;
+}
+
+.hidden {
+  display: none;
+}
+
+
+.news-feed,
+#firebasePosts {
+  margin: 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.news-card,
+.post-card {
+  background: rgba(48, 0, 64, 0.96);
+  border-radius: 11px;
+  padding: 1.5rem; 
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  opacity: 0; 
+  transform: translateY(20px); 
+}
+
+.news-card.fade-in,
+.post-card.fade-in {
+  animation: fadeUp 0.7s forwards ease-out; 
+}
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.news-card:hover,
+.post-card:hover {
+  transform: translateY(-5px); 
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.news-card .news-title,
+.post-card .post-title {
+  font-size: 1.25rem; 
+  font-weight: 600;
+  color: #f1c40f;
+  margin-bottom: 0.8rem;
+}
+
+.news-content,
+.post-content {
+  margin-bottom: 1rem;
+  color: #fff;
+  font-size: 1.05rem; 
+  line-height: 1.6; 
+}
+
+.news-image,
+.post-image,
+.post-video,
+.post-audio { 
+  width: 100%;
+  max-height: 300px; 
+  object-fit: contain; 
+  border-radius: 8px; 
+  margin-bottom: 1rem;
+  background: #260036;
+  border: 1px solid rgba(124, 49, 255, 0.3); 
+}
+
+.post-audio {
+  height: 50px; 
+  object-fit: unset;
+}
+
+.news-meta,
+.post-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem; 
+  font-size: 0.95rem;
+  color: #b2a0e6;
+  margin-top: 0.5rem; 
+  margin-bottom: 0.8rem;
+}
+
+.post-actions {
+  display: flex;
+  gap: 15px; 
+  justify-content: flex-end;
+  margin-top: 1rem; 
+  padding-top: 10px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.1); 
+}
+
+.post-actions button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.2rem; 
+  padding: 8px 12px; 
+  border-radius: 7px; 
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.1s ease;
+}
+
+.post-actions button:hover {
+  background: rgba(124, 49, 255, 0.1); 
+  color: #f1c40f;
+  transform: translateY(-2px);
+}
+
+
+.news-card .news-title[contenteditable="true"],
+.news-card .news-content[contenteditable="true"],
+.post-card .post-content[contenteditable="true"] {
+  border: 1px solid #7c31ff;
+  border-radius: 8px;
+  padding: 8px;
+  background: #2d003e;
+  color: #fff;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.news-card .news-title[contenteditable="true"]:focus,
+.news-card .news-content[contenteditable="true"]:focus,
+.post-card .post-content[contenteditable="true"]:focus {
+  box-shadow: 0 0 0 3px rgba(124, 49, 255, 0.5);
+}
+
+.approve-news-btn {
+  margin-top: 1.5rem;
+  width: fit-content;
+  align-self: flex-end;
+}
+
+
+#pushNotificationContainer {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  pointer-events: none;
+}
+
+.push-notification {
+  min-width: 250px;
+  padding: 15px 22px;
+  background: #260036;
+  color: #fff;
+  border-left: 6px solid #9a42ff;
+  border-radius: 7px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); 
+  font-size: 1.05rem;
+  opacity: 0.95;
+  animation: fadeIn 0.5s ease-out forwards;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px; 
+}
+
+.push-notification.success { border-color: #27ae60; }
+.push-notification.error { border-color: #e74c3c; }
+.push-notification.info { border-color: #3498db; } 
+
+.push-notification .fa-xmark {
+  margin-left: auto;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.7); 
+  font-size: 1.2rem;
+  transition: color 0.2s ease;
+}
+
+.push-notification .fa-xmark:hover {
+  color: #fff;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 0.95; transform: translateY(0); }
+}
+
+
+#newPostForm,
+#createPostSection {
+  background: rgba(48, 0, 64, 0.96);
+  border-radius: 11px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  padding: 1.8rem 2rem; 
+  margin-bottom: 2rem; 
+  max-width: 700px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#newPostForm h2,
+#createPostSection h2 {
+  font-size: 1.35rem; 
+  margin-bottom: 1.5rem;
+  color: #f1c40f;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+
+.input-group.media-upload-icons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.input-group.media-upload-icons label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  color: #b2a0e6;
+  margin-bottom: 5px;
+}
+
+.upload-buttons {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.upload-buttons .icon-btn {
+  font-size: 1.8rem; 
+  background: rgba(124, 49, 255, 0.1);
+  border: 1px solid rgba(124, 49, 255, 0.5);
+  border-radius: 10px;
+  width: 60px; 
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.upload-buttons .icon-btn:hover {
+  background: rgba(124, 49, 255, 0.25);
+  border-color: #7c31ff;
+  transform: scale(1.05);
+}
+
+.hidden-file-input {
+  display: none;
+}
+
+.uploaded-media-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.upload-thumb,
+.video-thumb,
+.audio-thumb { 
+  width: 80px; 
+  height: 80px;
+  object-fit: cover;
+  border-radius: 10px;
+  position: relative;
+  background: #1e0030;
+  border: 2px solid #7c31ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; 
+}
+
+.audio-thumb audio {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; 
+}
+
+.upload-thumb .remove-media,
+.video-thumb .remove-media,
+.audio-thumb .remove-media {
+  position: absolute;
+  top: 5px; right: 5px;
+  background: rgba(30, 0, 48, 0.8);
+  color: #f1c40f;
+  border: none;
+  border-radius: 50%;
+  width: 28px; 
+  height: 28px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.1s ease;
+}
+
+.upload-thumb .remove-media:hover,
+.video-thumb .remove-media:hover,
+.audio-thumb .remove-media:hover {
+  background: rgba(231, 76, 60, 0.9); 
+  color: #fff;
+  transform: scale(1.1);
+}
+
+
+.input-group.full-width-textarea {
+  margin-bottom: 1.8rem;
+}
+
+
+@media (max-width: 768px) {
+  header {
+    padding: 1rem 1.5rem;
+  }
+  header h1 {
+    font-size: 1.4rem;
+  }
+  #welcomeMsg {
+    font-size: 0.95rem;
+    margin-left: 1rem;
+  }
+  .action-bar {
+    padding: 1rem 1.5rem;
+    gap: 1rem;
+    flex-direction: column; 
+    align-items: flex-start;
+  }
+  .action-bar .main-btn {
+    width: 100%; 
+    padding: 12px 20px;
+  }
+  .api-links {
+    margin-top: 10px;
+    justify-content: center;
+    width: 100%;
+  }
+  #dashboardSection {
+    padding: 1rem 1.5rem;
+  }
+  .news-card,
+  .post-card,
+  #newPostForm,
+  #createPostSection {
+    padding: 1.2rem;
+  }
+  .news-card .news-title,
+  .post-card .post-title {
+    font-size: 1.1rem;
+  }
+  .news-content,
+  .post-content {
+    font-size: 0.95rem;
+  }
+  .main-btn {
+    padding: 10px 20px;
+    font-size: 0.95rem;
+  }
+  #pushNotificationContainer {
+    bottom: 15px;
+    right: 15px;
+    left: 15px; 
+    align-items: center;
+  }
+  .push-notification {
+    min-width: unset;
+    width: calc(100% - 30px); 
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    padding: 1.5rem 1rem;
+  }
+  header h1 {
+    font-size: 1.2rem;
+  }
+  #welcomeMsg {
+    display: none;
+  }
+  .action-bar {
+    gap: 0.8rem;
+    padding: 0.8rem 1rem;
+  }
+  .api-links {
+    gap: 10px;
+    font-size: 1.2rem;
+  }
+  #dashboardSection {
+    padding: 0.8rem 1rem;
+  }
+  .news-card,
+  .post-card,
+  #newPostForm,
+  #createPostSection {
+    padding: 0.8rem;
+  }
+  .news-card .news-title,
+  .post-card .post-title,
+  #newPostForm h2 {
+    font-size: 1rem;
+  }
+  .news-content,
+  .post-content {
+    font-size: 0.9rem;
+  }
+  .post-meta {
+    font-size: 0.85rem;
+    gap: 0.7rem;
+  }
+  .upload-buttons .icon-btn {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+  }
+  .upload-thumb,
+  .video-thumb,
+  .audio-thumb {
+    width: 70px;
+    height: 70px;
+  }
+}
+  </style>
+</head>
+<body>
+  <div id="preloader">
+    <div class="loader"></div>
+  </div>
+
+  <div id="pushNotificationContainer"></div>
+
+  <div id="loginSection" class="centered-section">
+    <div class="login-container">
+      <h2>Shiga Agents</h2>
+      <form id="loginForm">
+        <div class="input-group">
+          <label for="email"><i class="fas fa-envelope"></i> Imel</label>
+          <input type="email" id="email" required placeholder="Shigar da imel...">
+        </div>
+        <div class="input-group">
+          <label for="password"><i class="fas fa-lock"></i> Kalmar sirri</label>
+          <input type="password" id="password" required placeholder="Shigar da kalmar sirri...">
+        </div>
+        <button type="submit" class="main-btn">Shiga</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="dashboardSection" class="hidden">
+    <header>
+      <h1>Agents TauraronWasa</h1>
+      <span id="welcomeMsg"></span>
+      <button id="logoutBtn" title="Fita" class="icon-btn"><i class="fas fa-sign-out-alt"></i></button>
+    </header>
+
+    <div class="action-bar">
+      <button id="fetchNewsBtn" class="main-btn"><i class="fas fa-newspaper"></i> Labaran Wasanni na Duniya</button>
+      <span class="api-links">
+        <a href="https://www.skysports.com/football/news" target="_blank" title="Sky Sports"><i class="fas fa-futbol"></i></a>
+        <a href="https://www.bbc.com/sport/football" target="_blank" title="BBC Sport"><i class="fas fa-futbol"></i></a>
+        <a href="https://www.sportskeeda.com/go/football" target="_blank" title="Sportskeeda"><i class="fas fa-futbol"></i></a>
+      </span>
+    </div>
+
+    <section id="newsFeed" class="news-feed"></section>
+
+    <section id="createPostSection">
+      <h2><i class="fas fa-pen"></i> Kirkiri Sabon Post</h2>
+      <form id="newPostForm">
+        <div class="input-group media-upload-icons">
+          <label><i class="fas fa-image"></i> Hoton Post (har zuwa 2)</label>
+          <div class="upload-buttons">
+            <button type="button" class="icon-btn" id="uploadImage1Btn" title="Saka Hoto 1"><i class="fas fa-image"></i></button>
+            <input type="file" id="imageUpload1" accept="image/*" class="hidden-file-input">
+            <button type="button" class="icon-btn" id="uploadImage2Btn" title="Saka Hoto 2"><i class="fas fa-image"></i></button>
+            <input type="file" id="imageUpload2" accept="image/*" class="hidden-file-input">
+          </div>
+          <div class="uploaded-media-preview" id="uploadedImages"></div>
+        </div>
+
+        <div class="input-group media-upload-icons">
+          <label><i class="fas fa-music"></i> Audio Link</label>
+          <div class="upload-buttons">
+            <button type="button" class="icon-btn" id="uploadAudioBtn" title="Saka Audio"><i class="fas fa-music"></i></button>
+            <input type="file" id="audioUpload" accept="audio/*" class="hidden-file-input">
+          </div>
+          <div class="uploaded-media-preview" id="uploadedAudio"></div>
+        </div>
+
+        <div class="input-group media-upload-icons">
+          <label><i class="fas fa-video"></i> Bidiyo (9MB Max)</label>
+          <div class="upload-buttons">
+            <button type="button" class="icon-btn" id="uploadVideoBtn" title="Saka Bidiyo"><i class="fas fa-video"></i></button>
+            <input type="file" id="videoUpload" accept="video/*" class="hidden-file-input">
+          </div>
+          <div class="uploaded-media-preview" id="uploadedVideos"></div>
+        </div>
+
+        <div class="input-group full-width-textarea">
+          <label for="postText"><i class="fas fa-align-left"></i> Rubutun Post</label>
+          <textarea id="postText" placeholder="Rubuta cikakken labari..."></textarea>
+        </div>
+        
+        <button type="submit" class="main-btn"><i class="fas fa-paper-plane"></i> Tura Post</button>
+      </form>
+    </section>
+    <section id="firebasePosts" class="news-feed"></section>
+  </div>
+
+  <script type="module">
+    import { app, analytics, firebaseConfig } from './firebase.js';
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    import { getDatabase, ref, get, set, push, update, remove, child, onValue } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+    const allowedEmails = [
+      "harunalawali5522@gmail.com",
+      "lawaliharuna943@gmail.com",
+      "tauraronwasa@gmil.com"
+    ];
+
+    const newsRSSLinks = [
+      "https://www.skysports.com/rss/12040",
+      "http://feeds.bbci.co.uk/sport/football/rss.xml",
+      "https://www.sportskeeda.com/rss/football"
+    ];
+ 
+    const preloader = document.getElementById('preloader');
+    const pushContainer = document.getElementById('pushNotificationContainer');
+    const loginSection = document.getElementById('loginSection');
+    const dashboardSection = document.getElementById('dashboardSection');
+    const loginForm = document.getElementById('loginForm');
+    const fetchNewsBtn = document.getElementById('fetchNewsBtn');
+    const newsFeed = document.getElementById('newsFeed');
+    const firebasePosts = document.getElementById('firebasePosts');
+    const welcomeMsg = document.getElementById('welcomeMsg');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const newPostForm = document.getElementById('newPostForm');
+    const postText = document.getElementById('postText');
+    const uploadedImages = document.getElementById('uploadedImages');
+    const uploadedAudio = document.getElementById('uploadedAudio');
+    const uploadedVideos = document.getElementById('uploadedVideos');
+    
+    const uploadImage1Btn = document.getElementById('uploadImage1Btn');
+    const imageUpload1Input = document.getElementById('imageUpload1');
+    const uploadImage2Btn = document.getElementById('uploadImage2Btn');
+    const imageUpload2Input = document.getElementById('imageUpload2');
+    const uploadAudioBtn = document.getElementById('uploadAudioBtn');
+    const audioUploadInput = document.getElementById('audioUpload');
+    const uploadVideoBtn = document.getElementById('uploadVideoBtn');
+    const videoUploadInput = document.getElementById('videoUpload');
+  
+    let currentUser = null;
+    let currentFullName = '';
+    let currentUID = '';
+    let lastFetchTimestamp = null;
+    let uploadedImageLinks = [];
+    let uploadedAudioLink = '';
+    let uploadedVideoLink = '';
+    let editingPostId = null;
+
+   
+    function showPreloader() { preloader.style.display = 'flex'; }
+    function hidePreloader() { preloader.style.display = 'none'; }
+    showPreloader();
+
+   
+    function pushNotification(msg, type = 'success', duration = 4200) {
+      const note = document.createElement('div');
+      note.className = `push-notification ${type}`;
+      note.innerHTML = `<span>${msg}</span><i class="fas fa-xmark"></i>`;
+      pushContainer.appendChild(note);
+      note.querySelector('.fa-xmark').onclick = () => note.remove();
+      setTimeout(() => { note.remove(); }, duration);
+    }
+
+   
+    function toNigeriaTime(date = new Date()) {
+      const utc = date.getTime() + (date.getTimezoneOffset() * 60000);
+      return new Date(utc + (3600000)); 
+    }
+
+   
+    function formatDate(dt) {
+      const d = typeof dt === "string" ? new Date(dt) : dt;
+      return d.toLocaleString("ha-NG", { hour12: false, dateStyle: 'medium', timeStyle: 'short' });
+    }
+
+  
+    function isValidVideoSize(file) {
+      return file.size <= 9 * 1024 * 1024;
+    }
+
+    
+    function generateShortId(len = 12) {
+      let chars = "ABCDEFKGHLMNPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz23456789";
+      let id = '';
+      for (let i = 0; i < len; i++) id += chars[Math.floor(Math.random()*chars.length)];
+      return id;
+    }
+
+    
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    onAuthStateChanged(auth, async (user) => {
+      if(user && allowedEmails.includes(user.email)) {
+        currentUser = user;
+        currentUID = user.uid;
+        loginSection.classList.add('hidden');
+        dashboardSection.classList.remove('hidden');
+
+        const userRef = ref(db, 'users/' + currentUID);
+        let snap = await get(userRef);
+        if(snap.exists() && snap.val().fullName) {
+          currentFullName = snap.val().fullName;
+        } else {
+          currentFullName = user.email.split('@')[0];
+          set(userRef, { fullName: currentFullName });
+        }
+        welcomeMsg.innerHTML = `Barka da zuwa Agents <b>${currentFullName}</b>`;
+        hidePreloader();
+        fetchPosts();
+      } else {
+        dashboardSection.classList.add('hidden');
+        loginSection.classList.remove('hidden');
+        hidePreloader();
+      }
+    });
+
+    loginForm.onsubmit = async (e) => {
+      e.preventDefault();
+      showPreloader();
+      const email = loginForm.email.value.trim();
+      const password = loginForm.password.value.trim();
+
+      if(!allowedEmails.includes(email)) {
+        hidePreloader();
+        pushNotification('Ba a taba yin rigista da wannan imel din ba! A TauraronWasa', 'error');
+        return;
+      }
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        pushNotification('An shiga cikin nasara!', 'success');
+      } catch (err) {
+        pushNotification('Shiga ya fadi! Duba imel da kalmar sirri ku sake gwadawa', 'error');
+        hidePreloader();
+      }
+    };
+
+    logoutBtn.onclick = async () => {
+      await signOut(auth);
+      pushNotification('An fita cikin nasara!', 'success');
+      setTimeout(() => location.reload(), 900);
+    };
+
+  
+    async function fetchNewsRSS() {
+      showPreloader();
+      let allNews = [];
+      for(const rss of newsRSSLinks) {
+        try {
+          const resp = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rss)}`);
+          const data = await resp.json();
+          if(data.items) allNews = allNews.concat(data.items);
+        } catch(e) {
+          console.error("Error fetching RSS:", e);
+        }
+      }
+
+      let seen = new Set();
+      allNews = allNews.filter(n => {
+        let key = n.link || n.title;
+        if(seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+
+      let now = toNigeriaTime();
+      let lastTime = lastFetchTimestamp ? new Date(lastFetchTimestamp) : new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000);
+      let newNews = allNews.filter(n => new Date(n.pubDate) > lastTime);
+
+      lastFetchTimestamp = now.toISOString();
+
+      if(!newNews.length) {
+        hidePreloader();
+        pushNotification("Babu sabbin labarai a yanzu.", "info"); 
+        return;
+      }
+
+      newsFeed.innerHTML = '';
+      for (const news of newNews.slice(0,20)) { 
+        await showNewsCard(news);
+      }
+      hidePreloader();
+      pushNotification('An samo sabbin labarai na wasanni!', 'success');
+    }
+
+    
+    async function showNewsCard(news) {
+      let card = document.createElement('div');
+      card.className = "news-card";
+      card.innerHTML = `
+        <div class="news-title" contenteditable="true" spellcheck="false">${news.title || ''}</div>
+        ${news.thumbnail ? `<img src="${news.thumbnail}" class="news-image" loading="lazy" alt="hoto">` : ''}
+        <div class="news-content" contenteditable="true" spellcheck="false">Ana fassara...</div>
+        <div class="news-meta">
+          <span><i class="fas fa-calendar"></i> ${formatDate(news.pubDate)}</span>
+          <a href="${news.link}" target="_blank" class="api-link"><i class="fas fa-link"></i> Duba asali</a>
+        </div>
+        <button class="main-btn approve-news-btn"><i class="fas fa-check"></i> Aprobli da Post</button>
+      `;
+      newsFeed.appendChild(card);
+
+      const newsTitleEl = card.querySelector('.news-title');
+      const newsContentEl = card.querySelector('.news-content');
+
+      
+      try {
+        let openaiResp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            Authorization: 'Bearer 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',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'openai/gpt-4o',
+            messages: [{
+              role: 'user',
+              content: `Fassara wannan labari zuwa Hausa mai inganci da sauki, ba tare da karyawa ko sabawa ba. Ka sake tsara shi kamar yadda manema labarai ke sanarwa ga jama'a. Ka hada da bayanin hoto ko bidiyo idan akwai: \n\n${news.title}\n${news.description || ''}`
+            }]
+          })
+        });
+        let result = await openaiResp.json();
+        let hausaText = result.choices?.[0]?.message?.content?.trim();
+        
+        if (!hausaText || hausaText.includes('An kasa fassara labarin') || hausaText.includes('An samu matsala wajen fassara labarin')) {
+            newsContentEl.innerText = 'An kasa fassara labarin. Da fatan za a duba ko gyara da hannu.';
+            pushNotification('An kasa fassara wani labari. Duba feed don gyarawa.', 'error');
+        } else {
+            newsContentEl.innerText = hausaText;
+        }
+
+      } catch (e) {
+        newsContentEl.innerText = 'An samu matsala wajen fassara labarin.';
+        pushNotification('Kuskure yayin fassara labari.', 'error');
+      }
+
+      
+      card.querySelector('.approve-news-btn').onclick = async () => {
+        showPreloader();
+        const postid = generateShortId();
+        const postTextContent = newsContentEl.innerText.trim();
+        const postPhotoLink1 = news.thumbnail || '';
+
+        if (!postTextContent || postTextContent === 'An kasa fassara labarin. Da fatan za a duba ko gyara da hannu.' || postTextContent === 'An samu matsala wajen fassara labarin.') {
+            hidePreloader();
+            pushNotification('Ba za a iya turawa ba: Labarin bai fassaru ba ko yana da kuskure. Da fatan za a gyara shi da hannu.', 'error');
+            return;
+        }
+        
+        const postData = {
+          postid: postid,
+          text: postTextContent,
+          audioLink: null, 
+          photoLink1: postPhotoLink1,
+          photoLink2: null,
+          videoLink: null,
+          tauraronwasaAudiolink: null,
+          see: 0,
+          like: 0,
+          icons: 0,
+          share: 0,
+          postingTime: toNigeriaTime().toISOString(),
+          userId: currentUID,
+          userName: currentFullName,
+          userPhoto: "" 
+        };
+
+        try {
+          await push(ref(db, 'Posting'), postData);
+          pushNotification('An adana labarin cikin nasara!', 'success');
+          card.remove();
+          fetchPosts(); 
+          
+         
+          const socialPostPayload = {
+            postId: postid,
+            viewsLink: `https://tauraronwasa.pages.dev?postId=${postid}`,
+            imageUrl: postPhotoLink1
+          };
+
+          await sendToSocialMedia(socialPostPayload);
+
+        } catch (error) {
+          pushNotification('An samu matsala yayin adana post: ' + error.message, 'error');
+          console.error("Error saving post to Firebase:", error);
+        } finally {
+          hidePreloader();
+        }
+      };
+    }
+
+    
+    async function sendToSocialMedia(payload) {
+      try {
+        const response = await fetch("https://worker33.workers.dev/socialPost", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (response.ok) {
+          pushNotification(result.message || "An aika post zuwa social media!", "success");
+        } else {
+          pushNotification(result.message || "An kasa aika post zuwa social media.", "error");
+          console.error("Social media API error:", result);
+        }
+      } catch (error) {
+        console.error("Error sending to social media:", error);
+        pushNotification("Akwai matsala wajen tura post zuwa social media.", "error");
+      }
+    }
+
+   
+    function fetchPosts() {
+      firebasePosts.innerHTML = '';
+      onValue(ref(db, 'Posting'), (snapshot) => { // Changed to 'Posting' based on your data structure
+        firebasePosts.innerHTML = '';
+        let posts = [];
+        snapshot.forEach(child => posts.unshift({ ...child.val(), key: child.key })); 
+        posts.forEach(post => appendPostCard(post));
+      });
+    }
+
+    
+    function appendPostCard(post) {
+      let card = document.createElement('div');
+      card.className = 'post-card';
+      card.setAttribute('data-postid', post.key);
+
+      card.innerHTML = `
+        ${post.photoLink1 ? `<img src="${post.photoLink1}" class="post-image" loading="lazy" alt="hoto">` : ''}
+        ${post.photoLink2 ? `<img src="${post.photoLink2}" class="post-image" loading="lazy" alt="hoto">` : ''}
+        <div class="post-content" contenteditable="true" spellcheck="false">${post.text || ''}</div>
+        ${post.audioLink ? `<audio src="${post.audioLink}" controls class="post-audio"></audio>` : ''}
+        ${post.videoLink ? `<video src="${post.videoLink}" class="post-video" controls></video>` : ''}
+        <div class="post-meta">
+          <span><i class="fas fa-eye"></i> ${post.see || 0}</span>
+          <span><i class="fas fa-heart"></i> ${post.like || 0}</span>
+          <span><i class="fas fa-clock"></i> ${formatDate(post.postingTime)}</span>
+        </div>
+        <div class="post-actions">
+          <button class="icon-btn delete-btn" title="Goge"><i class="fas fa-trash"></i></button>
+          <button class="icon-btn save-btn" title="Ajiye Gyara"><i class="fas fa-save"></i></button>
+        </div>
+      `;
+      firebasePosts.appendChild(card);
+
+      const postContentEl = card.querySelector('.post-content');
+     
+      card.querySelector('.delete-btn').onclick = async () => {
+        showPreloader();
+        try {
+            await remove(ref(db, 'Posting/' + post.key));
+            card.remove();
+            pushNotification('An goge post din.', 'success');
+        } catch (error) {
+            pushNotification('An kasa goge post: ' + error.message, 'error');
+            console.error("Error deleting post:", error);
+        } finally {
+            hidePreloader();
+        }
+      };
+      
+      card.querySelector('.save-btn').onclick = async () => {
+        showPreloader();
+        try {
+          await update(ref(db, 'Posting/' + post.key), {
+            text: postContentEl.innerText.trim()
+          });
+          pushNotification("An ajiye gyara!", "success");
+        } catch (error) {
+          pushNotification('An kasa ajiye gyara: ' + error.message, 'error');
+          console.error("Error saving edited post:", error);
+        } finally {
+          hidePreloader();
+        }
+      };
+    }
+
+    
+    newPostForm.onsubmit = async (e) => {
+      e.preventDefault();
+      showPreloader();
+
+      let text = postText.value.trim();
+      let photoLink1 = uploadedImageLinks[0] || null;
+      let photoLink2 = uploadedImageLinks[1] || null;
+      let audioLink = uploadedAudioLink || null;
+      let videoLink = uploadedVideoLink || null;
+    
+      if (!text && !photoLink1 && !photoLink2 && !audioLink && !videoLink) {
+        hidePreloader();
+        pushNotification("Dole ne a saka rubutu, hoto, audio ko bidiyo.", "error");
+        return;
+      }
+
+      let postid = generateShortId();
+
+      let postData = {
+        postid: postid,
+        text: text || null,
+        audioLink: audioLink,
+        photoLink1: photoLink1,
+        photoLink2: photoLink2,
+        videoLink: videoLink,
+        tauraronwasaAudiolink: null, 
+        see: 0,
+        like: 0,
+        icons: 0,
+        share: 0,
+        postingTime: toNigeriaTime().toISOString(),
+        userId: currentUID,
+        userName: currentFullName, 
+        userPhoto: "" 
+      };
+
+      try {
+        await push(ref(db, 'Posting'), postData);
+        pushNotification("An tura post cikin nasara!", "success");
+        
+        
+        if ((postData.text && postData.photoLink1) || (postData.audioLink && postData.photoLink1)) {
+            const socialPostPayload = {
+                postId: postid,
+                viewsLink: `https://tauraronwasa.pages.dev?postId=${postid}`,
+                imageUrl: postData.photoLink1
+            };
+            await sendToSocialMedia(socialPostPayload);
+        } else if (postData.text && !postData.photoLink1 && !postData.audioLink && !postData.videoLink) {
+             
+        }
+
+
+      } catch (error) {
+        pushNotification("An kasa tura post: " + error.message, "error");
+        console.error("Error creating new post:", error);
+      } finally {
+        hidePreloader();
+        newPostForm.reset();
+        uploadedImageLinks = [];
+        uploadedAudioLink = '';
+        uploadedVideoLink = '';
+        renderUploadedMedia();
+      }
+    };
+
+  
+    function uploadFile(file, type, cb) {
+      showPreloader();
+      let formData = new FormData();
+      formData.append(type, file); 
+
+      let apiUrl = '';
+      if (type === 'image') {
+        apiUrl = "https://api.imgur.com/3/image";
+      } else if (type === 'video') {
+        if (!isValidVideoSize(file)) {
+          hidePreloader();
+          pushNotification("Bidiyon ya wuce 9MB!", "error");
+          return;
+        }
+        apiUrl = "https://api.imgur.com/3/upload"; 
+      } else if (type === 'audio') {
+               
+        pushNotification("Loda audio kai tsaye zuwa Imgur ba a samun sa. Da fatan za a yi amfani da wani sabis ko a saka link kai tsaye.", "error");
+        hidePreloader();
+        return;
+      }
+
+      fetch(apiUrl, {
+        method: "POST",
+        headers: { Authorization: "Client-ID 5acf7eff9c91660" },
+        body: formData
+      }).then(r=>r.json()).then(r=>{
+        if(r?.data?.link) {
+          cb(r.data.link);
+          pushNotification("An loda file cikin nasara!", "success");
+        } else {
+          pushNotification(`An kasa loda ${type === 'image' ? 'hoton' : type === 'video' ? 'bidiyon' : 'audiyon'}!`, "error");
+        }
+      }).catch((error)=>{
+        pushNotification(`Kuskure wajen loda ${type === 'image' ? 'hoto' : type === 'video' ? 'bidiyo' : 'audio'}!`, "error");
+        console.error("Upload error:", error);
+      }).finally(() => hidePreloader());
+    }
+
+  
+    uploadImage1Btn.onclick = () => imageUpload1Input.click();
+    imageUpload1Input.onchange = function() {
+      const file = this.files[0];
+      if(file) uploadFile(file, 'image', (link) => {
+        uploadedImageLinks[0] = link;
+        renderUploadedMedia();
+      });
+    };
+
+    uploadImage2Btn.onclick = () => imageUpload2Input.click();
+    imageUpload2Input.onchange = function() {
+      const file = this.files[0];
+      if(file) uploadFile(file, 'image', (link) => {
+        uploadedImageLinks[1] = link;
+        renderUploadedMedia();
+      });
+    };
+
+    uploadAudioBtn.onclick = () => audioUploadInput.click();
+    audioUploadInput.onchange = function() {
+      const file = this.files[0];
+      if(file) {
+       
+        pushNotification("Loda audio ya yi nasara (Placeholder)! A ainihin aikace-aikacen, za a yi amfani da Firebase Storage.", "info");
+        uploadedAudioLink = URL.createObjectURL(file); 
+        renderUploadedMedia();
+        
+        // Example: uploadAudioToFirebase(file).then(link => { uploadedAudioLink = link; renderUploadedMedia(); });
+      }
+    };
+
+    uploadVideoBtn.onclick = () => videoUploadInput.click();
+    videoUploadInput.onchange = function() {
+      const file = this.files[0];
+      if(file) uploadFile(file, 'video', (link) => {
+        uploadedVideoLink = link;
+        renderUploadedMedia();
+      });
+    };
+
+  
+    function renderUploadedMedia() {
+      uploadedImages.innerHTML = uploadedImageLinks.map((l,i)=>l?`<div class="upload-thumb" style="background:url('${l}') center/cover">
+        <button type="button" class="remove-media" onclick="removeUploadedImage(${i})"><i class="fas fa-xmark"></i></button></div>`:'').join('');
+      
+      uploadedAudio.innerHTML = uploadedAudioLink?`<div class="audio-thumb"><audio src="${uploadedAudioLink}" controls></audio>
+        <button type="button" class="remove-media" onclick="removeUploadedAudio()"><i class="fas fa-xmark"></i></button></div>`:'';
+
+      uploadedVideos.innerHTML = uploadedVideoLink?`<div class="video-thumb"><video src="${uploadedVideoLink}" controls></video>
+        <button type="button" class="remove-media" onclick="removeUploadedVideo()"><i class="fas fa-xmark"></i></button></div>`:'';
+    }
+
+   
+    window.removeUploadedImage = (index) => {
+      uploadedImageLinks.splice(index, 1);
+      renderUploadedMedia();
+    };
+
+    window.removeUploadedAudio = () => {
+      uploadedAudioLink = '';
+      renderUploadedMedia();
+    };
+
+    window.removeUploadedVideo = () => {
+      uploadedVideoLink = '';
+      renderUploadedMedia();
+    };
+
+   
+    fetchNewsBtn.onclick = fetchNewsRSS;   
+    const observer = new IntersectionObserver((entries) => {
+      for(const entry of entries) {
+        if(entry.isIntersecting) entry.target.classList.add('fade-in');
+      }
+    }, { threshold: .12 });
+
+   
+    const observeElements = () => {
+      document.querySelectorAll('.news-card, .post-card').forEach(el=>observer.observe(el));
+    };
+
+
+    setTimeout(observeElements, 2500);
+    
+    const observerCallback = (mutationsList, observer) => {
+        for(const mutation of mutationsList) {
+            if (mutation.type === 'childList') {
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType === 1 && (node.classList.contains('news-card') || node.classList.contains('post-card'))) {
+                        observer.observe(node);
+                    }
+                });
+            }
+        }
+    };
+    const newsFeedObserver = new MutationObserver(observerCallback);
+    const firebasePostsObserver = new MutationObserver(observerCallback);
+
+    newsFeedObserver.observe(newsFeed, { childList: true });
+    firebasePostsObserver.observe(firebasePosts, { childList: true });
+
+   
+    window.addEventListener('load', hidePreloader);
+  </script>
+</body>
+</html>

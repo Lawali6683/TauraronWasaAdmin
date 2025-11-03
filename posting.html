@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="ha">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TauraronWasa - Agents</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+    <link rel="stylesheet" href="agents.css">
+    <style>      
+       
+:root {
+    --primary: #a05aff;
+    --secondary: #300040;
+    --success: #17c671;
+    --error: #f44336;
+    --white: #fff;
+    --gray: #b2b0c6;
+    --shadow: 0 2px 14px 0 rgba(90, 76, 151, 0.14);
+    --dark-bg-gradient: linear-gradient(to bottom, #180022, #300040);
+    --card-bg: rgba(28, 0, 44, 0.98);
+    --input-bg: #210931;
+    --input-border: #4a3568;
+    --news-card-bg: rgba(34, 1, 46, 0.96);
+    --new-post-section-bg: rgba(39, 2, 54, 0.93);
+    --approved-card-bg: rgba(31, 0, 33, 0.97);
+    --button-hover-dark: #7b3ced;
+}
+
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background: var(--dark-bg-gradient);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    color: var(--white);
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+
+#preloader {
+    position: fixed;
+    inset: 0;
+    background: rgba(21, 0, 33, 0.96);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.5s ease-out;
+}
+
+.loader {
+    border: 8px solid var(--gray);
+    border-top: 8px solid var(--primary);
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+
+.centered-section {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem; 
+}
+
+.form-card {
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 380px; 
+    border: 1px solid rgba(160, 90, 255, 0.3); 
+    box-sizing: border-box; 
+}
+
+.form-card h2 {
+    text-align: center;
+    margin-bottom: 1.5rem; 
+    color: var(--primary);
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+}
+
+
+.form-group {
+    margin-bottom: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem; 
+}
+
+.form-group label {
+    font-weight: 500;
+    color: var(--gray);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95em;
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 0.9em; 
+    border-radius: 10px; 
+    border: 1px solid var(--input-border);
+    background: var(--input-bg);
+    color: var(--white);
+    font-size: 1em;
+    resize: vertical; 
+    outline: none;
+    transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border: 2px solid var(--primary);
+    box-shadow: 0 0 0 3px rgba(160, 90, 255, 0.2); 
+}
+
+
+.full-width-textarea {
+    width: 100%;
+    box-sizing: border-box; 
+}
+
+
+.main-btn {
+    width: 100%;
+    padding: 0.9em; 
+    border: none;
+    border-radius: 10px; 
+    background: var(--primary);
+    color: var(--white);
+    font-size: 1.1em;
+    cursor: pointer;
+    font-weight: 600;
+    box-shadow: var(--shadow);
+    transition: background 0.3s ease, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+}
+
+.main-btn:hover {
+    background: var(--button-hover-dark);
+    transform: translateY(-2px); 
+}
+
+.logout-btn {
+    background: var(--error);
+    border: none;
+    border-radius: 8px;
+    padding: 0.7em 1.2em; 
+    color: var(--white);
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: background 0.3s ease, transform 0.2s ease;
+    display: inline-flex; 
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.logout-btn:hover {
+    background: #c73c3c; 
+    transform: translateY(-2px);
+}
+
+
+header {
+    padding: 1.5rem 1rem 1.2rem 1rem; 
+    text-align: center;
+    background: rgba(36, 0, 52, 0.95); 
+    margin-bottom: 2rem; 
+    border-radius: 0 0 25px 25px; 
+    box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.2); 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; 
+    gap: 1rem;
+}
+
+header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 0;
+    flex-grow: 1;
+    text-align: left;
+}
+
+header #user-fullname {
+    font-size: 1.5rem;
+    color: var(--white);
+}
+
+
+main {
+    padding: 0 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.actions {
+    text-align: center;
+    margin-bottom: 2.5rem; 
+}
+
+
+#news-list-section,
+#approved-posts {
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+    gap: 1.8rem; 
+    justify-content: center;
+    margin-bottom: 2rem;
+    min-height: 80px;
+    transition: min-height 0.3s;
+}
+
+.news-card,
+.approved-card {
+    background: var(--news-card-bg); 
+    border-radius: 18px; 
+    box-shadow: var(--shadow);
+    padding: 1.5rem; 
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem; 
+    opacity: 0;
+    transform: translateY(30px); 
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out; 
+    border: 1px solid rgba(160, 90, 255, 0.2); 
+    box-sizing: border-box;
+}
+
+.news-card.visible,
+.approved-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.news-card .news-title,
+.approved-card .post-title {
+    font-size: 1.25em; 
+    font-weight: 700; 
+    color: var(--primary);
+    margin-bottom: 0.5em;
+    line-height: 1.3;
+}
+
+.news-card .news-meta,
+.approved-card .post-meta {
+    font-size: 0.9em; 
+    color: var(--gray);
+    margin-bottom: 0.5em;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.news-card .news-img,
+.approved-card .post-img,
+.approved-card .post-video,
+.approved-card .post-audio { 
+    width: 100%;
+    border-radius: 12px; 
+    margin-bottom: 0.8em;
+    max-height: 200px; 
+    object-fit: cover;
+    background: #1a0027;
+    border: 1px solid var(--primary); 
+}
+
+.news-card .news-content,
+.approved-card .post-content {
+    font-size: 1.05em;
+    color: var(--white);
+    margin-bottom: 1em; 
+    white-space: pre-wrap; 
+    word-wrap: break-word; 
+    padding: 0.5rem; 
+    border-radius: 8px;
+    transition: background 0.3s ease, border 0.3s ease;
+}
+
+.news-card .news-content[contenteditable="true"],
+.approved-card .post-content[contenteditable="true"] {
+    background-color: rgba(255, 255, 255, 0.08); 
+    border: 1px dashed var(--primary); 
+    padding: 0.8rem;
+}
+
+.news-card .news-actions,
+.approved-card .edit-actions {
+    display: flex;
+    flex-wrap: wrap; 
+    justify-content: flex-end; 
+    align-items: center;
+    margin-top: 1rem;
+    gap: 0.8rem; 
+}
+
+.news-card .news-actions button,
+.approved-card .edit-actions button {
+    flex: 1 1 auto; 
+    min-width: 90px; 
+    background: rgba(44, 3, 59, 0.8); 
+    border: none;
+    color: #fff;
+    padding: 0.7em 1em; 
+    border-radius: 10px; 
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: background 0.25s ease, transform 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.news-card .news-actions button:hover,
+.approved-card .edit-actions button:hover {
+    background: var(--primary);
+    transform: translateY(-1px);
+}
+
+#new-post-section {
+    background: var(--new-post-section-bg);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    padding: 2rem; 
+    margin: 2.5rem auto; 
+    max-width: 500px; 
+    border: 1px solid rgba(160, 90, 255, 0.3);
+    box-sizing: border-box;
+}
+
+#new-post-section h2 {
+    color: var(--primary);
+    text-align: center;
+    margin-bottom: 1.8rem; 
+    font-size: 2rem;
+}
+
+.media-upload-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1.2rem;
+}
+
+.file-input-hidden {
+    display: none; 
+}
+
+.upload-icon-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--primary);
+    color: var(--white);
+    padding: 0.8em 1.2em;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.2em;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    width: fit-content; 
+    margin-top: 0.5rem;
+}
+
+.upload-icon-label:hover {
+    background-color: var(--button-hover-dark);
+    transform: translateY(-2px);
+}
+
+.upload-icon-label i {
+    margin-right: 0.5rem;
+}
+
+.preview-container {
+    margin-top: 0.8em; 
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 1em; 
+    align-items: center;
+    border: 1px dashed rgba(160, 90, 255, 0.3);
+    padding: 0.8em;
+    border-radius: 10px;
+    background: rgba(0,0,0,0.1);
+}
+
+.preview-container img,
+.preview-container video {
+    border-radius: 10px; 
+    max-width: 100px; 
+    max-height: 80px; 
+    object-fit: cover;
+    background: #0c0020;
+    margin-right: 0; 
+    border: 1px solid var(--primary); 
+}
+
+.preview-container .remove-media {
+    color: var(--error);
+    background: none;
+    border: none;
+    font-size: 1.5em; 
+    cursor: pointer;
+    margin-left: 0.5em; 
+    transition: color 0.2s ease;
+    align-self: flex-start;
+}
+
+.preview-container .remove-media:hover {
+    color: #ff0000;
+}
+
+
+#approved-posts {
+    margin-top: 1.5rem; 
+}
+
+.approved-card {
+    background: var(--approved-card-bg);
+    padding: 1.5rem; 
+    gap: 0.8rem;
+}
+
+.approved-card .edit-actions {
+    justify-content: flex-end; 
+}
+
+
+#notification-container {
+    position: fixed;
+    top: 1.8rem; 
+    right: 1.8rem;
+    width: 320px; 
+    z-index: 999999;
+    display: flex;
+    flex-direction: column;
+    gap: 16px; 
+    pointer-events: none; 
+}
+
+.notify {
+    padding: 1.1em 1.2em; 
+    border-radius: 12px; 
+    background: var(--secondary);
+    color: var(--white);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); 
+    font-size: 1.05em;
+    display: flex;
+    align-items: center; 
+    gap: 12px; 
+    opacity: 0;
+    transform: translateY(-40px); 
+    animation: fadeNotify 0.6s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    pointer-events: auto; 
+}
+
+@keyframes fadeNotify {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.notify.success {
+    border-left: 8px solid var(--success); 
+}
+
+.notify.error {
+    border-left: 8px solid var(--error);
+}
+
+
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1.2rem 1rem;
+    }
+    header h1 {
+        text-align: center;
+        width: 100%;
+        margin-bottom: 0.8rem;
+    }
+    .logout-btn {
+        margin: 0 auto;
+    }
+    .news-card,
+    .approved-card {
+        padding: 1.2rem;
+    }
+    .news-card .news-actions,
+    .approved-card .edit-actions {
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+    .news-card .news-actions button,
+    .approved-card .edit-actions button {
+        width: 100%;
+        padding: 0.6em;
+    }
+}
+
+@media (max-width: 650px) {
+    .form-card,
+    #new-post-section {
+        max-width: 95vw;
+        padding: 1.5rem;
+    }
+    #notification-container {
+        right: 0.8rem;
+        left: 0.8rem;
+        width: auto;
+        top: 1rem;
+    }
+    body {
+        font-size: 0.95em;
+    }
+    main {
+        padding: 0 0.8rem;
+    }
+    .news-card,
+    .approved-card {
+        max-width: 95vw;
+        margin: 0 auto;
+    }
+    .approved-card {
+        padding: 1rem 0.8rem;
+    }
+    .news-card .news-title,
+    .approved-card .post-title {
+        font-size: 1.15em;
+    }
+    .form-card h2 {
+        font-size: 1.5rem;
+    }
+    #new-post-section h2 {
+        font-size: 1.7rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .centered-section {
+        padding: 0.5rem;
+    }
+    .form-card {
+        padding: 1.2rem;
+    }
+    .main-btn, .logout-btn {
+        font-size: 1em;
+        padding: 0.7em;
+    }
+    header h1 {
+        font-size: 1.6rem;
+    }
+    header #user-fullname {
+        font-size: 1.3rem;
+    }
+}
+    </style>
+    <style>        
+       
+.admin-poll-post-container {
+    width: 90%;
+    max-width: 650px;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    background-color: #f7f7f7;
+    border-left: 5px solid #ff5722;
+}
+
+.admin-poll-post-container h3 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 25px;
+    border-bottom: 1px dashed #ccc;
+    padding-bottom: 10px;
+}
+
+#poll-post-form textarea,
+#poll-post-form input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1em;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+#poll-text {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.option-input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.candidate-option {
+    margin-bottom: 0 !important;
+}
+
+#add-option-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-bottom: 15px;
+    transition: background-color 0.3s;
+}
+
+#add-option-button:hover {
+    background-color: #45a049;
+}
+
+#submit-poll-button {
+    background-color: #007bff;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    width: 100%;
+    transition: background-color 0.3s;
+}
+
+#submit-poll-button:hover {
+    background-color: #0056b3;
+}
+
+#push-notification-container {
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+    transition: opacity 0.5s ease;
+    opacity: 0;
+    height: auto;
+}
+
+.notification-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    opacity: 1;
+}
+
+.notification-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    opacity: 1;
+}
+
+.notification-hidden {
+    opacity: 0;
+    height: 0;
+    padding: 0;
+    margin-bottom: 0;
+}
+
+
+.poll-card {
+    border: 2px solid #ff5722 !important;
+    padding: 20px !important;
+}
+
+.poll-header-approved {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #ddd;
+}
+
+.poll-text-approved {
+    font-size: 1.15em;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.poll-options-list {
+    margin-bottom: 15px;
+}
+
+.total-votes-approved {
+    text-align: center;
+    font-size: 1em;
+    color: #666;
+    padding-top: 10px;
+    border-top: 1px dashed #eee;
+}
+
+.total-votes-approved strong {
+    color: #ff5722;
+}
+
+
+.candidate-item {
+    margin-bottom: 10px;
+    padding: 8px 0;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.vote-button-circle {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 3px solid #007bff;
+    background-color: transparent;
+    margin-right: 15px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.candidate-details-content {
+    flex-grow: 1;
+}
+        
+.candidate-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    color: #444;
+    margin-bottom: 5px;
+}
+
+.candidate-name {
+    font-size: 1.1em;
+    color: #333;
+}
+
+.vote-count {
+    background-color: #ff5722;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    min-width: 30px;
+    text-align: center;
+}
+
+.progress-bar-container {
+    height: 18px; 
+    background-color: #e9ecef;
+    border-radius: 9px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%; 
+    border-radius: 9px;
+    transition: width 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+    position: relative;
+}
+
+.poll-options-list .candidate-item:nth-child(1) .progress-bar { background: linear-gradient(to right, #00BCD4, #03A9F4); } 
+.poll-options-list .candidate-item:nth-child(2) .progress-bar { background: linear-gradient(to right, #FF9800, #FFC107); } 
+.poll-options-list .candidate-item:nth-child(3) .progress-bar { background: linear-gradient(to right, #4CAF50, #8BC34A); } 
+.poll-options-list .candidate-item:nth-child(4) .progress-bar { background: linear-gradient(to right, #E91E63, #F48FB1); } 
+.poll-options-list .candidate-item:nth-child(5) .progress-bar { background: linear-gradient(to right, #9C27B0, #BA68C8); } 
+
+.progress-bar::after {
+    content: attr(data-percentage);
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    transform: translateY(-50%);
+    color: white;
+    font-size: 0.85em;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+    z-index: 2;
+}
+
+
+.progress-bar[style*="width: 0%"]::after,
+.progress-bar[style*="width: 1%"]::after,
+.progress-bar[style*="width: 2%"]::after,
+.progress-bar[style*="width: 3%"]::after,
+.progress-bar[style*="width: 4%"]::after,
+.progress-bar[style*="width: 5%"]::after,
+.progress-bar[style*="width: 6%"]::after,
+.progress-bar[style*="width: 7%"]::after {
+    right: auto;
+    left: 5px;
+    color: #333;
+    text-shadow: none;
+}
+
+
+.media-placeholder {
+    position: relative;
+    width: 100%;
+    min-height: 200px; 
+    background-color: #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.media-placeholder:hover {
+    background-color: #e0e0e0;
+}
+
+.play-icon {
+    color: #007bff;
+    margin-bottom: 10px;
+}
+
+.media-placeholder p {
+    margin: 0;
+    color: #333;
+    font-weight: bold;
+}
+
+
+.approved-card .post-video, 
+.approved-card .post-audio {
+    width: 100%;
+    max-width: 100%; 
+    height: auto;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.approved-card .post-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    margin-bottom: 10px;
+}
+
+#load-more-posts:disabled {
+    background-color: #a0c3e6;
+    cursor: not-allowed;
+}
+    </style>
+</head>
+<body>
+    <div id="preloader">
+        <div class="loader"></div>
+    </div>
+
+    <div id="notification-container"></div>
+
+    <section id="login-section" class="centered-section">
+        <div class="form-card">
+            <h2><i class="fas fa-user-secret"></i> Shiga Agents</h2>
+            <form id="login-form" autocomplete="off">
+                <div class="form-group">
+                    <label for="email">Imel</label>
+                    <input type="email" id="email" required placeholder="Shigar da imel">
+                </div>
+                <div class="form-group">
+                    <label for="password">Kalmar sirri</label>
+                    <input type="password" id="password" required placeholder="Shigar da kalmar sirri">
+                </div>
+                <button type="submit" class="main-btn"><i class="fas fa-sign-in-alt"></i> Shiga</button>
+            </form>
+        </div>
+    </section>
+
+    <section id="dashboard-section" style="display:none;">
+        <header>
+            <h1>Barka da zuwa Agents, <span id="user-fullname"></span>!</h1>
+            <button id="logout-btn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Fita</button>
+        </header>
+        <main>
+            <div class="actions">
+                <button id="load-news-btn" class="main-btn"><i class="fas fa-globe"></i> Labaran Wasanni na Duniya</button>
+            </div>
+
+            <section id="news-list-section">
+                </section>
+
+            <hr>
+
+            <section id="new-post-section">
+                <h2>Sabon Post</h2>
+                <form id="post-form">
+                    <div class="form-group media-upload-group">
+                        <label for="post-img1"><i class="fas fa-image"></i> Hoto 1</label>
+                        <input type="file" id="post-img1" accept="image/*" class="file-input-hidden">
+                        <label for="post-img1" class="upload-icon-label"><i class="fas fa-cloud-upload-alt"></i></label>
+                        <div class="preview-container" id="preview-img1"></div>
+                    </div>
+
+                    <div class="form-group media-upload-group">
+                        <label for="post-img2"><i class="fas fa-image"></i> Hoto 2</label>
+                        <input type="file" id="post-img2" accept="image/*" class="file-input-hidden">
+                        <label for="post-img2" class="upload-icon-label"><i class="fas fa-cloud-upload-alt"></i></label>
+                        <div class="preview-container" id="preview-img2"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="audio-link"><i class="fas fa-music"></i> Link na Audio</label>
+                        <input type="url" id="audio-link" placeholder="Saka link na audio...">
+                    </div>
+
+                    <div class="form-group media-upload-group">
+                        <label for="post-video"><i class="fas fa-video"></i> Bidiyo (max 9MB)</label>
+                        <input type="file" id="post-video" accept="video/*" class="file-input-hidden">
+                        <label for="post-video" class="upload-icon-label"><i class="fas fa-cloud-upload-alt"></i></label>
+                        <div class="preview-container" id="preview-video"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="post-text">Rubutu</label>
+                        <textarea id="post-text" rows="8" placeholder="Rubuta labarin ka..." class="full-width-textarea"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="link-img">Link na hoto (Idan ba za'a loda hoto ba)</label>
+                        <input type="url" id="link-img" placeholder="Saka link na hoto...">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="link-video">Link na bidiyo (Idan ba za'a loda bidiyo ba)</label>
+                        <input type="url" id="link-video" placeholder="Saka link na bidiyo...">
+                    </div>
+
+                    <button type="submit" class="main-btn"><i class="fas fa-plus"></i> Tura Post</button>
+                </form>
+            </section>
+            
+            <div class="admin-poll-post-container">
+    <h3>Ƙirƙiri Sabon Zaɓen Wasa</h3>
+    <div id="push-notification-container" class="notification-hidden">An gudanar da post cikin nasara!</div>
+    
+    <form id="poll-post-form">
+        <textarea id="poll-text" placeholder="Rubuta tambaya ko bayani game da zaɓen (e.g., Zaku iya zabin wanda juke ganin zai yi nasara a wannan Wasa)..." required></textarea>
+        
+        <div id="options-container">
+            </div>
+        
+        <button type="button" id="add-option-button">Ƙara Wani Zaɓi</button>
+        
+        <button type="submit" id="submit-poll-button">Gudanar da Post</button>
+    </form>
+</div>
+
+            <section id="posted-list-section">
+                <h2>Posts da aka amince da su</h2>
+                <div id="approved-posts"></div>
+            </section>
+        </main>
+    </section>
+
+   <script type="module">
+    import { app } from './firebase.js';
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    import { getDatabase, ref, set, get, update, query, limitToLast, orderByKey, endAt, remove, onValue } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+    
+    const ALLOWED_EMAILS = [
+        "harunalawali5522@gmail.com",
+        "lawaliharuna943@gmail.txt", 
+        "tauraronwasa@gmil.com" 
+    ];
+    const IMGUR_CLIENT_ID = "5acf7eff9c91660";
+    const POSTING_ID = "Posting";
+    const SOCIAL_MEDIA_WORKER_URL = "https://tauraronwasa.dev/socialPost";
+    const BASE_VIEWS_LINK = "https://tauraronwasa.pages.dev";
+    const MAX_UPLOAD_SIZE_MB = 1; 
+    const POSTS_PER_LOAD = 4;
+    
+    const preloader = document.getElementById('preloader');
+    const loginSection = document.getElementById('login-section');
+    const dashboardSection = document.getElementById('dashboard-section');
+    const loginForm = document.getElementById('login-form');
+    const userFullName = document.getElementById('user-fullname');
+    const logoutBtn = document.getElementById('logout-btn');
+    const notificationContainer = document.getElementById('notification-container');
+    const postForm = document.getElementById('post-form');
+    const approvedPostsContainer = document.getElementById('approved-posts');
+    const img1Input = document.getElementById('post-img1');
+    const img2Input = document.getElementById('post-img2');
+    const audioLinkInput = document.getElementById('audio-link');
+    const videoInput = document.getElementById('post-video');
+    const postTextInput = document.getElementById('post-text');
+    const previewImg1 = document.getElementById('preview-img1');
+    const previewImg2 = document.getElementById('preview-img2');
+    const previewVideo = document.getElementById('preview-video');
+    const linkImgInput = document.getElementById('link-img');
+    const linkVideoInput = document.getElementById('link-video');
+    const pollPostForm = document.getElementById('poll-post-form');
+    const pollTextarea = document.getElementById('poll-text');
+    const optionsContainer = document.getElementById('options-container');
+    const addOptionButton = document.getElementById('add-option-button');
+    const pushNotificationContainer = document.getElementById('push-notification-container');
+    
+    const loadMoreBtn = document.createElement('button');
+    loadMoreBtn.id = 'load-more-posts';
+    loadMoreBtn.textContent = 'Loda Ƙarin Posts (4)';
+    loadMoreBtn.style.cssText = 'display:none; width:100%; padding:10px; margin:20px 0; background-color:#007bff; color:white; border:none; border-radius:5px; cursor:pointer; font-size:16px;';
+    
+    let currentUser = null;
+    let currentUserUid = null;
+    let lastKey = null; 
+    let allPostsLoaded = false;
+    let observer = null;
+
+    const auth = getAuth(app);
+    setPersistence(auth, browserLocalPersistence); 
+    const db = getDatabase(app);
+
+    function getNigeriaISOString(date = new Date()) {
+        const n = new Date(date.getTime() + (60 * 60 * 1000));
+        return n.toISOString().split('.')[0] + 'Z';
+    }
+
+    function showPreloader(show = true) {
+        if(preloader) preloader.style.display = show ? 'flex' : 'none';
+    }
+
+    function notify(message, type = "success", timeout = 3600) {
+        if (!notificationContainer) return;
+        const div = document.createElement('div');
+        div.className = `notify ${type}`;
+        div.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
+        notificationContainer.appendChild(div);
+        setTimeout(() => {
+            div.style.opacity = "0";
+            div.style.transform = "translateY(-30px)";
+            setTimeout(() => div.remove(), 350);
+        }, timeout);
+    }
+
+    function showPushNotification(message, type = "success") {
+        if (!pushNotificationContainer) return;
+        pushNotificationContainer.textContent = message;
+        pushNotificationContainer.className = '';
+        pushNotificationContainer.classList.add(type === 'success' ? 'notification-success' : 'notification-error');
+        pushNotificationContainer.classList.remove('notification-hidden');
+        setTimeout(() => {
+            pushNotificationContainer.classList.add('notification-hidden');
+        }, 5000);
+    }
+
+    function resetPreviews() {
+        if(previewImg1) previewImg1.innerHTML = "";
+        if(previewImg2) previewImg2.innerHTML = "";
+        if(previewVideo) previewVideo.innerHTML = "";
+    }
+
+    function fadeUpOnScroll() {
+        if (observer) observer.disconnect();
+        observer = new window.IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    if (entry.target.classList) entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.21 });
+
+        document.querySelectorAll('.approved-card:not(.visible)').forEach(card => {
+            observer.observe(card);
+        });
+    }
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            currentUser = user;
+            currentUserUid = user.uid;
+            loadUserProfile();
+            showDashboard();
+        } else {
+            showLogin();
+        }
+        showPreloader(false);
+    });
+
+    if(loginForm) loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        showPreloader(true);
+        const email = loginForm.email.value.trim().toLowerCase();
+        const password = loginForm.password.value;
+        
+        if (!ALLOWED_EMAILS.includes(email)) {
+            showPreloader(false);
+            notify("Ba a amince da wannan imel ba", "error");
+            return;
+        }
+
+        try {
+            const { user } = await signInWithEmailAndPassword(auth, email, password);
+            currentUser = user;
+            currentUserUid = user.uid;
+            await loadUserProfile();
+            showDashboard();
+            showPreloader(false);
+            notify("An shiga cikin nasara!", "success");
+        } catch (err) {
+            showPreloader(false);
+            notify("Kuskure wajen shiga: " + err.message, "error");
+        }
+    });
+
+    if(logoutBtn) logoutBtn.addEventListener('click', () => {
+        signOut(auth).then(() => {
+            showLogin();
+            notify("An fita cikin nasara", "success");
+        });
+    });
+
+    async function loadUserProfile() {
+        if (!currentUserUid) return;
+        const userRef = ref(db, 'users/' + currentUserUid + '/fullName');
+        const snapshot = await get(userRef);
+        let fullName = snapshot.exists() ? snapshot.val() : (currentUser ? currentUser.email.split('@')[0] : 'Mai amfani');
+        if(userFullName) userFullName.textContent = fullName;
+    }
+
+    function showLogin() {
+        if(loginSection) loginSection.style.display = "flex";
+        if(dashboardSection) dashboardSection.style.display = "none";
+    }
+
+    function showDashboard() {
+        if(loginSection) loginSection.style.display = "none";
+        if(dashboardSection) dashboardSection.style.display = "block";
+        if(approvedPostsContainer) {
+            approvedPostsContainer.innerHTML = "";
+            if (!document.getElementById('load-more-posts')) {
+                approvedPostsContainer.parentNode.appendChild(loadMoreBtn);
+            }
+        }
+        lastKey = null;
+        allPostsLoaded = false;
+        loadApprovedPosts(); 
+    }
+
+    if(postForm) postForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        showPreloader(true);
+        const text = postTextInput.value.trim();
+        const audioLink = audioLinkInput.value.trim();
+        let photoLink1 = linkImgInput.value.trim();
+        let photoLink2 = "";
+        let videoLink = linkVideoInput.value.trim();
+
+        const hasMedia = img1Input.files.length || img2Input.files.length || videoInput.files.length || photoLink1 || videoLink || audioLink;
+        if (!text && !hasMedia) {
+            showPreloader(false);
+            notify("Dole ne a sami rubutu, hoto, bidiyo ko audio link.", "error");
+            return;
+        }
+
+        if (img1Input.files.length > 0) {
+            try {
+                photoLink1 = await uploadToImgur(img1Input.files[0]);
+            } catch (error) { showPreloader(false); return; }
+        }
+
+        if (img2Input.files.length > 0) {
+            try {
+                photoLink2 = await uploadToImgur(img2Input.files[0]);
+            } catch (error) { showPreloader(false); return; }
+        }
+
+        if (videoInput.files.length > 0) {
+            const file = videoInput.files[0];
+            const MAX_FILE_BYTES = MAX_UPLOAD_SIZE_MB * 1024 * 1024;
+            if (file.size > MAX_FILE_BYTES) {
+                showPreloader(false);
+                notify(`Bidiyo bai kamata ya fi ${MAX_UPLOAD_SIZE_MB}MB ba.`, "error");
+                return;
+            }
+            try {
+                videoLink = await uploadToImgur(file, true);
+            } catch (error) { showPreloader(false); return; }
+        }
+
+        const postid = "post-" + Date.now();
+        const postData = {
+            postid: postid,
+            text: text,
+            audioLink: audioLink || null,
+            photoLink1: photoLink1 || null,
+            photoLink2: photoLink2 || null,
+            videoLink: videoLink || null,
+            tauraronwasaAudiolink: null,
+            see: 0,
+            like: 0,
+            icons: 0,
+            share: 0,
+            postingTime: getNigeriaISOString(),
+            userId: currentUserUid,
+            userName: userFullName ? userFullName.textContent : 'Unknown User',
+            userPhoto: ""
+        };
+
+        try {
+            const postRef = ref(db, `${POSTING_ID}/${postid}`);
+            await set(postRef, postData);
+            showPreloader(false);
+            notify("An tura post cikin nasara!", "success");
+            postForm.reset();
+            resetPreviews();
+            
+            lastKey = null; 
+            allPostsLoaded = false;
+            if(approvedPostsContainer) approvedPostsContainer.innerHTML = ""; 
+            await loadApprovedPosts(); 
+
+            let socialPostPayload;
+            if (text && photoLink1) {
+                socialPostPayload = {
+                    postId: postid,
+                    title: text.substring(0, 70) + (text.length > 70 ? "..." : ""),
+                    viewsLink: `${BASE_VIEWS_LINK}?postId=${postid}`,
+                    imageUrl: photoLink1,
+                    timestamp: getNigeriaISOString()
+                };
+            } else if (audioLink && photoLink1) {
+                socialPostPayload = {
+                    postId: postid,
+                    title: text ? text.substring(0, 70) + (text.length > 70 ? "..." : "") : "Sabon Audio Post",
+                    viewsLink: `${BASE_VIEWS_LINK}?postId=${postid}`,
+                    imageUrl: photoLink1,
+                    timestamp: getNigeriaISOString(),
+                    audioUrl: audioLink
+                };
+            }
+
+            if (socialPostPayload) {
+                await sendToSocialMediaWorker(socialPostPayload);
+            }
+        } catch (err) {
+            showPreloader(false);
+            notify("Kuskure wajen tura post: " + err.message, "error");
+        }
+    });
+
+    async function uploadToImgur(file, isVideo = false) {
+        const formData = new FormData();
+        formData.append(isVideo ? "video" : "image", file);
+        try {
+            const resp = await fetch("https://api.imgur.com/3/image", {
+                method: "POST",
+                headers: { Authorization: "Client-ID " + IMGUR_CLIENT_ID },
+                body: formData
+            });
+            const data = await resp.json();
+            if (data.success && data.data && data.data.link) {
+                notify(`An loda ${isVideo ? 'bidiyo' : 'hoto'} cikin nasara!`, "success");
+                return data.data.link;
+            }
+            throw new Error(data.data.error || "Unknown Imgur upload error");
+        } catch (err) {
+            console.error("Imgur upload error:", err);
+            notify(`Kuskure wajen loda ${isVideo ? 'bidiyo' : 'hoto'}!`, "error");
+            throw err;
+        }
+    }
+
+    if(img1Input) img1Input.addEventListener('change', e => handlePreview(img1Input, previewImg1, "img"));
+    if(img2Input) img2Input.addEventListener('change', e => handlePreview(img2Input, previewImg2, "img"));
+    if(videoInput) videoInput.addEventListener('change', e => handlePreview(videoInput, previewVideo, "video"));
+
+    function handlePreview(input, previewElem, type) {
+        if(!previewElem) return; 
+        previewElem.innerHTML = "";
+        if (!input.files.length) return;
+        const file = input.files[0];
+        const url = URL.createObjectURL(file);
+        let el;
+
+        if (type === "img") {
+            el = document.createElement('img');
+            el.src = url;
+            el.loading = 'lazy'; 
+        } else {
+            el = document.createElement('video');
+            el.src = url;
+            el.controls = true;
+            el.preload = 'metadata'; 
+        }
+
+        const removeBtn = document.createElement('button');
+        removeBtn.className = "remove-media";
+        removeBtn.innerHTML = "<i class='fas fa-times'></i>";
+        removeBtn.onclick = () => {
+            input.value = "";
+            previewElem.innerHTML = "";
+            URL.revokeObjectURL(url);
+        };
+
+        previewElem.appendChild(el);
+        previewElem.appendChild(removeBtn);
+    }
+    
+    loadMoreBtn.addEventListener('click', loadApprovedPosts);
+    
+    async function loadApprovedPosts(append = true) {
+        if (allPostsLoaded) {
+            notify("Babu sauran posts da suka rage.", "info");
+            loadMoreBtn.style.display = 'none';
+            return;
+        }
+        
+        showPreloader(true);
+        loadMoreBtn.disabled = true;
+
+        const postsRef = ref(db, POSTING_ID);
+        let postsQuery;
+
+        if (lastKey) {
+            postsQuery = query(postsRef, orderByKey(), endAt(lastKey), limitToLast(POSTS_PER_LOAD + 1));
+        } else {
+            postsQuery = query(postsRef, orderByKey(), limitToLast(POSTS_PER_LOAD));
+        }
+
+        try {
+            const snapshot = await get(postsQuery);
+            let postsArray = [];
+            
+            if (snapshot.exists()) {
+                snapshot.forEach(childSnapshot => {
+                    postsArray.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                });
+            }
+
+            if (lastKey && postsArray.length > 0) {
+                postsArray.pop(); 
+            }
+
+            if (postsArray.length === 0 && lastKey) {
+                allPostsLoaded = true;
+                loadMoreBtn.style.display = 'none';
+                return;
+            } else if (postsArray.length === 0 && !lastKey) {
+                approvedPostsContainer.innerHTML = "<p style='text-align:center;'>Babu posts da aka amince da su tukuna.</p>";
+                loadMoreBtn.style.display = 'none';
+                return;
+            }
+
+            const sortedPosts = postsArray.sort((a, b) => b.postid.localeCompare(a.postid));
+            
+            if (sortedPosts.length < POSTS_PER_LOAD || sortedPosts.length === 0) {
+                 allPostsLoaded = true;
+                 loadMoreBtn.style.display = 'none';
+            } else {
+                 loadMoreBtn.style.display = 'block';
+            }
+
+            if (approvedPostsContainer) {
+                if (append && lastKey) {
+                    sortedPosts.forEach(post => {
+                        const card = createPostCard(post);
+                        approvedPostsContainer.appendChild(card);
+                    });
+                } else {
+                    approvedPostsContainer.innerHTML = ''; 
+                    sortedPosts.forEach(post => {
+                        const card = createPostCard(post);
+                        approvedPostsContainer.appendChild(card);
+                    });
+                }
+            }
+            
+            lastKey = sortedPosts[sortedPosts.length - 1].id;
+            
+            fadeUpOnScroll();
+
+        } catch (error) {
+            notify("Kuskure wajen loda posts: " + error.message, "error");
+        } finally {
+            showPreloader(false);
+            loadMoreBtn.disabled = allPostsLoaded;
+            if (allPostsLoaded) loadMoreBtn.style.display = 'none';
+        }
+    }
+
+    function createPostCard(post) {
+        const isPoll = post.isPoll === true;
+        const card = document.createElement('div');
+        card.className = "approved-card";
+
+        if (isPoll) {
+            card.classList.add('poll-card');
+            card.innerHTML = createPollCardHTML(post);
+            onValue(ref(db, `${POSTING_ID}/${post.postid}`), (snapshot) => {
+                if (snapshot.exists()) {
+                    updatePollCardResults(card, snapshot.val());
+                }
+            });
+        } else {
+            let mediaHTML = "";
+            const hasVideo = post.videoLink;
+            const hasAudio = post.audioLink;
+            const hasPhoto1 = post.photoLink1;
+            const hasPhoto2 = post.photoLink2;
+
+            if (hasPhoto1) mediaHTML += `<img src="${post.photoLink1}" class="post-img" loading="lazy" alt="Hoto 1">`;
+            if (hasPhoto2) mediaHTML += `<img src="${post.photoLink2}" class="post-img" loading="lazy" alt="Hoto 2">`;
+
+            if (hasVideo) {
+                 mediaHTML += `<div class="media-placeholder video-placeholder" data-src="${post.videoLink}">
+                                 <i class="fas fa-play-circle fa-4x play-icon"></i>
+                                 <p>Danna nan don loda Bidiyo</p>
+                               </div>`;
+            }
+
+            if (hasAudio) {
+                 mediaHTML += `<div class="media-placeholder audio-placeholder" data-src="${post.audioLink}">
+                                 <i class="fas fa-music fa-4x play-icon"></i>
+                                 <p>Danna nan don loda Audio</p>
+                               </div>`;
+            }
+            
+            card.innerHTML = `
+                ${mediaHTML}
+                <div class="post-content" contenteditable="false">${post.text}</div>
+                <div class="post-meta"><i class="fas fa-calendar"></i> ${formatDate(post.postingTime)}</div>
+                <div class="edit-actions">
+                    <button class="delete-btn" data-postid="${post.id}"><i class="fas fa-trash"></i></button>
+                    <button class="edit-btn"><i class="fas fa-edit"></i></button>
+                    <button class="save-btn" style="display:none;"><i class="fas fa-save"></i></button>
+                </div>
+            `;
+            
+            if (hasVideo || hasAudio) {
+                card.querySelectorAll('.media-placeholder').forEach(placeholder => {
+                    placeholder.onclick = function() {
+                        const src = this.getAttribute('data-src');
+                        const type = this.classList.contains('video-placeholder') ? 'video' : 'audio';
+                        let mediaElement;
+                        
+                        if (type === 'video') {
+                            mediaElement = document.createElement('video');
+                            mediaElement.className = 'post-video';
+                            mediaElement.controls = true;
+                            mediaElement.preload = 'auto';
+                        } else {
+                            mediaElement = document.createElement('audio');
+                            mediaElement.className = 'post-audio';
+                            mediaElement.controls = true;
+                        }
+                        
+                        mediaElement.src = src;
+                        this.parentNode.replaceChild(mediaElement, this);
+                        if (type === 'video') mediaElement.play();
+                        
+                        notify(`${type === 'video' ? 'Bidiyo' : 'Audio'} ya loda.`, "info", 1500);
+                    };
+                });
+            }
+
+            card.querySelector('.delete-btn').onclick = async () => {
+                await deletePost(post.id);
+                card.remove();
+            };
+            
+            card.querySelector('.edit-btn').onclick = () => {
+                const contentDiv = card.querySelector('.post-content');
+                if(!contentDiv) return;
+                contentDiv.setAttribute('contenteditable', 'true');
+                contentDiv.focus();
+                const saveBtn = card.querySelector('.save-btn');
+                const editBtn = card.querySelector('.edit-btn');
+                if(saveBtn) saveBtn.style.display = '';
+                if(editBtn) editBtn.style.display = 'none';
+            };
+            
+            card.querySelector('.save-btn').onclick = async () => {
+                const contentDiv = card.querySelector('.post-content');
+                if(!contentDiv) return;
+                const newText = contentDiv.innerText.trim();
+                await update(ref(db, `${POSTING_ID}/${post.id}`), { text: newText });
+                contentDiv.setAttribute('contenteditable', 'false');
+                const saveBtn = card.querySelector('.save-btn');
+                const editBtn = card.querySelector('.edit-btn');
+                if(saveBtn) saveBtn.style.display = 'none';
+                if(editBtn) editBtn.style.display = '';
+                notify("An adana gyara cikin nasara!", "success");
+            };
+        }
+        return card;
+    }
+
+    function createPollCardHTML(post) {
+        let optionsHTML = '';
+        let totalVotes = 0;
+        for (let i = 1; i <= 5; i++) {
+            if (post[`takara${i}`]) {
+                const votes = post[`zabi${i}`] || 0;
+                totalVotes += votes;
+                optionsHTML += `
+                    <div class="candidate-item" data-votes="${votes}" data-index="${i}" data-postid="${post.postid}">
+                        <div class="vote-button-circle" onclick="window.voteOnApprovedPost(this, '${post.postid}', ${i})" title="Ƙara Ƙuri'a" data-voted="false"></div>
+                        <div class="candidate-details-content">
+                            <div class="candidate-info">
+                                <span class="candidate-name">${post[`takara${i}`]}</span>
+                                <span class="vote-count">${votes}</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: 0%;" data-percentage="0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        return `
+            <div class="poll-header-approved">
+                <div class="poll-text-approved">${post.text}</div>
+                <div class="post-meta"><i class="fas fa-calendar"></i> ${formatDate(post.postingTime)}</div>
+            </div>
+            <div class="poll-options-list">${optionsHTML}</div>
+            <div class="total-votes-approved">
+                Jimillar Zaɓe: <strong class="total-votes-display">${totalVotes}</strong>
+            </div>
+            <div class="edit-actions">
+                <button class="delete-btn" onclick="window.deletePost('${post.postid}')"><i class="fas fa-trash"></i> Goge Post</button>
+            </div>
+        `;
+    }
+
+    function updatePollCardResults(card, post) {
+        let totalVotes = 0;
+        const candidateItems = card.querySelectorAll('.candidate-item');
+        candidateItems.forEach(item => {
+            const index = item.getAttribute('data-index');
+            totalVotes += post[`zabi${index}`] || 0;
+        });
+
+        const totalVotesDisplay = card.querySelector('.total-votes-display');
+        if (totalVotesDisplay) totalVotesDisplay.textContent = totalVotes;
+
+        candidateItems.forEach(item => {
+            const index = item.getAttribute('data-index');
+            const votes = post[`zabi${index}`] || 0;
+            const percentage = totalVotes === 0 ? 0 : Math.round((votes / totalVotes) * 100); 
+            
+            const progressBar = item.querySelector('.progress-bar');
+            const voteCountDisplay = item.querySelector('.vote-count');
+            
+            if (voteCountDisplay) voteCountDisplay.textContent = votes;
+            
+            if (progressBar) {
+                progressBar.setAttribute('data-percentage', percentage + '%'); 
+                progressBar.style.width = percentage + '%';
+            }
+            
+            item.setAttribute('data-votes', votes);
+        });
+    }
+
+    window.voteOnApprovedPost = async (button, postId, optionIndex) => {
+        const optionKey = `zabi${optionIndex}`;
+        const postRef = ref(db, `${POSTING_ID}/${postId}`);
+        try {
+            const snapshot = await get(postRef);
+            if (snapshot.exists()) {
+                const currentVotes = snapshot.val()[optionKey] || 0;
+                const newVoteCount = currentVotes + 1;
+                
+                const updateData = {};
+                updateData[optionKey] = newVoteCount;
+                
+                await update(postRef, updateData);
+                
+                if (button.style) {
+                    button.style.backgroundColor = '#007bff';
+                    button.style.color = 'white'; 
+                }
+                button.innerHTML = '<i class="fas fa-check"></i>'; 
+                button.onclick = null; 
+                notify("An kara ƙuri'a cikin nasara!", "success", 2000);
+            } else {
+                notify("Ba a sami post ɗin ba", "error");
+            }
+        } catch (error) {
+            notify("Kuskure wajen ƙara ƙuri'a: " + error.message, "error");
+        }
+    };
+
+    window.deletePost = async (postId) => {
+        await remove(ref(db, `${POSTING_ID}/${postId}`));
+        notify("An goge post cikin nasara!", "success");
+        lastKey = null;
+        allPostsLoaded = false;
+        if(approvedPostsContainer) approvedPostsContainer.innerHTML = ""; 
+        await loadApprovedPosts(); 
+    };
+
+    async function sendToSocialMediaWorker(payload) {
+        try {
+            const response = await fetch(SOCIAL_MEDIA_WORKER_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.message || `HTTP error! status: ${response.status}`);
+            }
+            notify(result.message || "An aika post zuwa social media!", "success");
+        } catch (error) {
+            console.error("Error sending to social media worker:", error);
+            notify("Akwai matsala wajen tura post zuwa social media: " + error.message, "error");
+        }
+    }
+
+    function formatDate(iso) {
+        if (!iso) return "";
+        const d = new Date(iso);
+        return d.toLocaleString("ha-NG", { hour: "2-digit", minute: "2-digit", day: "numeric", month: "short", year: "numeric" });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => showPreloader(false), 600);
+    });
+
+    let optionCounter = 1; 
+    function addPollOptionInput(defaultValue = '') {
+        if (optionCounter > 5) {
+            if(addOptionButton) addOptionButton.style.display = 'none';
+            showPushNotification("An amince da 'yan takara 5 ne kawai.", "error");
+            return;
+        }
+        
+        const inputGroup = document.createElement('div');
+        inputGroup.className = 'option-input-group';
+        inputGroup.innerHTML = `
+            <input type="text" class="candidate-option" placeholder="Sunan Ɗan Takara ${optionCounter}" value="${defaultValue}" required>
+        `;
+        if(optionsContainer) optionsContainer.appendChild(inputGroup);
+        
+        optionCounter++;
+        
+        if (optionCounter > 5) { 
+            if(addOptionButton) addOptionButton.style.display = 'none';
+        }
+    }
+
+    if(addOptionButton) addOptionButton.addEventListener('click', () => {
+        addPollOptionInput();
+    });
+
+    if(pollPostForm) pollPostForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        showPreloader(true);
+        
+        const text = pollTextarea.value.trim();
+        const options = Array.from(optionsContainer.querySelectorAll('.candidate-option')).map(input => input.value.trim()).filter(name => name); 
+        
+        if (!text || options.length < 2) {
+            showPreloader(false);
+            showPushNotification("Dole a rubuta tambaya kuma a saka 'yan takara biyu aƙalla.", "error");
+            return;
+        }
+        
+        if (options.length > 5) {
+            showPreloader(false);
+            showPushNotification("An amince da 'yan takara 5 ne kawai. Da fatan za a goge ɗaya.", "error");
+            return;
+        }
+
+        const postid = "vote-" + Date.now();
+        
+        const postData = {
+            postid: postid,
+            isPoll: true, 
+            text: text,
+            postingTime: getNigeriaISOString(),
+            userId: currentUserUid,
+            userName: userFullName ? userFullName.textContent : 'Unknown User',
+            userPhoto: "",
+            see: 0 
+        };
+        
+        options.forEach((name, index) => {
+            postData[`takara${index + 1}`] = name;
+            postData[`zabi${index + 1}`] = 0; 
+        });
+
+        try {
+            const postRef = ref(db, `${POSTING_ID}/${postid}`);
+            await set(postRef, postData);
+
+            showPreloader(false);
+            showPushNotification("An gudanar da post na zaɓe cikin nasara!", "success");
+            
+            pollPostForm.reset();
+            if(optionsContainer) optionsContainer.innerHTML = '';
+            optionCounter = 1;
+            addPollOptionInput("Ɗan Takara Na Farko"); 
+            addPollOptionInput("Ɗan Takara Na Biyu"); 
+            if(addOptionButton) addOptionButton.style.display = ''; 
+            
+            lastKey = null;
+            allPostsLoaded = false;
+            if(approvedPostsContainer) approvedPostsContainer.innerHTML = ""; 
+            await loadApprovedPosts(); 
+            
+            const socialPostPayload = {
+                postId: postid,
+                title: text.substring(0, 70) + (text.length > 70 ? "..." : ""),
+                viewsLink: `${BASE_VIEWS_LINK}?postId=${postid}`,
+                timestamp: getNigeriaISOString(),
+                pollOptions: options.join(', ') 
+            };
+            await sendToSocialMediaWorker(socialPostPayload);
+        } catch (err) {
+            showPreloader(false);
+            showPushNotification("Kuskure wajen gudanar da post na zaɓe: " + err.message, "error");
+        }
+    });
+
+    addPollOptionInput("Ɗan Takara Na Farko"); 
+    addPollOptionInput("Ɗan Takara Na Biyu");
+</script>
+</body>
+</html>
