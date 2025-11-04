@@ -1233,7 +1233,17 @@ function draw() {
                     
                     micSource.connect(analyser);
                     
-                    mediaRecorder = new MediaRecorder(micStream, { mimeType: 'audio/webm' });
+                   
+let mimeType = 'audio/webm';
+if (MediaRecorder.isTypeSupported('audio/mp4')) {
+    mimeType = 'audio/mp4';
+} else if (MediaRecorder.isTypeSupported('audio/m4a')) {
+    mimeType = 'audio/m4a';
+} else if (MediaRecorder.isTypeSupported('audio/mpeg')) {
+    mimeType = 'audio/mpeg';
+}
+
+mediaRecorder = new MediaRecorder(micStream, { mimeType: mimeType });
 
                     audioChunks = [];
                     
@@ -1247,10 +1257,11 @@ function draw() {
                         stopMicrophoneStream();
                         
                         if (audioChunks.length > 0) {
-                            recordedBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                            recordedAudio.src = URL.createObjectURL(recordedBlob);
-                            savePersistentData();
-                            showNotification("An kammala daukar sauti. Za ka iya kunnawa.", "success");
+                           // Cikin mediaRecorder.onstop = () => {...}
+recordedBlob = new Blob(audioChunks, { type: 'audio/mp4' }); 
+recordedAudio.src = URL.createObjectURL(recordedBlob);
+savePersistentData();
+showNotification("An kammala daukar sauti. Za ka iya kunnawa.", "success");
                         } else {                           
                             recordedBlob = null; 
                             showNotification("Babu sauti da aka dauka.", "error");
@@ -1694,32 +1705,36 @@ function draw() {
                     const hours = String(now.getHours()).padStart(2, '0');
                     const minutes = String(now.getMinutes()).padStart(2, '0');
                     const seconds = String(now.getSeconds()).padStart(2, '0');
-                    const defaultFileName = `TauraronWasa_Audio_${year}${month}${day}_${hours}${minutes}${seconds}.webm`;
+                    const defaultFileName = `TauraronWasa_Audio_${year}${month}${day}_${hours}${minutes}${seconds}.m4a`;
                     if (downloadFileNameInput) downloadFileNameInput.value = defaultFileName;
                     if (downloadModal) downloadModal.style.display = 'flex';
                 });
             }
 
-            if (confirmDownloadBtn) {
-                confirmDownloadBtn.addEventListener('click', () => {
-                    if (recordedBlob) {
-                        let fileName = downloadFileNameInput.value.trim();
-                        if (!fileName.endsWith('.webm')) {
-                            fileName += '.webm';
-                        }
-                        const url = URL.createObjectURL(recordedBlob);
-                        const a = document.createElement('a');
-                        a.style.display = 'none';
-                        a.href = url;
-                        a.download = fileName;
-                        document.body.appendChild(a);
-                        a.click();
-                        window.URL.revokeObjectURL(url);
-                        showNotification(`An zazzage fayil: ${fileName}`, "success");
-                        closeModal('downloadModal');
-                    }
-                });
-            }
+          if (confirmDownloadBtn) {
+                confirmDownloadBtn.addEventListener('click', () => {
+                    if (recordedBlob) {
+                        let fileName = downloadFileNameInput.value.trim();
+                        
+                       
+                        if (fileName.endsWith('.webm')) {
+                            fileName = fileName.substring(0, fileName.lastIndexOf('.webm'));
+                        }
+                        const finalFileName = `${fileName}.m4a`; 
+
+                        const url = URL.createObjectURL(recordedBlob);
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = url;
+                        a.download = finalFileName; 
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        showNotification(`An zazzage fayil: ${finalFileName}`, "success"); 
+                        closeModal('downloadModal');
+                    }
+                });
+            }
 
             function savePersistentData() {
                 if (recordedBlob) {
